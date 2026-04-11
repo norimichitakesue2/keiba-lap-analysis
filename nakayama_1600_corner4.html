@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中山芝1600m 展開×ラップ×4角分析</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0c10; --s1:#14141c; --s2:#1a1a26; --s3:#20202e;
+  --bd:#28283c; --bd2:#34344a;
+  --gold:#f0c040; --blue:#5b9cf6; --green:#56d08b;
+  --orange:#f09050; --red:#e05555; --purple:#a080f0;
+  --text:#ddddef; --muted:#6060a0; --muted2:#4444666;
+  --font:'Noto Sans JP',sans-serif; --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5;}
+
+/* PAGE HEADER */
+.ph{background:var(--s1);border-bottom:2px solid var(--gold);padding:14px 22px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+.ph h1{font-size:16px;font-weight:700;color:var(--gold);letter-spacing:.06em;}
+.ph p{font-size:11px;color:var(--muted);}
+.chip{background:var(--gold);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;font-family:var(--mono);}
+
+/* GLOBAL HINT */
+.hint-bar{background:var(--s2);border-bottom:1px solid var(--bd);padding:6px 22px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+.hint-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
+.hdot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+.container{padding:14px 18px;}
+
+/* ===== DEV SECTION ===== */
+.dev-section{margin-bottom:20px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;}
+
+/* --- DEV SUMMARY ROW --- */
+.dev-summary{
+  display:grid;
+  grid-template-columns:170px 1fr;
+  background:var(--s2);
+  border-bottom:1px solid var(--bd);
+}
+.dev-info{
+  padding:12px 14px;
+  border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;justify-content:center;gap:5px;
+}
+.dev-name{font-size:15px;font-weight:700;letter-spacing:.05em;}
+.dev-name.shunpatsu{color:#f0c040;}
+.dev-name.jizoku{color:#56d08b;}
+.dev-name.hp{color:#f09050;}
+.dev-name.kinko{color:#5b9cf6;}
+.dev-name.jizoku{color:#56d08b;}
+.dev-name.mae{color:#f09050;}
+.dev-total-num{font-family:var(--mono);font-size:19px;font-weight:500;color:var(--text);}
+.dev-meta{font-family:var(--mono);font-size:10px;color:var(--muted);}
+
+/* --- LAP TABS --- */
+.lap-tabs{display:flex;overflow-x:auto;}
+.lap-tab{
+  flex:1;min-width:120px;
+  padding:9px 10px;
+  border-right:1px solid var(--bd);
+  cursor:pointer;
+  transition:background .12s;
+  border-bottom:2px solid transparent;
+  position:relative;
+}
+.lap-tab:last-child{border-right:none;}
+.lap-tab:hover{background:var(--s3);}
+.lap-tab.active{background:var(--s3);border-bottom-color:var(--gold);}
+.lt-name{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.07em;margin-bottom:4px;}
+.lt-win{font-family:var(--mono);font-size:14px;font-weight:500;}
+.lt-row{display:flex;align-items:baseline;gap:6px;margin-bottom:2px;}
+.lt-count{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.lt-results{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.lt-place{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle;}
+
+/* --- DETAIL PANEL --- */
+.detail-panel{display:none;padding:14px 16px;background:var(--s1);border-top:1px solid var(--bd);}
+.detail-panel.open{display:block;}
+.dp-title{
+  font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:.07em;margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.dp-badge{font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px;}
+.dp-badge.ok{background:#1a3a1a;color:var(--green);}
+.dp-badge.ng{background:#3a1a1a;color:var(--red);}
+.dp-badge.pending{background:#1a1a2a;color:var(--muted);}
+
+/* BAR CHART */
+.bars{display:flex;flex-direction:column;gap:4px;}
+.bar-row{display:flex;align-items:center;gap:8px;height:22px;}
+.bl{font-family:var(--mono);font-size:10px;color:var(--muted);width:40px;text-align:right;flex-shrink:0;}
+.bt{flex:1;height:14px;background:var(--s2);border-radius:2px;overflow:hidden;max-width:280px;}
+.bf{height:100%;border-radius:2px;}
+.bm{display:flex;align-items:center;gap:7px;flex-shrink:0;width:70px;}
+.bw{font-family:var(--mono);font-size:11px;font-weight:500;width:38px;text-align:right;}
+.bn{font-family:var(--mono);font-size:10px;color:var(--muted);width:28px;}
+.br{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.no-data{font-size:11px;color:var(--muted);font-style:italic;}
+</style>
+</head>
+<body>
+
+<div class="ph">
+  <h1>中山芝1600m｜展開×ラップ×4角分析</h1>
+  <span class="chip" id="chip">-</span>
+  <p>展開タイプ別総数・ラップタイプ成績 ／ タブクリックで4コーナー順位詳細を表示</p>
+</div>
+
+<div class="hint-bar">
+  <div class="hint-item"><div class="hdot" style="background:#f0c040"></div>勝率30%+</div>
+  <div class="hint-item"><div class="hdot" style="background:#f09050"></div>20-30%</div>
+  <div class="hint-item"><div class="hdot" style="background:#5b9cf6"></div>10-20%</div>
+  <div class="hint-item"><div class="hdot" style="background:#7060c0"></div>5-10%</div>
+  <div class="hint-item"><div class="hdot" style="background:#2a2a44"></div>5%未満</div>
+  <span style="font-size:10px;color:var(--muted);margin-left:8px">● 4角取得済　○ 未取得</span>
+</div>
+
+<div class="container" id="main"></div>
+
+<script>
+const CORNER = {"均衡戦_持続型": [{"label": "1番手", "total": "27", "results": "6-7-1-13", "winRate": "22.2%", "placeRate": "48.2%"}, {"label": "2番手", "total": "40", "results": "17-6-6-11", "winRate": "42.5%", "placeRate": "57.5%"}, {"label": "3番手", "total": "40", "results": "10-6-6-18", "winRate": "25.0%", "placeRate": "40.0%"}, {"label": "4番手", "total": "43", "results": "6-10-4-23", "winRate": "14.0%", "placeRate": "37.2%"}, {"label": "5番手", "total": "48", "results": "6-8-6-28", "winRate": "12.5%", "placeRate": "29.2%"}, {"label": "6番手", "total": "41", "results": "4-5-2-30", "winRate": "9.8%", "placeRate": "22.0%"}, {"label": "7番手", "total": "52", "results": "5-5-7-35", "winRate": "9.6%", "placeRate": "19.2%"}, {"label": "8番手", "total": "59", "results": "3-0-7-49", "winRate": "5.1%", "placeRate": "5.1%"}, {"label": "9番手", "total": "48", "results": "3-0-5-40", "winRate": "6.3%", "placeRate": "6.3%"}, {"label": "10番手", "total": "55", "results": "3-1-2-49", "winRate": "5.5%", "placeRate": "7.3%"}, {"label": "11番手", "total": "55", "results": "0-1-2-52", "winRate": "0.0%", "placeRate": "1.8%"}, {"label": "12番手", "total": "44", "results": "1-0-0-43", "winRate": "2.3%", "placeRate": "2.3%"}, {"label": "13番手", "total": "45", "results": "0-1-1-43", "winRate": "0.0%", "placeRate": "2.2%"}, {"label": "14番手", "total": "43", "results": "1-0-0-42", "winRate": "2.3%", "placeRate": "2.3%"}, {"label": "15番手", "total": "32", "results": "0-0-1-31", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "16番手", "total": "18", "results": "0-0-0-18", "winRate": "0.0%", "placeRate": "0.0%"}], "均衡戦_耐久型": [{"label": "1番手", "total": "35", "results": "8-6-4-17", "winRate": "22.9%", "placeRate": "40.0%"}, {"label": "2番手", "total": "52", "results": "6-9-8-29", "winRate": "11.5%", "placeRate": "28.9%"}, {"label": "3番手", "total": "43", "results": "5-4-4-30", "winRate": "11.6%", "placeRate": "20.9%"}, {"label": "4番手", "total": "35", "results": "2-4-1-28", "winRate": "5.7%", "placeRate": "17.1%"}, {"label": "5番手", "total": "32", "results": "1-0-7-24", "winRate": "3.1%", "placeRate": "3.1%"}, {"label": "6番手", "total": "28", "results": "0-3-0-25", "winRate": "0.0%", "placeRate": "10.7%"}, {"label": "7番手", "total": "27", "results": "0-3-2-22", "winRate": "0.0%", "placeRate": "11.1%"}, {"label": "8番手", "total": "25", "results": "0-0-2-23", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "17", "results": "0-1-2-14", "winRate": "0.0%", "placeRate": "5.9%"}, {"label": "10番手", "total": "13", "results": "0-0-0-13", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "15", "results": "0-0-0-15", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "12番手", "total": "7", "results": "0-0-0-7", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "13番手", "total": "11", "results": "0-0-0-11", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "14番手", "total": "9", "results": "0-0-0-9", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "15番手", "total": "5", "results": "0-0-0-5", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "16番手", "total": "7", "results": "0-0-0-7", "winRate": "0.0%", "placeRate": "0.0%"}], "均衡戦_先行型": [{"label": "1番手", "total": "36", "results": "3-5-2-26", "winRate": "8.3%", "placeRate": "22.2%"}, {"label": "2番手", "total": "46", "results": "2-1-2-41", "winRate": "4.4%", "placeRate": "6.5%"}, {"label": "3番手", "total": "29", "results": "0-1-2-26", "winRate": "0.0%", "placeRate": "3.5%"}, {"label": "4番手", "total": "15", "results": "0-1-1-13", "winRate": "0.0%", "placeRate": "6.7%"}, {"label": "5番手", "total": "16", "results": "0-0-0-16", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "6番手", "total": "14", "results": "0-0-0-14", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "7番手", "total": "11", "results": "0-0-0-11", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "8番手", "total": "9", "results": "0-0-0-9", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "16", "results": "0-0-0-16", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "10番手", "total": "8", "results": "0-0-0-8", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "8", "results": "0-0-0-8", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "12番手", "total": "5", "results": "0-0-0-5", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "13番手", "total": "7", "results": "0-0-0-7", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "14番手", "total": "4", "results": "0-0-0-4", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "15番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "16番手", "total": "9", "results": "0-0-0-9", "winRate": "0.0%", "placeRate": "0.0%"}], "均衡戦_加速型": [{"label": "3番手", "total": "8", "results": "2-3-2-1", "winRate": "25.0%", "placeRate": "62.5%"}, {"label": "4番手", "total": "4", "results": "0-1-1-2", "winRate": "0.0%", "placeRate": "25.0%"}, {"label": "5番手", "total": "6", "results": "2-0-1-3", "winRate": "33.3%", "placeRate": "33.3%"}, {"label": "6番手", "total": "8", "results": "1-3-0-4", "winRate": "12.5%", "placeRate": "50.0%"}, {"label": "7番手", "total": "6", "results": "0-0-1-5", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "8番手", "total": "9", "results": "0-0-4-5", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "7", "results": "0-1-0-6", "winRate": "0.0%", "placeRate": "14.3%"}, {"label": "10番手", "total": "7", "results": "0-0-0-7", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "12", "results": "0-1-1-10", "winRate": "0.0%", "placeRate": "8.3%"}, {"label": "12番手", "total": "6", "results": "0-0-0-6", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "13番手", "total": "9", "results": "0-0-0-9", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "14番手", "total": "8", "results": "0-0-0-8", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "15番手", "total": "11", "results": "0-0-0-11", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "16番手", "total": "5", "results": "0-0-0-5", "winRate": "0.0%", "placeRate": "0.0%"}], "均衡戦_終い伸び型": [], "持続戦_持続型": [{"label": "1番手", "total": "4", "results": "1-0-0-3", "winRate": "25.0%", "placeRate": "25.0%"}, {"label": "2番手", "total": "10", "results": "0-0-1-9", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "3番手", "total": "9", "results": "1-1-0-7", "winRate": "11.1%", "placeRate": "22.2%"}, {"label": "4番手", "total": "6", "results": "1-1-1-3", "winRate": "16.7%", "placeRate": "33.3%"}, {"label": "5番手", "total": "5", "results": "1-0-1-3", "winRate": "20.0%", "placeRate": "20.0%"}, {"label": "7番手", "total": "11", "results": "0-0-0-11", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "8番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "10番手", "total": "3", "results": "0-0-0-3", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "12番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "16番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}], "持続戦_耐久型": [{"label": "1番手", "total": "9", "results": "0-3-1-5", "winRate": "0.0%", "placeRate": "33.3%"}, {"label": "2番手", "total": "3", "results": "0-0-0-3", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "3番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "4番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "7番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "8番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}], "持続戦_先行型": [{"label": "1番手", "total": "61", "results": "15-13-7-26", "winRate": "24.6%", "placeRate": "45.9%"}, {"label": "2番手", "total": "86", "results": "16-16-5-49", "winRate": "18.6%", "placeRate": "37.2%"}, {"label": "3番手", "total": "76", "results": "10-10-12-44", "winRate": "13.2%", "placeRate": "26.3%"}, {"label": "4番手", "total": "78", "results": "10-8-10-50", "winRate": "12.8%", "placeRate": "23.1%"}, {"label": "5番手", "total": "47", "results": "4-3-7-33", "winRate": "8.5%", "placeRate": "14.9%"}, {"label": "6番手", "total": "44", "results": "3-4-5-32", "winRate": "6.8%", "placeRate": "15.9%"}, {"label": "7番手", "total": "88", "results": "1-5-6-76", "winRate": "1.1%", "placeRate": "6.8%"}, {"label": "8番手", "total": "55", "results": "0-0-3-52", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "46", "results": "1-2-3-40", "winRate": "2.2%", "placeRate": "6.5%"}, {"label": "10番手", "total": "40", "results": "0-0-2-38", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "33", "results": "1-0-1-31", "winRate": "3.0%", "placeRate": "3.0%"}, {"label": "12番手", "total": "33", "results": "0-0-1-32", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "13番手", "total": "28", "results": "0-0-0-28", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "14番手", "total": "26", "results": "0-0-0-26", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "15番手", "total": "16", "results": "0-0-0-16", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "16番手", "total": "15", "results": "0-0-0-15", "winRate": "0.0%", "placeRate": "0.0%"}], "持続戦_加速型": [{"label": "1番手", "total": "1", "results": "1-0-0-0", "winRate": "100.0%", "placeRate": "100.0%"}, {"label": "2番手", "total": "2", "results": "0-2-0-0", "winRate": "0.0%", "placeRate": "100.0%"}, {"label": "3番手", "total": "7", "results": "1-1-2-3", "winRate": "14.3%", "placeRate": "28.6%"}, {"label": "4番手", "total": "9", "results": "3-1-1-4", "winRate": "33.3%", "placeRate": "44.4%"}, {"label": "5番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "6番手", "total": "4", "results": "0-0-0-4", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "7番手", "total": "6", "results": "0-0-1-5", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "10番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "13番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}], "持続戦_終い伸び型": [], "ハイペース消耗戦_持続型": [{"label": "2番手", "total": "1", "results": "0-0-1-0", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "3番手", "total": "2", "results": "1-1-0-0", "winRate": "50.0%", "placeRate": "100.0%"}, {"label": "4番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "5番手", "total": "1", "results": "0-0-1-0", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "6番手", "total": "1", "results": "0-1-0-0", "winRate": "0.0%", "placeRate": "100.0%"}, {"label": "8番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "10番手", "total": "3", "results": "0-0-0-3", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "2", "results": "1-0-0-1", "winRate": "50.0%", "placeRate": "50.0%"}, {"label": "12番手", "total": "4", "results": "0-0-0-4", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "13番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "14番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "16番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}], "ハイペース消耗戦_耐久型": [], "ハイペース消耗戦_先行型": [{"label": "1番手", "total": "30", "results": "3-4-2-21", "winRate": "10.0%", "placeRate": "30.0%"}, {"label": "2番手", "total": "17", "results": "2-2-2-11", "winRate": "11.8%", "placeRate": "23.5%"}, {"label": "3番手", "total": "8", "results": "0-0-0-8", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "4番手", "total": "5", "results": "0-1-0-4", "winRate": "0.0%", "placeRate": "20.0%"}, {"label": "5番手", "total": "7", "results": "0-0-0-7", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "6番手", "total": "4", "results": "0-0-0-4", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "7番手", "total": "3", "results": "0-0-0-3", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "8番手", "total": "2", "results": "0-0-0-2", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "9番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "10番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "11番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}, {"label": "13番手", "total": "1", "results": "0-0-0-1", "winRate": "0.0%", "placeRate": "0.0%"}], "ハイペース消耗戦_加速型": [], "ハイペース消耗戦_終い伸び型": []};
+const CROSS = {"均衡戦": [{"label": "耐久型", "total": "361", "results": "22-30-30-279", "winRate": "6.1%", "placeRate": "22.7%"}, {"label": "終い伸び型", "total": "22", "results": "1-1-1-19", "winRate": "4.6%", "placeRate": "13.6%"}, {"label": "先行型", "total": "234", "results": "5-8-7-214", "winRate": "2.1%", "placeRate": "8.6%"}, {"label": "加速型", "total": "106", "results": "5-9-10-82", "winRate": "4.7%", "placeRate": "22.6%"}, {"label": "持続型", "total": "690", "results": "65-50-50-525", "winRate": "9.4%", "placeRate": "23.9%"}], "持続戦": [{"label": "持続型", "total": "55", "results": "4-2-3-46", "winRate": "7.3%", "placeRate": "10.9%"}, {"label": "耐久型", "total": "19", "results": "0-3-1-15", "winRate": "0.0%", "placeRate": "15.8%"}, {"label": "先行型", "total": "772", "results": "61-61-62-588", "winRate": "7.9%", "placeRate": "15.8%"}, {"label": "加速型", "total": "35", "results": "5-4-4-22", "winRate": "14.3%", "placeRate": "25.7%"}], "ハイペース消耗戦": [{"label": "耐久型", "total": "21", "results": "2-0-3-16", "winRate": "9.5%", "placeRate": "23.8%"}, {"label": "先行型", "total": "80", "results": "5-7-4-64", "winRate": "6.3%", "placeRate": "20.0%"}, {"label": "持続型", "total": "24", "results": "2-2-2-18", "winRate": "8.3%", "placeRate": "25.0%"}]};
+
+// 展開タイプの正しい総数（ラップタイプ未分類含む全件）
+const DEV_TOTALS = {"均衡戦": {"total": 3550, "results": "245-245-245-2815", "winRate": "6.9%"}, "持続戦": {"total": 773, "results": "61-61-62-589", "winRate": "7.9%"}, "ハイペース消耗戦": {"total": 401, "results": "29-29-29-314", "winRate": "7.2%"}};
+
+// 表示対象の展開タイプ（3つのみ）
+const DEV_LIST = [{key:"均衡戦",cls:"kinko"},{key:"持続戦",cls:"jizoku"},{key:"ハイペース消耗戦",cls:"hp"}];
+const LAP_ORDER = ['終い伸び型','加速型','持続型','耐久型','先行型'];
+
+// EXP map
+const EXP={"均衡戦_持続型": 690, "均衡戦_耐久型": 361, "均衡戦_先行型": 234, "均衡戦_加速型": 106, "均衡戦_終い伸び型": 22, "持続戦_持続型": 55, "持続戦_耐久型": 19, "持続戦_先行型": 772, "持続戦_加速型": 35, "持続戦_終い伸び型": 0, "ハイペース消耗戦_持続型": 24, "ハイペース消耗戦_耐久型": 21, "ハイペース消耗戦_先行型": 80, "ハイペース消耗戦_加速型": 1, "ハイペース消耗戦_終い伸び型": 0};
+Object.entries(CROSS).forEach(([dev,rows])=>rows.forEach(r=>{EXP[dev+'_'+r.label]=parseInt(r.total||0);}));
+
+function calcRates(results, total){
+  const p=(results||'0-0-0-0').split('-').map(Number);
+  const tot=parseInt(total||0)||1;
+  const win=(p[0]/tot*100).toFixed(1)+'%';
+  const rentai=((p[0]+p[1])/tot*100).toFixed(1)+'%';
+  const fukusho=((p[0]+p[1]+p[2])/tot*100).toFixed(1)+'%';
+  return{win,rentai,fukusho};
+}
+function wc(rate){
+  const v=parseFloat(rate);
+  if(v>=30)return'#f0c040';
+  if(v>=20)return'#f09050';
+  if(v>=10)return'#5b9cf6';
+  if(v>=5) return'#7060c0';
+  return'#2a2a44';
+}
+
+function buildBars(rows){
+  const data=(rows||[]).filter(r=>/^\d+番手$/.test(r.label));
+  if(!data.length)return'<div class="no-data">サンプル不足のためデータなし</div>';
+  const mx=Math.max(...data.map(r=>parseFloat(r.winRate||0)),0.001);
+  return'<div class="bars">'+data.slice(0,12).map(r=>{
+    const pct=Math.round(parseFloat(r.winRate||0)/mx*100);
+    const rates=calcRates(r.results,r.total);
+    return`<div class="bar-row">
+      <span class="bl">${r.label.replace('番手','番')}</span>
+      <div class="bt"><div class="bf" style="width:${pct}%;background:${wc(r.winRate)}"></div></div>
+      <div class="bm">
+        <span class="bw" style="color:${wc(r.winRate)}">${rates.win}</span>
+        <span class="bn">${r.total}頭</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;font-family:var(--mono);font-size:9px;color:var(--muted);width:130px">
+        <span>連 ${rates.rentai}</span>
+        <span>複 ${rates.fukusho}</span>
+        <span style="color:#444466">${r.results||''}</span>
+      </div>
+    </div>`;
+  }).join('')+(data.length>12?`<div style="font-size:10px;color:var(--muted);padding-top:2px">…他${data.length-12}番手</div>`:'')+'</div>';
+}
+
+let okCount=0, totalCount=0;
+const main=document.getElementById('main');
+
+DEV_LIST.forEach(dev=>{
+  const crossRows = CROSS[dev.key]||[];
+  // 正しい総数はDEV_TOTALSから取得
+  const dt = DEV_TOTALS[dev.key] || {total:0,results:'0-0-0-0',winRate:'0.0%'};
+  const devTotal  = dt.total;
+  const devRes    = dt.results.split('-').map(Number);
+  const devWin = dt.winRate;
+  const devPlace = devTotal>0?((devRes[0]+devRes[1]+devRes[2])/devTotal*100).toFixed(1):'0.0';
+
+  const sec=document.createElement('div');
+  sec.className='dev-section';
+
+  // ---- DEV SUMMARY ----
+  const summary=document.createElement('div');
+  summary.className='dev-summary';
+
+  // 左: 展開タイプ情報
+  const info=document.createElement('div');
+  info.className='dev-info';
+  info.innerHTML=`
+    <div class="dev-name ${dev.cls}">${dev.key}</div>
+    <div class="dev-total-num">${devTotal.toLocaleString()}<span style="font-size:11px;color:var(--muted);margin-left:4px">件</span></div>
+    <div class="dev-meta">勝率 ${devWin} ／ 連対率 ${devTotal>0?((devRes[0]+devRes[1])/devTotal*100).toFixed(1)+'%':'0.0%'} ／ 複勝率 ${devPlace}%</div>
+    <div class="dev-meta" style="font-size:9px;margin-top:2px">${devRes.join('-')}</div>
+  `;
+
+  // 右: ラップタイプタブ
+  const tabs=document.createElement('div');
+  tabs.className='lap-tabs';
+
+  LAP_ORDER.forEach(lap=>{
+    const key=dev.key+'_'+lap;
+    const lr=crossRows.find(r=>r.label===lap)||{total:'0',winRate:'0.0%',placeRate:'0.0%',results:'0-0-0-0'};
+    const cdata=CORNER[key];
+    const exp=EXP[key]||0;
+    totalCount++;
+
+    let statusColor='#2a2a44';
+    let statusTitle='⏳';
+    if(cdata){
+      const s=cdata.filter(r=>/^\d+番手$/.test(r.label)).reduce((a,r)=>a+parseInt(r.total||0),0);
+      const ok=Math.abs(s-exp)<=Math.max(2,exp*0.15)||exp<=3;
+      statusColor=ok?'#56d08b':'#e05555';
+      statusTitle=ok?'✓':'✗';
+      if(ok)okCount++;
+    }
+
+    const tab=document.createElement('div');
+    tab.className='lap-tab';
+    tab.dataset.key=key;
+    tab.innerHTML=`
+      <div class="lt-name">${lap}<span class="status-dot" style="background:${statusColor}" title="${statusTitle}"></span></div>
+      <div class="lt-row">
+        <span class="lt-win" style="color:${wc(lr.winRate)}">${lr.winRate}</span>
+        <span class="lt-count">${parseInt(lr.total||0)}件</span>
+      </div>
+      <div class="lt-results">${lr.results||'−'}</div>
+      <div class="lt-place" style="color:var(--muted)">連 ${(()=>{const p=(lr.results||'0-0-0-0').split('-').map(Number);const t=parseInt(lr.total||1);return((p[0]+p[1])/t*100).toFixed(1)+'%';})()}　複 ${lr.placeRate}</div>
+    `;
+    tab.addEventListener('click',()=>{
+      sec.querySelectorAll('.lap-tab').forEach(t=>t.classList.remove('active'));
+      sec.querySelectorAll('.detail-panel').forEach(p=>p.classList.remove('open'));
+      const panel=sec.querySelector(`.detail-panel[data-key="${key}"]`);
+      const wasOpen=panel?.classList.contains('open');
+      if(!wasOpen){tab.classList.add('active');panel?.classList.add('open');}
+    });
+    tabs.appendChild(tab);
+  });
+
+  summary.appendChild(info);
+  summary.appendChild(tabs);
+  sec.appendChild(summary);
+
+  // ---- DETAIL PANELS ----
+  LAP_ORDER.forEach(lap=>{
+    const key=dev.key+'_'+lap;
+    const cdata=CORNER[key];
+    const exp=EXP[key]||0;
+    const lr=crossRows.find(r=>r.label===lap)||{total:'0',winRate:'0.0%',placeRate:'0.0%',results:'0-0-0-0'};
+
+    const panel=document.createElement('div');
+    panel.className='detail-panel';
+    panel.dataset.key=key;
+
+    if(!cdata){
+      panel.innerHTML=`
+        <div class="dp-title">
+          ${dev.key} × ${lap}　4コーナー順位別勝率
+          <span class="dp-badge pending">⏳ 未取得（期待${exp}件）</span>
+        </div>
+        <div class="no-data">このパターンはまだデータ取得中です。</div>
+      `;
+    } else {
+      const s=cdata.filter(r=>/^\d+番手$/.test(r.label)).reduce((a,r)=>a+parseInt(r.total||0),0);
+      const ok=Math.abs(s-exp)<=Math.max(2,exp*0.15)||exp<=3;
+      panel.innerHTML=`
+        <div class="dp-title">
+          ${dev.key} × ${lap}　4コーナー順位別勝率
+          <span class="dp-badge ${ok?'ok':'ng'}">${s}件確認 / 期待${exp}件 ${ok?'✓':'✗'}</span>
+        </div>
+        ${buildBars(cdata)}
+      `;
+    }
+    sec.appendChild(panel);
+  });
+
+  main.appendChild(sec);
+});
+
+document.getElementById('chip').textContent=`4角 ${okCount}/${totalCount} 取得済`;
+</script>
+</body>
+</html>
