@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>春雷S2026 パドック映像比較</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+<style>
+:root{--bg:#0e0e12;--s1:#16161e;--s2:#1e1e28;--s3:#252535;--bd:#2a2a3a;--bd2:#3a3a55;--gold:#f0c040;--blue:#5b9cf6;--green:#56d08b;--red:#e05555;--orange:#f09840;--text:#ddddef;--muted:#5a5a80;--font:'Hiragino Sans','Noto Sans JP',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;display:flex;flex-direction:column;}
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex-shrink:0;}
+.header h1{font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap;}
+.controls{display:flex;gap:6px;align-items:center;padding:6px 14px;background:var(--s2);border-bottom:1px solid var(--bd);flex-wrap:wrap;flex-shrink:0;}
+.btn{background:var(--s1);color:var(--text);border:1px solid var(--bd);padding:5px 13px;border-radius:4px;cursor:pointer;font-size:12px;font-family:var(--font);transition:background .12s,border-color .12s;white-space:nowrap;}
+.btn:hover{background:var(--bd);}
+.btn.primary{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.btn.primary:hover{background:#d9b030;}
+.btn.danger{border-color:var(--red);color:var(--red);}
+.btn.danger:hover{background:#2a1515;}
+.btn.toggle-sel{border-color:var(--blue);color:var(--blue);}
+.btn.loop-on{border-color:var(--orange);color:var(--orange);background:#1e1508;}
+.sep{width:1px;background:var(--bd);height:22px;margin:0 4px;}
+.sel-panel{background:var(--s2);border-bottom:1px solid var(--bd);padding:8px 14px;display:none;flex-shrink:0;}
+.sel-panel.open{display:block;}
+.sel-title{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.sel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;}
+.sel-item{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--bd);background:var(--s1);user-select:none;}
+.sel-item.checked{border-color:var(--gold);background:#1e1a08;}
+.sel-checkbox{width:14px;height:14px;border:1px solid var(--muted);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;background:var(--s2);}
+.sel-item.checked .sel-checkbox{border-color:var(--gold);background:var(--gold);color:#000;}
+.sel-num{font-weight:700;color:var(--gold);font-size:11px;width:18px;flex-shrink:0;}
+.sel-name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.grid-wrap{flex:1;overflow-y:auto;padding:8px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;transition:border-color .15s;}
+.card:hover{border-color:var(--bd2);}
+.card.playing{border-color:var(--gold);}
+.card.hidden-card{display:none;}
+.card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
+.num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prev-info{font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-max{background:none;border:1px solid var(--bd);color:var(--muted);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-max:hover{background:var(--bd2);color:var(--text);}
+.video-wrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;}
+.video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:opacity .2s;}
+.overlay.hidden{opacity:0;pointer-events:none;}
+.play-circle{width:36px;height:36px;background:rgba(255,255,255,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.play-circle::after{content:'';border-left:13px solid #000;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px;}
+.loop-badge{position:absolute;top:4px;right:4px;background:var(--orange);color:#000;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:none;}
+.card.looping .loop-badge{display:block;}
+.card.looping .num-badge{outline:2px solid var(--orange);}
+.spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,0.25);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.card-footer{padding:3px 8px;display:flex;align-items:center;gap:6px;background:var(--s2);border-top:1px solid var(--bd);}
+.time-disp{font-family:monospace;font-size:10px;color:var(--muted);flex:1;}
+.vol-btn{cursor:pointer;font-size:13px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.modal-overlay.open{display:flex;}
+.modal-header{display:flex;align-items:center;gap:10px;color:var(--text);font-size:14px;font-weight:700;width:min(90vw,1200px);}
+.modal-num{background:var(--gold);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.modal-close{margin-left:auto;background:none;border:1px solid var(--bd);color:var(--muted);width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--bd);color:var(--text);}
+.modal-video-wrap{width:min(90vw,1200px);aspect-ratio:16/9;background:#000;border-radius:6px;overflow:hidden;border:1px solid var(--bd);}
+.modal-video-wrap video{width:100%;height:100%;object-fit:contain;}
+.modal-controls{display:flex;gap:8px;align-items:center;width:min(90vw,1200px);}
+.modal-time{font-family:monospace;font-size:12px;color:var(--muted);flex:1;}
+.status-bar{background:var(--s1);border-top:1px solid var(--bd);padding:4px 14px;font-size:10px;color:var(--muted);flex-shrink:0;}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>⚡ 春雷S2026 パドック映像比較</h1>
+  <span style="font-size:11px;color:var(--muted)">2026年4月12日 中山11R ／ 前走パドック映像 16頭</span>
+</div>
+<div class="controls">
+  <button class="btn primary" onclick="playAll()">▶ 全頭再生</button>
+  <button class="btn danger" onclick="stopAll()">■ 全頭停止</button>
+  <button class="btn" onclick="restartAll()">⟳ 先頭から再生</button>
+  <div class="sep"></div>
+  <button class="btn" id="loop-btn" onclick="toggleLoopAll()">🔁 ループ</button>
+  <div class="sep"></div>
+  <button class="btn toggle-sel" onclick="toggleSelPanel()" id="sel-btn">☑ 馬を選択</button>
+  <button class="btn" onclick="selectAll(true)" style="font-size:11px">全選択</button>
+  <button class="btn" onclick="selectAll(false)" style="font-size:11px">全解除</button>
+  <div class="sep"></div>
+  <span style="font-size:11px;color:var(--muted)" id="count-label">16頭表示中</span>
+</div>
+<div class="sel-panel" id="sel-panel">
+  <div class="sel-title">表示する馬を選択</div>
+  <div class="sel-grid" id="sel-grid"></div>
+</div>
+<div class="grid-wrap"><div class="grid" id="grid"></div></div>
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-header">
+    <div class="modal-num" id="modal-num">1</div>
+    <span id="modal-name">馬名</span>
+    <button class="btn" id="modal-loop-btn" onclick="toggleModalLoop()" style="margin-left:8px;font-size:11px;">🔁 ループ</button>
+    <button class="modal-close" onclick="closeModal(null)">×</button>
+  </div>
+  <div class="modal-video-wrap"><video id="modal-video" playsinline controls></video></div>
+  <div class="modal-controls">
+    <span class="modal-time" id="modal-time">0:00 / 0:00</span>
+    <button class="btn" onclick="document.getElementById('modal-video').muted=!document.getElementById('modal-video').muted;updateModalVol()" id="modal-vol-btn">🔇 ミュート解除</button>
+    <button class="btn danger" onclick="closeModal(null)">✕ 閉じる</button>
+  </div>
+</div>
+<div class="status-bar" id="status">準備完了 ― 「▶ 全頭再生」または映像をクリックして再生</div>
+<script>
+const VIDEOS = [
+  {num:"1", name:"カンティーユ", prev:"北九州短距離9着 2/15 小倉芝1200", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/8d418bf2de7b444eae7efda631f3e5ce/1771221405719.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/8d418bf2de7b444eae7efda631f3e5ce/1771221405719.0000000.jpg"},
+  {num:"2", name:"ソーダーンライト", prev:"アクアマリンS1着 3/1 中山芝1200", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/4f8248112f89406aa8eac1d379be2cbb/1772426904106.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/4f8248112f89406aa8eac1d379be2cbb/1772426904106.0000000.jpg"},
+  {num:"3", name:"タマモブラックタイ", prev:"米子城S1着 3/15 阪神芝1200", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/1b03cf83fde94759ae70d29bca52ceef/1773640675230.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/1b03cf83fde94759ae70d29bca52ceef/1773640675230.0000000.jpg"},
+  {num:"4", name:"ジョーメッドヴィン", prev:"米子城S9着 3/15 阪神芝1200", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/6f96e24e460f4a2e941c2131884106d8/1773640676302.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6f96e24e460f4a2e941c2131884106d8/1773640676302.0000000.jpg"},
+  {num:"5", name:"エコロレジーナ", prev:"シルクロードS(G3)17着 2/1", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/8def5feb2b4a4f0c85f2bd956709eab5/1770008923155.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/8def5feb2b4a4f0c85f2bd956709eab5/1770008923155.0000000.jpg"},
+  {num:"6", name:"アクートゥス", prev:"六甲S(L)12着 3/29 阪神芝1600", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/5903ab1a21374b519457116d685ffc37/1774850153275.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/5903ab1a21374b519457116d685ffc37/1774850153275.0000000.jpg"},
+  {num:"7", name:"ウインモナーク", prev:"米子城S4着 3/15 阪神芝1200", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/35dd0591d4734958b4ad15911cc2a3e2/1773640673311.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/35dd0591d4734958b4ad15911cc2a3e2/1773640673311.0000000.jpg"},
+  {num:"8", name:"デュガ", prev:"淀短距離S(L)12着 1/11 京都", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/ca5f39ed036942be9cc617914632855e/1768278894457.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/ca5f39ed036942be9cc617914632855e/1768278894457.0000000.jpg"},
+  {num:"9", name:"クラスペディア", prev:"京阪杯(G3)11着 11/30 京都", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/7051fe77d09449dbba44af6e65f17494/1764563333017.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7051fe77d09449dbba44af6e65f17494/1764563333017.0000000.jpg"},
+  {num:"10", name:"アスクワンタイム", prev:"米子城S3着 3/15 阪神芝1200", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/14db580206794eae8da9dad7f8fe60e4/1773640672791.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/14db580206794eae8da9dad7f8fe60e4/1773640672791.0000000.jpg"},
+  {num:"11", name:"ロードフォアエース", prev:"シルクロードS(G3)9着 2/1", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/527f572284834d37b59ea4f97526a466/1770008931338.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/527f572284834d37b59ea4f97526a466/1770008931338.0000000.jpg"},
+  {num:"12", name:"カリボール", prev:"オーシャンS(G3)10着 2/28 中山", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/54deb058dd7647599594e6093a1ca148/1772425809176.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/54deb058dd7647599594e6093a1ca148/1772425809176.0000000.jpg"},
+  {num:"13", name:"ステークホルダー", prev:"米子城S8着 3/15 阪神芝1200", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/a6e9a91d06824aa3ab4e775fb0d51fca/1773640675673.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a6e9a91d06824aa3ab4e775fb0d51fca/1773640675673.0000000.jpg"},
+  {num:"14", name:"サウザンサニー", prev:"北九州短距離12着 2/15 小倉", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/21c075df7b294295857cbaefe645c239/1771221424655.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/21c075df7b294295857cbaefe645c239/1771221424655.0000000.jpg"},
+  {num:"15", name:"エナジーグラン", prev:"洛陽S(L)11着 2/14 京都芝1600", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/5e3fa2bda9f54e9c8cec7bd79658130e/1771219632067.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/5e3fa2bda9f54e9c8cec7bd79658130e/1771219632067.0000000.jpg"},
+  {num:"16", name:"モズナナスター", prev:"淀短距離S(L)11着 1/11 京都", m3u8:"https://race-player.netkeiba.com/5e4a7effafe26/media/b1198747e5e14ed4bd15d5e22dea92b2/1768278893703.m3u8", thumb:"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b1198747e5e14ed4bd15d5e22dea92b2/1768278893703.0000000.jpg"},
+];
+const players=[];
+const selected=new Set(VIDEOS.map((_,i)=>i));
+const looping=new Set();
+let loopAll=false;
+let modalIdx=-1,modalHls=null,modalLooping=false;
+
+function fmt(s){if(isNaN(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
+
+function buildCard(v,i){
+  const card=document.createElement('div');card.className='card';card.id='card-'+i;
+  card.innerHTML=`
+    <div class="card-header">
+      <div class="num-badge">${v.num}</div>
+      <div style="flex:1;overflow:hidden">
+        <div class="horse-name">${v.name}</div>
+        <div class="prev-info">${v.prev||''}</div>
+      </div>
+      <button class="btn-max" onclick="openModal(${i})" title="最大化">⛶</button>
+    </div>
+    <div class="video-wrap" id="wrap-${i}" onclick="togglePlay(${i})">
+      <video id="vid-${i}" preload="none" poster="${v.thumb}" playsinline muted></video>
+      <div class="overlay" id="ov-${i}">
+        <div class="spinner" id="spin-${i}"></div>
+        <div class="play-circle" id="pc-${i}"></div>
+      </div>
+      <div class="loop-badge">LOOP</div>
+    </div>
+    <div class="card-footer">
+      <span class="time-disp" id="time-${i}">0:00</span>
+      <span class="vol-btn" id="vol-${i}" onclick="event.stopPropagation();toggleMute(${i})">🔇</span>
+      <span style="cursor:pointer;font-size:11px;color:var(--muted);padding:2px 4px;border-radius:3px;" onclick="event.stopPropagation();toggleLoopOne(${i})" id="lp-${i}" title="このコマをループ">🔁</span>
+    </div>`;
+  document.getElementById('grid').appendChild(card);
+  const video=document.getElementById('vid-'+i),overlay=document.getElementById('ov-'+i),spinner=document.getElementById('spin-'+i),pc=document.getElementById('pc-'+i),timeEl=document.getElementById('time-'+i);
+  let inited=false;
+  function initHls(){if(inited)return;inited=true;spinner.style.display='block';pc.style.display='none';if(Hls.isSupported()){const hls=new Hls({enableWorker:true});hls.loadSource(v.m3u8);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>{spinner.style.display='none';pc.style.display='';});players[i].hls=hls;}else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=v.m3u8;spinner.style.display='none';}}
+  video.addEventListener('play',()=>{overlay.classList.add('hidden');card.classList.add('playing');updateStatus();});
+  video.addEventListener('pause',()=>{overlay.classList.remove('hidden');card.classList.remove('playing');updateStatus();});
+  video.addEventListener('ended',()=>{
+    if(looping.has(i)){video.currentTime=0;video.play().catch(()=>{});}
+    else{overlay.classList.remove('hidden');card.classList.remove('playing');video.currentTime=0;}
+  });
+  video.addEventListener('waiting',()=>{spinner.style.display='block';pc.style.display='none';});
+  video.addEventListener('canplay',()=>{spinner.style.display='none';pc.style.display='';});
+  video.addEventListener('timeupdate',()=>{timeEl.textContent=fmt(video.currentTime)+' / '+fmt(video.duration);});
+  players[i]={video,hls:null,initHls(){if(this._i)return;this._i=true;initHls();}};
+}
+
+function buildSelPanel(){
+  const grid=document.getElementById('sel-grid');
+  VIDEOS.forEach((v,i)=>{
+    const item=document.createElement('div');item.className='sel-item checked';item.id='sel-item-'+i;
+    item.innerHTML=`<div class="sel-checkbox" id="sel-cb-${i}">✓</div><span class="sel-num">${v.num}</span><span class="sel-name">${v.name}</span>`;
+    item.addEventListener('click',()=>toggleSelect(i));
+    grid.appendChild(item);
+  });
+}
+
+function toggleSelect(i){if(selected.has(i))selected.delete(i);else selected.add(i);applySelection();}
+function selectAll(val){VIDEOS.forEach((_,i)=>{if(val)selected.add(i);else selected.delete(i);});applySelection();}
+function applySelection(){
+  VIDEOS.forEach((_,i)=>{
+    const vis=selected.has(i);
+    document.getElementById('card-'+i).classList.toggle('hidden-card',!vis);
+    document.getElementById('sel-item-'+i).classList.toggle('checked',vis);
+    document.getElementById('sel-cb-'+i).textContent=vis?'✓':'';
+    if(!vis&&players[i]?.video)players[i].video.pause();
+  });
+  document.getElementById('count-label').textContent=selected.size+'頭表示中';
+}
+function toggleSelPanel(){const p=document.getElementById('sel-panel');p.classList.toggle('open');document.getElementById('sel-btn').style.borderColor=p.classList.contains('open')?'var(--gold)':'';}
+
+function toggleLoopOne(i){
+  const card=document.getElementById('card-'+i);
+  const btn=document.getElementById('lp-'+i);
+  if(looping.has(i)){looping.delete(i);card.classList.remove('looping');btn.style.color='';}
+  else{looping.add(i);card.classList.add('looping');btn.style.color='var(--orange)';}
+  updateLoopAllBtn();
+  updateStatus();
+}
+function toggleLoopAll(){
+  loopAll=!loopAll;
+  if(loopAll){
+    VIDEOS.forEach((_,i)=>{if(selected.has(i)&&!looping.has(i))toggleLoopOne(i);});
+  }else{
+    [...looping].forEach(i=>toggleLoopOne(i));
+  }
+  updateLoopAllBtn();
+}
+function updateLoopAllBtn(){
+  const btn=document.getElementById('loop-btn');
+  const any=looping.size>0;
+  btn.classList.toggle('loop-on',any);
+  btn.textContent=any?'🔁 ループON':'🔁 ループ';
+}
+
+function togglePlay(i){players[i].initHls();const v=players[i].video;if(v.paused)v.play().catch(()=>{});else v.pause();}
+function toggleMute(i){const v=players[i].video;v.muted=!v.muted;document.getElementById('vol-'+i).textContent=v.muted?'🔇':'🔊';}
+function playAll(){selected.forEach(i=>{players[i].initHls();setTimeout(()=>players[i].video.play().catch(()=>{}),i*30);});}
+function stopAll(){players.forEach(p=>p?.video?.pause());}
+function restartAll(){selected.forEach(i=>{players[i].initHls();players[i].video.currentTime=0;setTimeout(()=>players[i].video.play().catch(()=>{}),i*30);});}
+
+function openModal(i){
+  const v=VIDEOS[i];modalIdx=i;
+  document.getElementById('modal-num').textContent=v.num;
+  document.getElementById('modal-name').textContent=v.name+(v.prev?'　'+v.prev:'');
+  const mVideo=document.getElementById('modal-video');
+  mVideo.muted=false;updateModalVol();
+  if(modalHls){modalHls.destroy();modalHls=null;}
+  mVideo.removeAttribute('src');
+  if(Hls.isSupported()){modalHls=new Hls();modalHls.loadSource(v.m3u8);modalHls.attachMedia(mVideo);modalHls.on(Hls.Events.MANIFEST_PARSED,()=>mVideo.play().catch(()=>{}));}
+  else{mVideo.src=v.m3u8;mVideo.play().catch(()=>{});}
+  mVideo.onended=()=>{if(modalLooping){mVideo.currentTime=0;mVideo.play().catch(()=>{});}};
+  document.getElementById('modal').classList.add('open');
+  if(players[i]?.video&&!players[i].video.paused)players[i].video.pause();
+  modalLooping=looping.has(i);
+  updateModalLoopBtn();
+}
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modal'))return;
+  const mVideo=document.getElementById('modal-video');
+  mVideo.pause();if(modalHls){modalHls.destroy();modalHls=null;}
+  mVideo.removeAttribute('src');
+  document.getElementById('modal').classList.remove('open');modalIdx=-1;
+}
+function toggleModalLoop(){
+  modalLooping=!modalLooping;
+  if(modalIdx>=0){if(modalLooping){if(!looping.has(modalIdx))toggleLoopOne(modalIdx);}else{if(looping.has(modalIdx))toggleLoopOne(modalIdx);}}
+  updateModalLoopBtn();
+}
+function updateModalLoopBtn(){
+  const btn=document.getElementById('modal-loop-btn');
+  btn.textContent=modalLooping?'🔁 ループON':'🔁 ループ';
+  btn.classList.toggle('loop-on',modalLooping);
+}
+function updateModalTime(){const v=document.getElementById('modal-video');document.getElementById('modal-time').textContent=fmt(v.currentTime)+' / '+fmt(v.duration);}
+function updateModalVol(){const v=document.getElementById('modal-video');document.getElementById('modal-vol-btn').textContent=v.muted?'🔇 ミュート解除':'🔊 ミュート';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal(null);});
+
+function updateStatus(){
+  const playing=players.filter(p=>p?.video&&!p.video.paused).length;
+  const lc=looping.size;
+  document.getElementById('status').textContent='再生中: '+playing+'頭 ／ 表示中: '+selected.size+'頭'+(lc>0?' ／ ループ: '+lc+'頭':'');
+}
+
+VIDEOS.forEach((v,i)=>buildCard(v,i));
+buildSelPanel();
+updateStatus();
+document.getElementById('modal-video').addEventListener('timeupdate',updateModalTime);
+
+</script>
+</script>
+</body>
+</html>
