@@ -82,38 +82,87 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 </div>
 <div class="status-bar" id="status">準備完了</div>
 <script>
-const VIDEOS=[{"num":"1","name":"�����եء��٥�","prev":"��Ƿ����  12 26ǯ1��25��(��) ���Ҽ�1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/e96d44ca55364631b56538937982772c/1769403707895.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/e96d44ca55364631b56538937982772c/1769403707895.0000000.jpg"},{"num":"2","name":"�����������","prev":"�������ϣ� GIII 6 26ǯ1��24��(��) ���Ҽ�2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d9f91664dddf47f18d0147a0be2c8ee3/1769405715976.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d9f91664dddf47f18d0147a0be2c8ee3/1769405715976.0000000.jpg"},{"num":"3","name":"���󥰥᡼����","prev":"�������  9 26ǯ2��10��(��) ���Լ�1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/40fea46fc0444d409e309cbe004f51b5/1770866975799.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/40fea46fc0444d409e309cbe004f51b5/1770866975799.0000000.jpg"},{"num":"4","name":"�����ƥ�٥륯","prev":"�٥��ȣҵ�ǰ  10 26ǯ2��22��(��) �����2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d151d251018641609b160aa16f80d531/1771821672317.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d151d251018641609b160aa16f80d531/1771821672317.0000000.jpg"},{"num":"5","name":"�������ץ����","prev":"�����ģ�  2 26ǯ3��8��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/be7c6ffcc0b5472ea8f116764a3039b1/1773030188768.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/be7c6ffcc0b5472ea8f116764a3039b1/1773030188768.0000000.jpg"},{"num":"6","name":"�������ϥ�֥�","prev":"ŷ��������  1 26ǯ2��22��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d2918e6b15cb478f955d7b51e87b3feb/1771821991361.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d2918e6b15cb478f955d7b51e87b3feb/1771821991361.0000000.jpg"},{"num":"7","name":"�ơ����������饹","prev":"�����  13 26ǯ3��15��(��) �����1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/f62468e252b6444b876b5fa197e5ece3/1773640652103.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/f62468e252b6444b876b5fa197e5ece3/1773640652103.0000000.jpg"},{"num":"8","name":"�͡������ե쥹��","prev":"�����ģ�  2 26ǯ3��8��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/4ddde76c8786492ba9b5909a47792875/1773030198735.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/4ddde76c8786492ba9b5909a47792875/1773030198735.0000000.jpg"},{"num":"9","name":"�ѥ�ۡ���","prev":"���綶��  15 26ǯ3��1��(��) ���Ҽ�2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a9458ed527f24faf965a651d1c40f5eb/1772623102219.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a9458ed527f24faf965a651d1c40f5eb/1772623102219.0000000.jpg"},{"num":"10","name":"�ץå��奪��","prev":"�����ģ�  7 26ǯ3��8��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/503b507366d04fa9a124de8eaa3e8dd7/1773030189583.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/503b507366d04fa9a124de8eaa3e8dd7/1773030189583.0000000.jpg"},{"num":"11","name":"�ߥ��ȥ쥹","prev":"���ض���  17 26ǯ4��5��(��) �����1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/43432de43e444d4fb6c6f64012eeef44/1775459024501.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/43432de43e444d4fb6c6f64012eeef44/1775459024501.0000000.jpg"},{"num":"12","name":"�ߥå������奨�꡼","prev":"�����ģ�  14 26ǯ3��8��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7fa821b773c145a4832d91cff9728bb2/1773030190878.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7fa821b773c145a4832d91cff9728bb2/1773030190878.0000000.jpg"},{"num":"13","name":"�顼�󥶥����ץ�","prev":"�ޥ졼������  2 26ǯ3��28��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7ef0ddae6c49407ab427007ad51d50b4/1774846335735.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7ef0ddae6c49407ab427007ad51d50b4/1774846335735.0000000.jpg"}];
+const VIDEOS=[{"num":"1","name":"アウフヘーベン","prev":"壇之浦Ｓ 12 26年1月25日(日) 小倉芝1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/e96d44ca55364631b56538937982772c/1769403707895.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/e96d44ca55364631b56538937982772c/1769403707895.0000000.jpg"},{"num":"2","name":"インヴォーグ","prev":"小倉牝馬Ｓ GIII 6 26年1月24日(土) 小倉芝2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d9f91664dddf47f18d0147a0be2c8ee3/1769405715976.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d9f91664dddf47f18d0147a0be2c8ee3/1769405715976.0000000.jpg"},{"num":"3","name":"キングメーカー","prev":"石清水Ｓ 9 26年2月10日(火) 京都芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/40fea46fc0444d409e309cbe004f51b5/1770866975799.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/40fea46fc0444d409e309cbe004f51b5/1770866975799.0000000.jpg"},{"num":"4","name":"グーテンベルク","prev":"ベストＲ記念 10 26年2月22日(日) 東京芝2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d151d251018641609b160aa16f80d531/1771821672317.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d151d251018641609b160aa16f80d531/1771821672317.0000000.jpg"},{"num":"5","name":"スイープアワーズ","prev":"岸和田Ｓ 2 26年3月8日(日) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/be7c6ffcc0b5472ea8f116764a3039b1/1773030188768.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/be7c6ffcc0b5472ea8f116764a3039b1/1773030188768.0000000.jpg"},{"num":"6","name":"ゼンダンハヤブサ","prev":"天神橋特別 1 26年2月22日(日) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d2918e6b15cb478f955d7b51e87b3feb/1771821991361.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d2918e6b15cb478f955d7b51e87b3feb/1771821991361.0000000.jpg"},{"num":"7","name":"テーオーダグラス","prev":"甲南Ｓ 13 26年3月15日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/f62468e252b6444b876b5fa197e5ece3/1773640652103.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/f62468e252b6444b876b5fa197e5ece3/1773640652103.0000000.jpg"},{"num":"8","name":"ネーヴェフレスカ","prev":"岸和田Ｓ 2 26年3月8日(日) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/4ddde76c8786492ba9b5909a47792875/1773030198735.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/4ddde76c8786492ba9b5909a47792875/1773030198735.0000000.jpg"},{"num":"9","name":"パワーホール","prev":"関門橋Ｓ 15 26年3月1日(日) 小倉芝2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a9458ed527f24faf965a651d1c40f5eb/1772623102219.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a9458ed527f24faf965a651d1c40f5eb/1772623102219.0000000.jpg"},{"num":"10","name":"プッシュオン","prev":"岸和田Ｓ 7 26年3月8日(日) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/503b507366d04fa9a124de8eaa3e8dd7/1773030189583.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/503b507366d04fa9a124de8eaa3e8dd7/1773030189583.0000000.jpg"},{"num":"11","name":"ミストレス","prev":"心斎橋Ｓ 17 26年4月5日(日) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/43432de43e444d4fb6c6f64012eeef44/1775459024501.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/43432de43e444d4fb6c6f64012eeef44/1775459024501.0000000.jpg"},{"num":"12","name":"ミッキージュエリー","prev":"岸和田Ｓ 14 26年3月8日(日) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7fa821b773c145a4832d91cff9728bb2/1773030190878.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7fa821b773c145a4832d91cff9728bb2/1773030190878.0000000.jpg"},{"num":"13","name":"ラーンザロープス","prev":"マレーシアＣ 2 26年3月28日(土) 中京芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7ef0ddae6c49407ab427007ad51d50b4/1774846335735.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7ef0ddae6c49407ab427007ad51d50b4/1774846335735.0000000.jpg"}];
 let loopAll=false,selected=new Set(VIDEOS.map((_,i)=>i)),players=[];
 function fmt(s){const m=Math.floor(s/60);return m+':'+(Math.floor(s%60)+'').padStart(2,'0');}
-function initHls(video,m3u8,onReady){if(Hls.isSupported()){const hls=new Hls({enableWorker:true});hls.loadSource(m3u8);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>{onReady&&onReady();});return hls;}else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=m3u8;onReady&&onReady();return null;}return null;}
-function buildGrid(){const grid=document.getElementById('grid'),selGrid=document.getElementById('sel-grid');grid.innerHTML='';selGrid.innerHTML='';
-VIDEOS.forEach((v,i)=>{
-const si=document.createElement('div');si.className='sel-item checked';si.dataset.idx=i;
-si.innerHTML='<div class="sel-checkbox">✓</div><span class="sel-num">'+(i+1)+'</span><span class="sel-name">'+v.name+'</span>';
-si.onclick=()=>toggleSel(i);selGrid.appendChild(si);
-const card=document.createElement('div');card.className='card';card.id='card'+i;
-card.innerHTML='<div class="card-header"><div class="num-badge">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="horse-name">'+v.name+'</div><div class="prev-info">'+v.prev+'</div></div><button class="btn-max" onclick="openModal('+i+')">⤢</button></div><div class="video-wrap" onclick="togglePlay('+i+')"><video id="vid'+i+'" playsinline muted preload="none" poster="'+v.thumb+'"></video><div class="overlay" id="ov'+i+'"><div class="play-circle"></div><div class="spinner" id="sp'+i+'"></div></div><div class="loop-badge">LOOP</div></div><div class="card-footer"><span class="time-disp" id="td'+i+'">0:00 / 0:00</span><span class="vol-btn" onclick="toggleMute('+i+')" id="vb'+i+'">🔇</span></div>';
-grid.appendChild(card);
-const video=document.getElementById('vid'+i);
-players.push({v,video,hls:null,loaded:false,looping:false,
-load(){if(this.loaded)return;this.loaded=true;const sp=document.getElementById('sp'+i);sp.style.display='block';this.hls=initHls(this.video,v.m3u8,()=>{sp.style.display='none';});}});
-video.addEventListener('timeupdate',()=>{const td=document.getElementById('td'+i);if(td)td.textContent=fmt(video.currentTime)+' / '+fmt(video.duration||0);});
-video.addEventListener('playing',()=>{document.getElementById('ov'+i).classList.add('hidden');document.getElementById('card'+i).classList.add('playing');});
-video.addEventListener('pause',()=>{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');});
-video.addEventListener('ended',()=>{if(players[i].looping){video.currentTime=0;video.play();}else{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');}});
-});}
+function initHls(video,m3u8,onReady){
+  if(Hls.isSupported()){const hls=new Hls({enableWorker:true});hls.loadSource(m3u8);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>{onReady&&onReady();});return hls;}
+  else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=m3u8;onReady&&onReady();return null;}
+  return null;
+}
+function buildGrid(){
+  const grid=document.getElementById('grid'),selGrid=document.getElementById('sel-grid');
+  grid.innerHTML='';selGrid.innerHTML='';
+  VIDEOS.forEach((v,i)=>{
+    const si=document.createElement('div');si.className='sel-item checked';si.dataset.idx=i;
+    si.innerHTML='<div class="sel-checkbox">✓</div><span class="sel-num">'+(i+1)+'</span><span class="sel-name">'+v.name+'</span>';
+    si.onclick=()=>toggleSel(i);selGrid.appendChild(si);
+    const card=document.createElement('div');card.className='card';card.id='card'+i;
+    card.innerHTML='<div class="card-header"><div class="num-badge">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="horse-name">'+v.name+'</div><div class="prev-info">'+v.prev+'</div></div><button class="btn-max" onclick="openModal('+i+')">⤢</button></div><div class="video-wrap" onclick="togglePlay('+i+')"><video id="vid'+i+'" playsinline muted preload="none" poster="'+v.thumb+'"></video><div class="overlay" id="ov'+i+'"><div class="play-circle"></div><div class="spinner" id="sp'+i+'"></div></div><div class="loop-badge">LOOP</div></div><div class="card-footer"><span class="time-disp" id="td'+i+'">0:00 / 0:00</span><span class="vol-btn" onclick="toggleMute('+i+')" id="vb'+i+'">🔇</span></div>';
+    grid.appendChild(card);
+    const video=document.getElementById('vid'+i);
+    players.push({v,video,hls:null,loaded:false,looping:false,
+      load(){
+        if(this.loaded)return;this.loaded=true;
+        const sp=document.getElementById('sp'+i);sp.style.display='block';
+        this.hls=initHls(this.video,v.m3u8,()=>{sp.style.display='none';});
+      }
+    });
+    video.addEventListener('timeupdate',()=>{const td=document.getElementById('td'+i);if(td)td.textContent=fmt(video.currentTime)+' / '+fmt(video.duration||0);});
+    video.addEventListener('playing',()=>{document.getElementById('ov'+i).classList.add('hidden');document.getElementById('card'+i).classList.add('playing');});
+    video.addEventListener('pause',()=>{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');});
+    video.addEventListener('ended',()=>{
+      if(players[i] && players[i].looping){video.currentTime=0;video.play();}
+      else{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');}
+    });
+  });
+}
 function togglePlay(i){const p=players[i];if(!p.loaded){p.load();setTimeout(()=>p.video.play(),300);return;}if(p.video.paused)p.video.play();else p.video.pause();}
 function playAll(){selected.forEach(i=>{const p=players[i];if(!p.loaded){p.load();setTimeout(()=>p.video.play(),300);}else if(p.video.paused)p.video.play();});}
 function stopAll(){players.forEach(p=>{if(!p.video.paused)p.video.pause();});}
 function restartAll(){selected.forEach(i=>{const p=players[i];p.video.currentTime=0;if(!p.loaded){p.load();setTimeout(()=>p.video.play(),300);}else p.video.play();});}
-function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').classList.toggle('loop-on',loopAll);players.forEach((p,i)=>{p.looping=loopAll&&selected.has(i);document.getElementById('card'+i).classList.toggle('looping',p.looping);});}
+function toggleLoopAll(){
+  loopAll=!loopAll;
+  document.getElementById('loop-btn').classList.toggle('loop-on',loopAll);
+  players.forEach((p,i)=>{p.looping=loopAll&&selected.has(i);document.getElementById('card'+i).classList.toggle('looping',p.looping);});
+}
 function toggleMute(i){const v=players[i].video;v.muted=!v.muted;document.getElementById('vb'+i).textContent=v.muted?'🔇':'🔊';}
 function toggleSelPanel(){document.getElementById('sel-panel').classList.toggle('open');document.getElementById('sel-btn').textContent=document.getElementById('sel-panel').classList.contains('open')?'☑ 閉じる':'☑ 馬を選択';}
-function toggleSel(i){const el=document.querySelector('.sel-item[data-idx="'+i+'"]'),card=document.getElementById('card'+i);if(selected.has(i)){selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}else{selected.add(i);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';card.classList.remove('hidden-card');}document.getElementById('count-label').textContent=selected.size+'頭表示中';}
-function selectAll(b){VIDEOS.forEach((_,i)=>{const el=document.querySelector('.sel-item[data-idx="'+i+'"]'),card=document.getElementById('card'+i);if(b){selected.add(i);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';card.classList.remove('hidden-card');}else{selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}});document.getElementById('count-label').textContent=selected.size+'頭表示中';}
+function toggleSel(i){
+  const el=document.querySelector('.sel-item[data-idx="'+i+'"]'),card=document.getElementById('card'+i);
+  if(selected.has(i)){selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}
+  else{selected.add(i);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';card.classList.remove('hidden-card');}
+  document.getElementById('count-label').textContent=selected.size+'頭表示中';
+  if(loopAll){players.forEach((p,j)=>{p.looping=loopAll&&selected.has(j);document.getElementById('card'+j).classList.toggle('looping',p.looping);});}
+}
+function selectAll(b){
+  VIDEOS.forEach((_,i)=>{const el=document.querySelector('.sel-item[data-idx="'+i+'"]'),card=document.getElementById('card'+i);
+    if(b){selected.add(i);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';card.classList.remove('hidden-card');}
+    else{selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}
+  });
+  document.getElementById('count-label').textContent=selected.size+'頭表示中';
+  if(loopAll){players.forEach((p,j)=>{p.looping=loopAll&&selected.has(j);document.getElementById('card'+j).classList.toggle('looping',p.looping);});}
+}
 let modalIdx=-1,modalHls=null,modalLooping=false;
-function openModal(i){modalIdx=i;const v=VIDEOS[i];document.getElementById('modal-num').textContent=i+1;document.getElementById('modal-name').textContent=v.name;document.getElementById('modal-prev').textContent=v.prev;const mv=document.getElementById('modal-video');mv.pause();if(modalHls){modalHls.destroy();modalHls=null;}document.getElementById('modal').classList.add('open');modalHls=initHls(mv,v.m3u8,()=>mv.play());mv.addEventListener('timeupdate',()=>{document.getElementById('modal-time').textContent=fmt(mv.currentTime)+' / '+fmt(mv.duration||0);});mv.addEventListener('ended',()=>{if(modalLooping){mv.currentTime=0;mv.play();}});}
-function closeModal(e){if(e&&e.target!==document.getElementById('modal')&&!e.target.classList.contains('modal-close'))return;const mv=document.getElementById('modal-video');mv.pause();if(modalHls){modalHls.destroy();modalHls=null;}document.getElementById('modal').classList.remove('open');}
+function openModal(i){
+  modalIdx=i;const v=VIDEOS[i];
+  document.getElementById('modal-num').textContent=i+1;
+  document.getElementById('modal-name').textContent=v.name;
+  document.getElementById('modal-prev').textContent=v.prev;
+  const mv=document.getElementById('modal-video');
+  mv.pause();if(modalHls){modalHls.destroy();modalHls=null;}
+  mv.onended=null;mv.ontimeupdate=null;
+  document.getElementById('modal').classList.add('open');
+  modalHls=initHls(mv,v.m3u8,()=>mv.play());
+  mv.ontimeupdate=()=>{document.getElementById('modal-time').textContent=fmt(mv.currentTime)+' / '+fmt(mv.duration||0);};
+  mv.onended=()=>{if(modalLooping){mv.currentTime=0;mv.play();}};
+}
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modal')&&!e.target.classList.contains('modal-close'))return;
+  const mv=document.getElementById('modal-video');mv.pause();
+  if(modalHls){modalHls.destroy();modalHls=null;}
+  document.getElementById('modal').classList.remove('open');
+}
 function modalRestart(){const mv=document.getElementById('modal-video');mv.currentTime=0;mv.play();}
 function toggleModalLoop(){modalLooping=!modalLooping;document.getElementById('modal-loop-btn').classList.toggle('loop-on',modalLooping);}
 buildGrid();
