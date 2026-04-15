@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>福島牝馬S2026 パドック映像比較</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+<style>:root{--bg:#0e0e12;--s1:#16161e;--s2:#1e1e28;--bd:#2a2a3a;--bd2:#3a3a55;--gold:#f0c040;--blue:#5b9cf6;--red:#e05555;--orange:#f09840;--text:#ddddef;--muted:#5a5a80;--font:'Hiragino Sans','Noto Sans JP',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;display:flex;flex-direction:column;}
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex-shrink:0;}
+.header h1{font-size:14px;font-weight:700;color:var(--gold);}
+.controls{display:flex;gap:6px;align-items:center;padding:6px 14px;background:var(--s2);border-bottom:1px solid var(--bd);flex-wrap:wrap;flex-shrink:0;}
+.btn{background:var(--s1);color:var(--text);border:1px solid var(--bd);padding:5px 13px;border-radius:4px;cursor:pointer;font-size:12px;font-family:var(--font);transition:background .12s;white-space:nowrap;}
+.btn:hover{background:var(--bd);}.btn.primary{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.btn.primary:hover{background:#d9b030;}.btn.danger{border-color:var(--red);color:var(--red);}
+.btn.danger:hover{background:#2a1515;}.btn.toggle-sel{border-color:var(--blue);color:var(--blue);}
+.btn.loop-on{border-color:var(--orange);color:var(--orange);background:#1e1508;}
+.sep{width:1px;background:var(--bd);height:22px;margin:0 4px;}
+.sel-panel{background:var(--s2);border-bottom:1px solid var(--bd);padding:8px 14px;display:none;flex-shrink:0;}
+.sel-panel.open{display:block;}.sel-title{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.sel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px;}
+.sel-item{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--bd);background:var(--s1);user-select:none;}
+.sel-item.checked{border-color:var(--gold);background:#1e1a08;}
+.sel-checkbox{width:14px;height:14px;border:1px solid var(--muted);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;background:var(--s2);}
+.sel-item.checked .sel-checkbox{border-color:var(--gold);background:var(--gold);color:#000;}
+.sel-num{font-weight:700;color:var(--gold);font-size:11px;width:18px;flex-shrink:0;}
+.sel-name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.grid-wrap{flex:1;overflow-y:auto;padding:8px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;transition:border-color .15s;}
+.card:hover{border-color:var(--bd2);}.card.playing{border-color:var(--gold);}.card.hidden-card{display:none;}
+.card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
+.num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prev-info{font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-max{background:none;border:1px solid var(--bd);color:var(--muted);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-max:hover{background:var(--bd2);color:var(--text);}
+.video-wrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;}
+.video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:opacity .2s;}
+.overlay.hidden{opacity:0;pointer-events:none;}
+.play-circle{width:36px;height:36px;background:rgba(255,255,255,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.play-circle::after{content:'';border-left:13px solid #000;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px;}
+.loop-badge{position:absolute;top:4px;right:4px;background:var(--orange);color:#000;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:none;}
+.card.looping .loop-badge{display:block;}.card.looping .num-badge{outline:2px solid var(--orange);}
+.spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,0.25);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.card-footer{padding:3px 8px;display:flex;align-items:center;gap:6px;background:var(--s2);border-top:1px solid var(--bd);}
+.time-disp{font-family:monospace;font-size:10px;color:var(--muted);flex:1;}.vol-btn{cursor:pointer;font-size:13px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.modal-overlay.open{display:flex;}
+.modal-header{display:flex;align-items:center;gap:10px;color:var(--text);font-size:14px;font-weight:700;width:min(90vw,1200px);}
+.modal-num{background:var(--gold);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.modal-close{margin-left:auto;background:none;border:1px solid var(--bd);color:var(--muted);width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--bd);color:var(--text);}
+.modal-video-wrap{width:min(90vw,1200px);aspect-ratio:16/9;background:#000;border-radius:6px;overflow:hidden;border:1px solid var(--bd);}
+.modal-video-wrap video{width:100%;height:100%;object-fit:contain;}
+.modal-controls{display:flex;gap:8px;align-items:center;width:min(90vw,1200px);}
+.modal-time{font-family:monospace;font-size:12px;color:var(--muted);flex:1;}
+.status-bar{background:var(--s1);border-top:1px solid var(--bd);padding:4px 14px;font-size:10px;color:var(--muted);flex-shrink:0;}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}</style></head>
+<body>
+<div class="header"><h1>🏇 福島牝馬S2026 パドック映像比較</h1><span style="font-size:11px;color:var(--muted)">2026年4月19日 福島11R ／ 前走パドック映像 20頭</span></div>
+<div class="controls">
+<button class="btn primary" onclick="playAll()">▶ 全頭再生</button>
+<button class="btn danger" onclick="stopAll()">■ 全頭停止</button>
+<button class="btn" onclick="restartAll()">⟳ 先頭から再生</button>
+<div class="sep"></div>
+<button class="btn" id="loop-btn" onclick="toggleLoopAll()">🔁 ループ</button>
+<div class="sep"></div>
+<button class="btn toggle-sel" onclick="toggleSelPanel()" id="sel-btn">☑ 馬を選択</button>
+<button class="btn" onclick="selectAll(true)" style="font-size:11px">全選択</button>
+<button class="btn" onclick="selectAll(false)" style="font-size:11px">全解除</button>
+<div class="sep"></div>
+<span style="font-size:11px;color:var(--muted)" id="count-label">20頭表示中</span>
+</div>
+<div class="sel-panel" id="sel-panel"><div class="sel-title">表示する馬を選択</div><div class="sel-grid" id="sel-grid"></div></div>
+<div class="grid-wrap"><div class="grid" id="grid"></div></div>
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+<div class="modal-header"><div class="modal-num" id="modal-num"></div><span id="modal-name"></span><span id="modal-prev" style="font-size:11px;color:var(--muted);font-weight:400;margin-left:8px;"></span><button class="modal-close" onclick="closeModal()">✕ 閉じる</button></div>
+<div class="modal-video-wrap"><video id="modal-video" controls playsinline></video></div>
+<div class="modal-controls"><span class="modal-time" id="modal-time">0:00 / 0:00</span><button class="btn" onclick="modalRestart()">⟳ 先頭から</button><button class="btn loop-on" onclick="toggleModalLoop()" id="modal-loop-btn">🔁 ループ</button></div>
+</div>
+<div class="status-bar" id="status">準備完了</div>
+<script>
+const VIDEOS=[{"num":"1","name":"����꡼������","prev":"�滳���ϣ� GIII 11 26ǯ3��7��(��) �滳��1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/ecbd2a4f92534e81bbefdc5525e21730/1773029081221.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/ecbd2a4f92534e81bbefdc5525e21730/1773029081221.0000000.jpg"},{"num":"2","name":"�����������","prev":"�������ϣ� GIII 6 26ǯ1��24��(��) ���Ҽ�2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d9f91664dddf47f18d0147a0be2c8ee3/1769405715976.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d9f91664dddf47f18d0147a0be2c8ee3/1769405715976.0000000.jpg"},{"num":"3","name":"����ȡ�","prev":"�������ŵ GIII 12 26ǯ2��22��(��) ���Ҽ�1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d5da1d914e5f4a55bdce605ce257b139/1771822393743.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d5da1d914e5f4a55bdce605ce257b139/1771822393743.0000000.jpg"},{"num":"4","name":"���˥����","prev":"�鲻��  3 26ǯ2��10��(��) �����1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/f0c7fdc4e9b84f0bb022aa94986783fb/1770866618715.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/f0c7fdc4e9b84f0bb022aa94986783fb/1770866618715.0000000.jpg"},{"num":"5","name":"���ͥ�ե�����","prev":"�����滳���� GIII 4 26ǯ1��4��(��) �滳��2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/22d82fb54f64461297a3070eb83acc93/1767683011715.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/22d82fb54f64461297a3070eb83acc93/1767683011715.0000000.jpg"},{"num":"6","name":"����ե�åɥ�����","prev":"�滳���ϣ� GIII 8 26ǯ3��7��(��) �滳��1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/9a9116d11c4049e9a7b66e72cfc73aa6/1773029083190.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/9a9116d11c4049e9a7b66e72cfc73aa6/1773029083190.0000000.jpg"},{"num":"7","name":"�����ͥΥ���","prev":"ʡ�絭ǰ GIII 11 25ǯ11��22��(��) ʡ���2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a0b52462413548dd86a69281abed70ee/1764074273422.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a0b52462413548dd86a69281abed70ee/1764074273422.0000000.jpg"},{"num":"8","name":"����ɥ�����","prev":"�ޥ졼������  14 26ǯ3��28��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/1bc9d04940f742468a52bc2d855af6bf/1774846328199.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/1bc9d04940f742468a52bc2d855af6bf/1774846328199.0000000.jpg"},{"num":"9","name":"���祤�ե�˥塼��","prev":"������ L 2 26ǯ3��15��(��) �滳��1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/af8de2cfce70417d80b6923f3b3a0980/1773639358652.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/af8de2cfce70417d80b6923f3b3a0980/1773639358652.0000000.jpg"},{"num":"10","name":"�ƥ쥵","prev":"�������ϣ� GIII 4 26ǯ1��24��(��) ���Ҽ�2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/84b3ae264a32424d91b774801d6295bf/1769402513671.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/84b3ae264a32424d91b774801d6295bf/1769402513671.0000000.jpg"},{"num":"11","name":"�ѥ�ǥ��졼��","prev":"�滳���ϣ� GIII 3 26ǯ3��7��(��) �滳��1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/ac5ccc7522944d2d861c7d8b50d724fc/1773029082424.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/ac5ccc7522944d2d861c7d8b50d724fc/1773029082424.0000000.jpg"},{"num":"12","name":"�ѥ��","prev":"�������ŵ GIII 9 26ǯ2��22��(��) ���Ҽ�1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6d344b785d7040488f6fc7a6b71496a4/1771822398838.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6d344b785d7040488f6fc7a6b71496a4/1771822398838.0000000.jpg"},{"num":"13","name":"�ԥ󥯥���","prev":"���綶��  13 26ǯ3��1��(��) ���Ҽ�2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/999ce648e6524ac3a0fa7d796bf5d978/1772427629767.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/999ce648e6524ac3a0fa7d796bf5d978/1772427629767.0000000.jpg"},{"num":"14","name":"�ե����륷��ѥ���","prev":"�滳���ϣ� GIII 14 26ǯ3��7��(��) �滳��1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a29b176002b441e989a275855224a4c9/1773029082391.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a29b176002b441e989a275855224a4c9/1773029082391.0000000.jpg"},{"num":"15","name":"�֥饦�������å�","prev":"�������ϣ� GIII 13 26ǯ1��24��(��) ���Ҽ�2000m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/138f05dbd5044e8ca123e7cb30805e28/1769402536522.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/138f05dbd5044e8ca123e7cb30805e28/1769402536522.0000000.jpg"},{"num":"16","name":"�ߥå����������㥹","prev":"�����ʹ�� GIII 6 26ǯ2��10��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6c0597128d7d4f9aac5fd5abd4f9260f/1770868065611.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6c0597128d7d4f9aac5fd5abd4f9260f/1770868065611.0000000.jpg"},{"num":"17","name":"�ߥå������奨�꡼","prev":"�����ģ�  14 26ǯ3��8��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7fa821b773c145a4832d91cff9728bb2/1773030190878.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7fa821b773c145a4832d91cff9728bb2/1773030190878.0000000.jpg"},{"num":"18","name":"�顼�󥶥����ץ�","prev":"�ޥ졼������  2 26ǯ3��28��(��) �����1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7ef0ddae6c49407ab427007ad51d50b4/1774846335735.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7ef0ddae6c49407ab427007ad51d50b4/1774846335735.0000000.jpg"},{"num":"19","name":"�졼���ɥ��","prev":"�滳���ϣ� GIII 6 26ǯ3��7��(��) �滳��1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/755f982ef10f47f5b84692e6207250ab/1773029084068.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/755f982ef10f47f5b84692e6207250ab/1773029084068.0000000.jpg"},{"num":"20","name":"��ǥ��ޥꥪ��","prev":"������ GIII 12 26ǯ3��22��(��) �����1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0e50a51d91c74c22a995928ad34fc954/1774241038075.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0e50a51d91c74c22a995928ad34fc954/1774241038075.0000000.jpg"}];
+let loopAll=false,selected=new Set(VIDEOS.map((_,i)=>i)),players=[];
+function fmt(s){const m=Math.floor(s/60);return m+':'+(Math.floor(s%60)+'').padStart(2,'0');}
+function initHls(video,m3u8,onReady){if(Hls.isSupported()){const hls=new Hls({enableWorker:true});hls.loadSource(m3u8);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>{onReady&&onReady();});return hls;}else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=m3u8;onReady&&onReady();return null;}return null;}
+function buildGrid(){const grid=document.getElementById('grid'),selGrid=document.getElementById('sel-grid');grid.innerHTML='';selGrid.innerHTML='';
+VIDEOS.forEach((v,i)=>{
+const si=document.createElement('div');si.className='sel-item checked';si.dataset.idx=i;
+si.innerHTML='<div class="sel-checkbox">✓</div><span class="sel-num">'+(i+1)+'</span><span class="sel-name">'+v.name+'</span>';
+si.onclick=()=>toggleSel(i);selGrid.appendChild(si);
+const card=document.createElement('div');card.className='card';card.id='card'+i;
+card.innerHTML='<div class="card-header"><div class="num-badge">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="horse-name">'+v.name+'</div><div class="prev-info">'+v.prev+'</div></div><button class="btn-max" onclick="openModal('+i+')">⤢</button></div><div class="video-wrap" onclick="togglePlay('+i+')"><video id="vid'+i+'" playsinline muted preload="none" poster="'+v.thumb+'"></video><div class="overlay" id="ov'+i+'"><div class="play-circle"></div><div class="spinner" id="sp'+i+'"></div></div><div class="loop-badge">LOOP</div></div><div class="card-footer"><span class="time-disp" id="td'+i+'">0:00 / 0:00</span><span class="vol-btn" onclick="toggleMute('+i+')" id="vb'+i+'">🔇</span></div>';
+grid.appendChild(card);
+const video=document.getElementById('vid'+i);
+players.push({v,video,hls:null,loaded:false,looping:false,
+load(){if(this.loaded)return;this.loaded=true;const sp=document.getElementById('sp'+i);sp.style.display='block';this.hls=initHls(this.video,v.m3u8,()=>{sp.style.display='none';});}});
+video.addEventListener('timeupdate',()=>{const td=document.getElementById('td'+i);if(td)td.textContent=fmt(video.currentTime)+' / '+fmt(video.duration||0);});
+video.addEventListener('playing',()=>{document.getElementById('ov'+i).classList.add('hidden');document.getElementById('card'+i).classList.add('playing');});
+video.addEventListener('pause',()=>{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');});
+video.addEventListener('ended',()=>{if(players[i].looping){video.currentTime=0;video.play();}else{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');}});
+});}
+function togglePlay(i){const p=players[i];if(!p.loaded){p.load();setTimeout(()=>p.video.play(),300);return;}if(p.video.paused)p.video.play();else p.video.pause();}
+function playAll(){selected.forEach(i=>{const p=players[i];if(!p.loaded){p.load();setTimeout(()=>p.video.play(),300);}else if(p.video.paused)p.video.play();});}
+function stopAll(){players.forEach(p=>{if(!p.video.paused)p.video.pause();});}
+function restartAll(){selected.forEach(i=>{const p=players[i];p.video.currentTime=0;if(!p.loaded){p.load();setTimeout(()=>p.video.play(),300);}else p.video.play();});}
+function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').classList.toggle('loop-on',loopAll);players.forEach((p,i)=>{p.looping=loopAll&&selected.has(i);document.getElementById('card'+i).classList.toggle('looping',p.looping);});}
+function toggleMute(i){const v=players[i].video;v.muted=!v.muted;document.getElementById('vb'+i).textContent=v.muted?'🔇':'🔊';}
+function toggleSelPanel(){document.getElementById('sel-panel').classList.toggle('open');document.getElementById('sel-btn').textContent=document.getElementById('sel-panel').classList.contains('open')?'☑ 閉じる':'☑ 馬を選択';}
+function toggleSel(i){const el=document.querySelector('.sel-item[data-idx="'+i+'"]'),card=document.getElementById('card'+i);if(selected.has(i)){selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}else{selected.add(i);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';card.classList.remove('hidden-card');}document.getElementById('count-label').textContent=selected.size+'頭表示中';}
+function selectAll(b){VIDEOS.forEach((_,i)=>{const el=document.querySelector('.sel-item[data-idx="'+i+'"]'),card=document.getElementById('card'+i);if(b){selected.add(i);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';card.classList.remove('hidden-card');}else{selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}});document.getElementById('count-label').textContent=selected.size+'頭表示中';}
+let modalIdx=-1,modalHls=null,modalLooping=false;
+function openModal(i){modalIdx=i;const v=VIDEOS[i];document.getElementById('modal-num').textContent=i+1;document.getElementById('modal-name').textContent=v.name;document.getElementById('modal-prev').textContent=v.prev;const mv=document.getElementById('modal-video');mv.pause();if(modalHls){modalHls.destroy();modalHls=null;}document.getElementById('modal').classList.add('open');modalHls=initHls(mv,v.m3u8,()=>mv.play());mv.addEventListener('timeupdate',()=>{document.getElementById('modal-time').textContent=fmt(mv.currentTime)+' / '+fmt(mv.duration||0);});mv.addEventListener('ended',()=>{if(modalLooping){mv.currentTime=0;mv.play();}});}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal')&&!e.target.classList.contains('modal-close'))return;const mv=document.getElementById('modal-video');mv.pause();if(modalHls){modalHls.destroy();modalHls=null;}document.getElementById('modal').classList.remove('open');}
+function modalRestart(){const mv=document.getElementById('modal-video');mv.currentTime=0;mv.play();}
+function toggleModalLoop(){modalLooping=!modalLooping;document.getElementById('modal-loop-btn').classList.toggle('loop-on',modalLooping);}
+buildGrid();
+</script></body></html>
