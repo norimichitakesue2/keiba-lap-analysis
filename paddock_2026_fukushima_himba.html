@@ -112,7 +112,7 @@ function buildGrid(){
     video.addEventListener('playing',()=>{document.getElementById('ov'+i).classList.add('hidden');document.getElementById('card'+i).classList.add('playing');});
     video.addEventListener('pause',()=>{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');});
     video.addEventListener('ended',()=>{
-      if(players[i] && players[i].looping){video.currentTime=0;video.play();}
+      if(players[i]&&players[i].looping){video.currentTime=0;video.play();}
       else{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');}
     });
   });
@@ -133,7 +133,7 @@ function toggleSel(i){
   if(selected.has(i)){selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}
   else{selected.add(i);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';card.classList.remove('hidden-card');}
   document.getElementById('count-label').textContent=selected.size+'頭表示中';
-  if(loopAll){players.forEach((p,j)=>{p.looping=loopAll&&selected.has(j);document.getElementById('card'+j).classList.toggle('looping',p.looping);});}
+  players.forEach((p,j)=>{p.looping=loopAll&&selected.has(j);document.getElementById('card'+j).classList.toggle('looping',p.looping);});
 }
 function selectAll(b){
   VIDEOS.forEach((_,i)=>{const el=document.querySelector('.sel-item[data-idx="'+i+'"]'),card=document.getElementById('card'+i);
@@ -141,7 +141,7 @@ function selectAll(b){
     else{selected.delete(i);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';card.classList.add('hidden-card');}
   });
   document.getElementById('count-label').textContent=selected.size+'頭表示中';
-  if(loopAll){players.forEach((p,j)=>{p.looping=loopAll&&selected.has(j);document.getElementById('card'+j).classList.toggle('looping',p.looping);});}
+  players.forEach((p,j)=>{p.looping=loopAll&&selected.has(j);document.getElementById('card'+j).classList.toggle('looping',p.looping);});
 }
 let modalIdx=-1,modalHls=null,modalLooping=false;
 function openModal(i){
