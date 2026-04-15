@@ -86,8 +86,14 @@ const VIDEOS=[{"num":"1","name":"アンリーロード","prev":"中山牝馬Ｓ 
 let loopAll=false,selected=new Set(VIDEOS.map((_,i)=>i)),players=[];
 function fmt(s){const m=Math.floor(s/60);return m+':'+(Math.floor(s%60)+'').padStart(2,'0');}
 function initHls(video,m3u8,onReady){
-  if(Hls.isSupported()){const hls=new Hls({enableWorker:true});hls.loadSource(m3u8);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>{onReady&&onReady();});return hls;}
-  else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=m3u8;onReady&&onReady();return null;}
+  if(Hls.isSupported()){
+    const hls=new Hls({enableWorker:true,maxBufferLength:30});
+    hls.loadSource(m3u8);hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{onReady&&onReady();});
+    return hls;
+  }else if(video.canPlayType('application/vnd.apple.mpegurl')){
+    video.src=m3u8;onReady&&onReady();return null;
+  }
   return null;
 }
 function buildGrid(){
@@ -108,13 +114,25 @@ function buildGrid(){
         this.hls=initHls(this.video,v.m3u8,()=>{sp.style.display='none';});
       }
     });
-    video.addEventListener('timeupdate',()=>{const td=document.getElementById('td'+i);if(td)td.textContent=fmt(video.currentTime)+' / '+fmt(video.duration||0);});
-    video.addEventListener('playing',()=>{document.getElementById('ov'+i).classList.add('hidden');document.getElementById('card'+i).classList.add('playing');});
-    video.addEventListener('pause',()=>{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');});
+    // timeupdate: 時間表示 ＋ HLS ended未発火対策のループ処理
+    video.addEventListener('timeupdate',()=>{
+      const dur=video.duration;
+      const ct=video.currentTime;
+      const td=document.getElementById('td'+i);
+      if(td)td.textContent=fmt(ct)+' / '+fmt(dur||0);
+      // ループ: duration確定済み かつ 残り0.5秒未満
+      if(players[i]&&players[i].looping&&dur>0&&ct>=dur-0.5){
+        video.currentTime=0;
+        video.play().catch(()=>{});
+      }
+    });
+    // ended は念のため残す（ネイティブHLS等で発火する場合）
     video.addEventListener('ended',()=>{
-      if(players[i]&&players[i].looping){video.currentTime=0;video.play();}
+      if(players[i]&&players[i].looping){video.currentTime=0;video.play().catch(()=>{});}
       else{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');}
     });
+    video.addEventListener('playing',()=>{document.getElementById('ov'+i).classList.add('hidden');document.getElementById('card'+i).classList.add('playing');});
+    video.addEventListener('pause',()=>{document.getElementById('ov'+i).classList.remove('hidden');document.getElementById('card'+i).classList.remove('playing');});
   });
 }
 function togglePlay(i){const p=players[i];if(!p.loaded){p.load();setTimeout(()=>p.video.play(),300);return;}if(p.video.paused)p.video.play();else p.video.pause();}
@@ -143,7 +161,7 @@ function selectAll(b){
   document.getElementById('count-label').textContent=selected.size+'頭表示中';
   players.forEach((p,j)=>{p.looping=loopAll&&selected.has(j);document.getElementById('card'+j).classList.toggle('looping',p.looping);});
 }
-let modalIdx=-1,modalHls=null,modalLooping=false;
+let modalIdx=-1,modalHls=null,modalLooping=false,modalSeekGuard=false;
 function openModal(i){
   modalIdx=i;const v=VIDEOS[i];
   document.getElementById('modal-num').textContent=i+1;
@@ -154,8 +172,17 @@ function openModal(i){
   mv.onended=null;mv.ontimeupdate=null;
   document.getElementById('modal').classList.add('open');
   modalHls=initHls(mv,v.m3u8,()=>mv.play());
-  mv.ontimeupdate=()=>{document.getElementById('modal-time').textContent=fmt(mv.currentTime)+' / '+fmt(mv.duration||0);};
-  mv.onended=()=>{if(modalLooping){mv.currentTime=0;mv.play();}};
+  mv.ontimeupdate=()=>{
+    const dur=mv.duration,ct=mv.currentTime;
+    document.getElementById('modal-time').textContent=fmt(ct)+' / '+fmt(dur||0);
+    // HLS ended未発火対策ループ
+    if(modalLooping&&dur>0&&ct>=dur-0.5&&!modalSeekGuard){
+      modalSeekGuard=true;
+      mv.currentTime=0;mv.play().catch(()=>{});
+      setTimeout(()=>{modalSeekGuard=false;},1000);
+    }
+  };
+  mv.onended=()=>{if(modalLooping){mv.currentTime=0;mv.play().catch(()=>{});}};
 }
 function closeModal(e){
   if(e&&e.target!==document.getElementById('modal')&&!e.target.classList.contains('modal-close'))return;
