@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陽春S(3勝) 前走映像 2026/4/19 阪神10R</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+<style>
+:root{--bg:#0e0e12;--s1:#16161e;--s2:#1e1e28;--s3:#252535;--bd:#2a2a3a;--bd2:#3a3a55;--gold:#f0c040;--blue:#5b9cf6;--green:#56d08b;--red:#e05555;--orange:#f09840;--text:#ddddef;--muted:#5a5a80;--font:'Hiragino Sans','Noto Sans JP',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;display:flex;flex-direction:column;}
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex-shrink:0;}
+.header h1{font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap;}
+.controls{display:flex;gap:6px;align-items:center;padding:6px 14px;background:var(--s2);border-bottom:1px solid var(--bd);flex-wrap:wrap;flex-shrink:0;}
+.btn{background:var(--s1);color:var(--text);border:1px solid var(--bd);padding:5px 13px;border-radius:4px;cursor:pointer;font-size:12px;font-family:var(--font);transition:background .12s,border-color .12s;white-space:nowrap;}
+.btn:hover{background:var(--bd);}
+.btn.primary{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.btn.primary:hover{background:#d9b030;}
+.btn.danger{border-color:var(--red);color:var(--red);}
+.btn.loop-on{border-color:var(--orange);color:var(--orange);background:#1e1508;}
+.sep{width:1px;background:var(--bd);height:22px;margin:0 4px;}
+.grid-wrap{flex:1;overflow-y:auto;padding:8px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+@media(max-width:1200px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;transition:border-color .15s;}
+.card:hover{border-color:var(--bd2);}
+.card.playing{border-color:var(--gold);}
+.card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
+.num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prev-info{font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.video-wrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;}
+.video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:opacity .2s;}
+.overlay.hidden{opacity:0;pointer-events:none;}
+.play-circle{width:36px;height:36px;background:rgba(255,255,255,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.play-circle::after{content:'';border-left:13px solid #000;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px;}
+.loop-badge{position:absolute;top:4px;right:4px;background:var(--orange);color:#000;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:none;}
+.card.looping .loop-badge{display:block;}
+.spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,0.25);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.card-footer{padding:3px 8px;display:flex;align-items:center;gap:6px;background:var(--s2);border-top:1px solid var(--bd);}
+.time-disp{font-family:monospace;font-size:10px;color:var(--muted);flex:1;}
+.vol-btn{cursor:pointer;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>陽春S(3勝) 前走映像 2026/4/19 阪神10R</h1>
+  <span style="font-size:11px;color:var(--muted)">2026年4月19日(土) 阪神10R 陽春ステークス(3勝クラス) ダ1200m 13頭</span>
+</div>
+<div class="controls">
+  <button class="btn primary" onclick="playAll()">▶ 全頭同時再生</button>
+  <button class="btn danger" onclick="stopAll()">■ 全停止</button>
+  <div class="sep"></div>
+  <button class="btn loop-on" id="loopBtn" onclick="toggleLoop()">🔁 ループ OFF</button>
+  <div class="sep"></div>
+  <button class="btn" onclick="muteAll()">🔇 全ミュート</button>
+</div>
+<div class="grid-wrap"><div class="grid" id="grid"></div></div>
+<script>
+const SHOW='5e4a7effafe26';
+const HORSES=[{"num":"1","name":"ディニトーソ","prev":"春風Ｓ 10着 26/2/28 中山ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/97e8bdf2fa6641edb28e492e1d605661/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/64297_0.jpg?2019073001"},{"num":"2","name":"ロサンゼルス","prev":"卯月Ｓ 4着 26/4/11 中山ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/cd4e9209b94e4c1e9599bb70ef99898f/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/70682_0.jpg?2019073001"},{"num":"3","name":"ゼットエール","prev":"門松Ｓ 3着 26/1/5 京都ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/e169a24ca5e94c1f87a94954ad71a02a/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/56328_0.jpg?2019073001"},{"num":"4","name":"ジョディーズマロン","prev":"天満橋Ｓ 6着 26/4/5 阪神ダ1400","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/09523c0f22374417b899d31b3c43d318/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/70199_0.jpg?2019073001"},{"num":"5","name":"ショウナンハクウン","prev":"卯月Ｓ 9着 26/4/11 中山ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/1db16f00eaa646589f08347687f1e17b/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/70676_0.jpg?2019073001"},{"num":"6","name":"ゴールドサーベル","prev":"巌流島Ｓ 10着 26/1/31 小倉芝1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/998c21b05d1440dcb58c584b54ba02a5/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/60694_0.jpg?2019073001"},{"num":"7","name":"ロードマイライフ","prev":"ブラッドST 14着 26/3/28 中山ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/86e5b792e9ea4f87aa2a8a126e185ff6/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/68553_0.jpg?2019073001"},{"num":"8","name":"ナスノカンゲツ","prev":"卯月Ｓ 10着 26/4/11 中山ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/73767180e1d74794bca330b24f6cc6ca/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/70673_0.jpg?2019073001"},{"num":"9","name":"ライジン","prev":"なにわＳ 7着 26/3/7 阪神ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/94d257917acc46268b777ca86675b4a2/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/65636_0.jpg?2019073001"},{"num":"10","name":"アンズアメ","prev":"春風Ｓ 3着 26/2/28 中山ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0a7026d6d8584dfcb508e4c2c19ace22/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/64292_0.jpg?2019073001"},{"num":"11","name":"タカネノハナコサン","prev":"なにわＳ 11着 26/3/7 阪神ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/2d2618281c0147aeaf98078d68680814/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/65645_0.jpg?2019073001"},{"num":"12","name":"ボディブロー","prev":"4歳上2勝C 1着 26/3/1 阪神ダ1200","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/4c4081bb4627486184c95f45897032f2/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/65003_0.jpg?2019073001"},{"num":"13","name":"ノボリショウリュウ","prev":"豊明Ｓ 4着 26/3/21 中京ダ1400","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/4595a4c29f174587a2d68405a24a2716/playlist.m3u8","thumb":"https://cdn.netkeiba.com/img/paddock/2026/68148_0.jpg?2019073001"}];
+const players=[];
+let globalLoop=false;
+
+function fmtTime(s){const m=Math.floor(s/60);const ss=Math.floor(s%60);return m+':'+(ss<10?'0':'')+ss;}
+
+HORSES.forEach((v,i)=>{
+  const card=document.createElement('div');
+  card.className='card';
+  card.innerHTML=`
+    <div class="card-header">
+      <div class="num-badge">${v.num}</div>
+      <div style="flex:1;min-width:0">
+        <div class="horse-name">${v.name}</div>
+        <div class="prev-info">${v.prev||''}</div>
+      </div>
+    </div>
+    <div class="video-wrap" id="vw${i}">
+      <video id="vid${i}" preload="none" playsinline></video>
+      <div class="overlay" id="ov${i}"><div class="spinner" id="sp${i}"></div><div class="play-circle" id="pc${i}"></div></div>
+      <div class="loop-badge">LOOP</div>
+    </div>
+    <div class="card-footer">
+      <span class="time-disp" id="td${i}">0:00</span>
+      <span class="vol-btn" onclick="toggleMute(${i})">🔊</span>
+    </div>
+  `;
+  document.getElementById('grid').appendChild(card);
+  const video=document.getElementById('vid'+i);
+  const overlay=document.getElementById('ov'+i);
+  const spinner=document.getElementById('sp'+i);
+  const pc=document.getElementById('pc'+i);
+  let inited=false;
+  players[i]={video,card,inited:false,hls:null};
+  function initHls(){
+    if(players[i].inited)return;
+    players[i].inited=true;
+    spinner.style.display='block';pc.style.display='none';
+    if(Hls.isSupported()){
+      const hls=new Hls({enableWorker:true});
+      hls.loadSource(v.m3u8);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{spinner.style.display='none';pc.style.display='';});
+      players[i].hls=hls;
+    }else if(video.canPlayType('application/vnd.apple.mpegurl')){
+      video.src=v.m3u8;spinner.style.display='none';
+    }
+  }
+  document.getElementById('vw'+i).addEventListener('click',()=>{
+    initHls();
+    if(video.paused){video.play().catch(()=>{});card.classList.add('playing');overlay.classList.add('hidden');}
+    else{video.pause();card.classList.remove('playing');overlay.classList.remove('hidden');}
+  });
+  video.addEventListener('timeupdate',()=>{document.getElementById('td'+i).textContent=fmtTime(video.currentTime)+(video.duration?' / '+fmtTime(video.duration):'');});
+  video.addEventListener('ended',()=>{
+    if(globalLoop){video.currentTime=0;video.play().catch(()=>{});}
+    else{card.classList.remove('playing');overlay.classList.remove('hidden');}
+  });
+});
+
+function playAll(){
+  players.forEach((p,i)=>{
+    const v=HORSES[i];
+    if(!p.inited){
+      p.inited=true;
+      const spinner=document.getElementById('sp'+i);
+      const pc=document.getElementById('pc'+i);
+      spinner.style.display='block';pc.style.display='none';
+      if(Hls.isSupported()){
+        const hls=new Hls({enableWorker:true});
+        hls.loadSource(v.m3u8);hls.attachMedia(p.video);
+        hls.on(Hls.Events.MANIFEST_PARSED,()=>{spinner.style.display='none';pc.style.display='';p.video.play().catch(()=>{});p.card.classList.add('playing');document.getElementById('ov'+i).classList.add('hidden');});
+        p.hls=hls;
+      }else if(p.video.canPlayType('application/vnd.apple.mpegurl')){p.video.src=v.m3u8;spinner.style.display='none';p.video.play().catch(()=>{});}
+    }else{p.video.play().catch(()=>{});p.card.classList.add('playing');document.getElementById('ov'+i).classList.add('hidden');}
+  });
+}
+function stopAll(){players.forEach((p,i)=>{p.video.pause();p.card.classList.remove('playing');document.getElementById('ov'+i).classList.remove('hidden');});}
+function toggleLoop(){
+  globalLoop=!globalLoop;
+  document.getElementById('loopBtn').textContent='🔁 ループ '+(globalLoop?'ON':'OFF');
+  document.getElementById('loopBtn').style.color=globalLoop?'var(--orange)':'';
+}
+function muteAll(){players.forEach(p=>{p.video.muted=!p.video.muted;});}
+function toggleMute(i){players[i].video.muted=!players[i].video.muted;}
+</script>
+</body>
+</html>
