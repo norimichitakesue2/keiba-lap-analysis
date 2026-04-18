@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中山ダート1200m｜展開×ラップ×4コーナー順位分析</title>
+<style>
+:root{--bg:#0c0c10;--s1:#14141c;--s2:#1a1a26;--s3:#20202e;--bd:#28283c;--bd2:#34344a;--gold:#f0c040;--blue:#5b9cf6;--text:#dddddf;--muted:#606090;--muted2:#444466;--font:'Noto Sans JP',sans-serif;--mono:'JetBrains Mono','Courier New',monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;min-height:100vh;}
+.ph{background:var(--s1);border-bottom:2px solid var(--gold);padding:10px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.ph h1{font-size:15px;font-weight:700;color:var(--gold);}
+.ph-badge{background:var(--s2);border:1px solid var(--bd2);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--blue);}
+.ph-sub{font-size:11px;color:var(--muted);}
+.hint-bar{background:var(--s2);border-bottom:1px solid var(--bd);padding:6px 18px;font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+.legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;}
+.leg-dot{width:10px;height:10px;border-radius:50%;}
+.c-hi{background:#f0c040;}.c-mid{background:#f09050;}.c-lo{background:#5b9cf6;}.c-vlo{background:#8080c0;}.c-none{background:#28283c;border:1px solid #444;}
+.container{padding:14px 12px;max-width:1800px;margin:0 auto;}
+.dev-row{display:grid;grid-template-columns:180px repeat(5,1fr);gap:6px;margin-bottom:8px;}
+.dev-cell{background:var(--s1);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;}
+.dev-cell.dev-header{background:var(--s2);border-color:var(--bd2);}
+.dev-title{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:2px;}
+.dev-count{font-size:13px;color:var(--text);margin-bottom:6px;}
+.dev-summary{font-size:10px;color:var(--muted);line-height:1.6;}
+.lap-header{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.lap-count{font-size:11px;color:var(--muted);}
+.win-big{font-size:22px;font-weight:700;margin-bottom:1px;}
+.results-txt{font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:3px;}
+.rate-row{font-size:10px;color:var(--muted);}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px;}
+.wr-hi{color:#f0c040;}.wr-mid{color:#f09050;}.wr-lo{color:#5b9cf6;}.wr-vlo{color:#8080c0;}.wr-none{color:#444466;}
+.detail-wrap{grid-column:1/-1;display:none;}
+.detail-wrap.open{display:block;}
+.detail-panel{background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:14px;margin-top:4px;}
+.detail-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;}
+.jyuni-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;}
+.jyuni-card{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:8px 10px;}
+.jyuni-label{font-size:10px;color:var(--muted);margin-bottom:3px;}
+.jyuni-wr{font-size:18px;font-weight:700;}
+.jyuni-results{font-size:9px;color:var(--muted);font-family:var(--mono);}
+.jyuni-rates{font-size:9px;color:var(--muted);margin-top:2px;}
+.lap-tab{cursor:pointer;transition:border-color .15s,background .15s;}
+.lap-tab:hover{border-color:var(--bd2);background:var(--s2);}
+.lap-tab.active{border-color:var(--gold)!important;background:var(--s3)!important;}
+.empty-cell{display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:11px;}
+@media(max-width:1100px){.dev-row{grid-template-columns:160px repeat(3,1fr);}}
+@media(max-width:700px){.dev-row{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="ph">
+  <h1>中山ダート1200m｜展開×ラップ×4角分析</h1>
+  <span class="ph-badge">4角 12/15 取得済</span>
+  <span class="ph-sub">展開タイプ別総数・ラップタイプ成績 ／ タブクリックで4コーナー順位詳細を表示</span>
+</div>
+<div class="hint-bar">
+  <div class="legend">
+    <div class="leg"><div class="leg-dot c-hi"></div>勝率30%+</div>
+    <div class="leg"><div class="leg-dot c-mid"></div>20-30%</div>
+    <div class="leg"><div class="leg-dot c-lo"></div>10-20%</div>
+    <div class="leg"><div class="leg-dot c-vlo"></div>5-10%</div>
+    <div class="leg"><div class="leg-dot c-none"></div>5%未満</div>
+  </div>
+</div>
+<div class="container" id="app"></div>
+<script>
+const CORNER = {"ハイペース耐久戦_先行型":[{"label":"1番手","total":"212","results":"57-39-11-105","winRate":"26.9%","placeRate":"45.3%"},{"label":"2番手","total":"310","results":"61-53-40-156","winRate":"19.7%","placeRate":"36.8%"},{"label":"3番手","total":"217","results":"28-22-32-135","winRate":"12.9%","placeRate":"23.0%"},{"label":"4番手","total":"218","results":"17-21-28-152","winRate":"7.8%","placeRate":"17.4%"},{"label":"5番手","total":"227","results":"14-13-22-178","winRate":"6.2%","placeRate":"11.9%"},{"label":"6番手","total":"188","results":"9-11-10-158","winRate":"4.8%","placeRate":"10.6%"},{"label":"7番手","total":"210","results":"5-11-11-183","winRate":"2.4%","placeRate":"7.6%"},{"label":"8番手","total":"219","results":"2-6-18-193","winRate":"0.9%","placeRate":"3.7%"},{"label":"9番手","total":"173","results":"3-3-7-160","winRate":"1.7%","placeRate":"3.5%"},{"label":"10番手","total":"206","results":"2-9-9-186","winRate":"1.0%","placeRate":"5.3%"},{"label":"11番手","total":"149","results":"0-2-1-146","winRate":"0.0%","placeRate":"1.3%"},{"label":"12番手","total":"173","results":"1-1-0-171","winRate":"0.6%","placeRate":"1.2%"},{"label":"13番手","total":"163","results":"0-3-2-158","winRate":"0.0%","placeRate":"1.8%"},{"label":"14番手","total":"119","results":"2-2-2-113","winRate":"1.7%","placeRate":"3.4%"},{"label":"15番手","total":"104","results":"0-2-1-101","winRate":"0.0%","placeRate":"1.9%"},{"label":"16番手","total":"82","results":"0-0-0-82","winRate":"0.0%","placeRate":"0.0%"}],"ハイペース耐久戦_持続型":[{"label":"3番手","total":"1","results":"1-0-0-0","winRate":"100.0%","placeRate":"100.0%"},{"label":"4番手","total":"1","results":"0-1-0-0","winRate":"0.0%","placeRate":"100.0%"},{"label":"5番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"6番手","total":"1","results":"0-1-0-0","winRate":"0.0%","placeRate":"100.0%"},{"label":"7番手","total":"3","results":"2-0-0-1","winRate":"66.7%","placeRate":"66.7%"},{"label":"8番手","total":"7","results":"0-1-2-4","winRate":"0.0%","placeRate":"14.3%"},{"label":"9番手","total":"8","results":"2-0-2-4","winRate":"25.0%","placeRate":"25.0%"},{"label":"10番手","total":"13","results":"0-0-3-10","winRate":"0.0%","placeRate":"0.0%"},{"label":"11番手","total":"18","results":"0-0-0-18","winRate":"0.0%","placeRate":"0.0%"},{"label":"12番手","total":"20","results":"1-2-1-16","winRate":"5.0%","placeRate":"15.0%"},{"label":"13番手","total":"27","results":"0-1-2-24","winRate":"0.0%","placeRate":"3.7%"},{"label":"14番手","total":"36","results":"0-1-2-33","winRate":"0.0%","placeRate":"2.8%"},{"label":"15番手","total":"34","results":"0-0-1-33","winRate":"0.0%","placeRate":"0.0%"},{"label":"16番手","total":"20","results":"1-0-0-19","winRate":"5.0%","placeRate":"5.0%"}],"ハイペース耐久戦_耐久型":[{"label":"5番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"7番手","total":"5","results":"1-1-2-1","winRate":"20.0%","placeRate":"40.0%"},{"label":"8番手","total":"4","results":"1-2-0-1","winRate":"25.0%","placeRate":"75.0%"},{"label":"9番手","total":"3","results":"1-0-0-2","winRate":"33.3%","placeRate":"33.3%"},{"label":"10番手","total":"12","results":"0-2-1-9","winRate":"0.0%","placeRate":"16.7%"},{"label":"11番手","total":"7","results":"0-1-0-6","winRate":"0.0%","placeRate":"14.3%"},{"label":"12番手","total":"14","results":"0-0-0-14","winRate":"0.0%","placeRate":"0.0%"},{"label":"13番手","total":"20","results":"0-0-1-19","winRate":"0.0%","placeRate":"0.0%"},{"label":"14番手","total":"22","results":"1-1-0-20","winRate":"4.6%","placeRate":"9.1%"},{"label":"15番手","total":"28","results":"0-0-0-28","winRate":"0.0%","placeRate":"0.0%"},{"label":"16番手","total":"25","results":"0-0-1-24","winRate":"0.0%","placeRate":"0.0%"}],"ハイペース耐久戦_加速型":[{"label":"12番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"15番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"16番手","total":"2","results":"0-0-1-1","winRate":"0.0%","placeRate":"0.0%"}],"ハイペース耐久戦_終い伸び型":[{"label":"15番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"}],"ハイペース消耗戦_先行型":[{"label":"1番手","total":"85","results":"15-15-12-43","winRate":"17.7%","placeRate":"35.3%"},{"label":"2番手","total":"113","results":"28-19-10-56","winRate":"24.8%","placeRate":"41.6%"},{"label":"3番手","total":"100","results":"8-14-10-68","winRate":"8.0%","placeRate":"22.0%"},{"label":"4番手","total":"82","results":"6-5-7-64","winRate":"7.3%","placeRate":"13.4%"},{"label":"5番手","total":"100","results":"10-6-12-72","winRate":"10.0%","placeRate":"16.0%"},{"label":"6番手","total":"62","results":"4-5-5-48","winRate":"6.5%","placeRate":"14.5%"},{"label":"7番手","total":"104","results":"4-3-5-92","winRate":"3.9%","placeRate":"6.7%"},{"label":"8番手","total":"68","results":"0-3-2-63","winRate":"0.0%","placeRate":"4.4%"},{"label":"9番手","total":"93","results":"2-4-6-81","winRate":"2.2%","placeRate":"6.5%"},{"label":"10番手","total":"82","results":"2-2-3-75","winRate":"2.4%","placeRate":"4.9%"},{"label":"11番手","total":"66","results":"1-3-6-56","winRate":"1.5%","placeRate":"6.1%"},{"label":"12番手","total":"77","results":"2-0-3-72","winRate":"2.6%","placeRate":"2.6%"},{"label":"13番手","total":"70","results":"2-1-0-67","winRate":"2.9%","placeRate":"4.3%"},{"label":"14番手","total":"55","results":"1-1-1-52","winRate":"1.8%","placeRate":"3.6%"},{"label":"15番手","total":"62","results":"0-0-0-62","winRate":"0.0%","placeRate":"0.0%"},{"label":"16番手","total":"35","results":"0-0-0-35","winRate":"0.0%","placeRate":"0.0%"}],"ハイペース消耗戦_持続型":[{"label":"7番手","total":"1","results":"0-1-0-0","winRate":"0.0%","placeRate":"100.0%"},{"label":"8番手","total":"3","results":"0-1-0-2","winRate":"0.0%","placeRate":"33.3%"},{"label":"9番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"10番手","total":"3","results":"0-0-1-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"11番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"12番手","total":"3","results":"0-0-0-3","winRate":"0.0%","placeRate":"0.0%"},{"label":"13番手","total":"6","results":"0-1-0-5","winRate":"0.0%","placeRate":"16.7%"},{"label":"14番手","total":"8","results":"0-0-0-8","winRate":"0.0%","placeRate":"0.0%"},{"label":"15番手","total":"8","results":"0-1-1-6","winRate":"0.0%","placeRate":"12.5%"},{"label":"16番手","total":"7","results":"0-0-0-7","winRate":"0.0%","placeRate":"0.0%"}],"ハイペース消耗戦_耐久型":[{"label":"11番手","total":"3","results":"0-0-1-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"12番手","total":"3","results":"0-1-0-2","winRate":"0.0%","placeRate":"33.3%"},{"label":"13番手","total":"14","results":"0-0-0-14","winRate":"0.0%","placeRate":"0.0%"},{"label":"14番手","total":"3","results":"0-0-0-3","winRate":"0.0%","placeRate":"0.0%"},{"label":"15番手","total":"5","results":"0-0-0-5","winRate":"0.0%","placeRate":"0.0%"},{"label":"16番手","total":"7","results":"0-0-0-7","winRate":"0.0%","placeRate":"0.0%"}],"均衡戦_先行型":[{"label":"1番手","total":"5","results":"1-1-2-1","winRate":"20.0%","placeRate":"40.0%"},{"label":"2番手","total":"6","results":"1-1-1-3","winRate":"16.7%","placeRate":"33.3%"},{"label":"3番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"4番手","total":"6","results":"0-1-0-5","winRate":"0.0%","placeRate":"16.7%"},{"label":"5番手","total":"3","results":"0-0-0-3","winRate":"0.0%","placeRate":"0.0%"},{"label":"6番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"7番手","total":"4","results":"0-0-0-4","winRate":"0.0%","placeRate":"0.0%"},{"label":"8番手","total":"3","results":"0-0-0-3","winRate":"0.0%","placeRate":"0.0%"},{"label":"9番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"10番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"11番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"12番手","total":"3","results":"0-0-0-3","winRate":"0.0%","placeRate":"0.0%"},{"label":"13番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"16番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"}],"均衡戦_持続型":[{"label":"1番手","total":"1","results":"1-0-0-0","winRate":"100.0%","placeRate":"100.0%"},{"label":"2番手","total":"4","results":"1-0-1-2","winRate":"25.0%","placeRate":"25.0%"},{"label":"3番手","total":"2","results":"0-1-1-0","winRate":"0.0%","placeRate":"50.0%"},{"label":"4番手","total":"3","results":"1-0-0-2","winRate":"33.3%","placeRate":"33.3%"},{"label":"5番手","total":"1","results":"0-0-1-0","winRate":"0.0%","placeRate":"0.0%"},{"label":"6番手","total":"3","results":"0-0-0-3","winRate":"0.0%","placeRate":"0.0%"},{"label":"8番手","total":"4","results":"0-0-0-4","winRate":"0.0%","placeRate":"0.0%"},{"label":"9番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"10番手","total":"4","results":"0-0-0-4","winRate":"0.0%","placeRate":"0.0%"},{"label":"11番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"12番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"13番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"14番手","total":"4","results":"0-0-0-4","winRate":"0.0%","placeRate":"0.0%"},{"label":"15番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"16番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"}],"均衡戦_耐久型":[{"label":"1番手","total":"2","results":"2-0-0-0","winRate":"100.0%","placeRate":"100.0%"},{"label":"2番手","total":"2","results":"1-1-0-0","winRate":"50.0%","placeRate":"100.0%"},{"label":"3番手","total":"1","results":"0-1-0-0","winRate":"0.0%","placeRate":"100.0%"},{"label":"4番手","total":"2","results":"0-1-0-1","winRate":"0.0%","placeRate":"50.0%"},{"label":"5番手","total":"1","results":"0-0-1-0","winRate":"0.0%","placeRate":"0.0%"},{"label":"6番手","total":"6","results":"0-1-0-5","winRate":"0.0%","placeRate":"16.7%"},{"label":"7番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"8番手","total":"2","results":"0-0-0-2","winRate":"0.0%","placeRate":"0.0%"},{"label":"10番手","total":"3","results":"0-0-0-3","winRate":"0.0%","placeRate":"0.0%"},{"label":"11番手","total":"1","results":"0-0-1-0","winRate":"0.0%","placeRate":"0.0%"},{"label":"12番手","total":"1","results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%"},{"label":"13番手","total":"4","results":"0-0-0-4","winRate":"0.0%","placeRate":"0.0%"}],"均衡戦_加速型":[{"label":"1番手","total":"264","results":"70-45-26-123","winRate":"26.5%","placeRate":"43.6%"},{"label":"2番手","total":"360","results":"54-61-43-202","winRate":"15.0%","placeRate":"31.9%"},{"label":"3番手","total":"292","results":"40-35-26-191","winRate":"13.7%","placeRate":"25.7%"},{"label":"4番手","total":"315","results":"30-39-42-204","winRate":"9.5%","placeRate":"21.9%"},{"label":"5番手","total":"233","results":"15-19-24-175","winRate":"6.4%","placeRate":"14.6%"},{"label":"6番手","total":"284","results":"13-19-33-219","winRate":"4.6%","placeRate":"11.3%"},{"label":"7番手","total":"269","results":"12-17-18-222","winRate":"4.5%","placeRate":"10.8%"},{"label":"8番手","total":"247","results":"8-8-20-211","winRate":"3.2%","placeRate":"6.5%"},{"label":"9番手","total":"228","results":"9-3-14-202","winRate":"4.0%","placeRate":"5.3%"},{"label":"10番手","total":"239","results":"3-8-6-222","winRate":"1.3%","placeRate":"4.6%"},{"label":"11番手","total":"229","results":"4-2-6-217","winRate":"1.8%","placeRate":"2.6%"},{"label":"12番手","total":"193","results":"2-1-4-186","winRate":"1.0%","placeRate":"1.6%"},{"label":"13番手","total":"174","results":"2-3-1-168","winRate":"1.2%","placeRate":"2.9%"},{"label":"14番手","total":"153","results":"1-3-0-149","winRate":"0.7%","placeRate":"2.6%"},{"label":"15番手","total":"126","results":"1-1-0-124","winRate":"0.8%","placeRate":"1.6%"},{"label":"16番手","total":"89","results":"0-0-1-88","winRate":"0.0%","placeRate":"0.0%"},{"label":"17番手","total":"13","results":"0-0-1-12","winRate":"0.0%","placeRate":"0.0%"},{"label":"18番手","total":"12","results":"0-0-0-12","winRate":"0.0%","placeRate":"0.0%"}]};
+const DEV_TYPES=[
+  {name:'ハイペース耐久戦',total:8688,laps:['先行型','持続型','耐久型','加速型','終い伸び型']},
+  {name:'ハイペース消耗戦',total:3833,laps:['先行型','持続型','耐久型','加速型','終い伸び型']},
+  {name:'均衡戦',total:167,laps:['先行型','持続型','耐久型','加速型','終い伸び型']},
+];
+function calcRates(rows){let a=0,b=0,c=0,d=0;rows.forEach(r=>{const p=(r.results||'').split('-');if(p.length===4){a+=+p[0];b+=+p[1];c+=+p[2];d+=+p[3];}});const t=a+b+c+d;return t>0?{wr:(a/t*100).toFixed(1),cr:((a+b)/t*100).toFixed(1),pr:((a+b+c)/t*100).toFixed(1),results:a+'-'+b+'-'+c+'-'+d,total:t}:{wr:'–',cr:'–',pr:'–',results:'0-0-0-0',total:0};}
+function wc(wr){const v=parseFloat(wr);if(isNaN(v))return'wr-none';if(v>=30)return'wr-hi';if(v>=20)return'wr-mid';if(v>=10)return'wr-lo';if(v>=5)return'wr-vlo';return'wr-none';}
+function dotc(wr){const v=parseFloat(wr);if(isNaN(v))return'c-none';if(v>=30)return'c-hi';if(v>=20)return'c-mid';if(v>=10)return'c-lo';if(v>=5)return'c-vlo';return'c-none';}
+function crStr(r){const p=(r||'').split('-');if(p.length!==4)return'–';const t=p.reduce((s,x)=>s+(+x),0);return t>0?(((+p[0])+(+p[1]))/t*100).toFixed(1)+'%':'–';}
+let activeKey=null;
+function build(){
+  const app=document.getElementById('app');app.innerHTML='';
+  DEV_TYPES.forEach(dev=>{
+    const row=document.createElement('div');row.className='dev-row';
+    const dr=calcRates(dev.laps.flatMap(l=>CORNER[dev.name+'_'+l]||[]));
+    const dc=document.createElement('div');dc.className='dev-cell dev-header';
+    dc.innerHTML='<div class="dev-title">'+dev.name+'</div><div class="dev-count">'+dev.total+' 件</div><div class="dev-summary">勝率 '+dr.wr+'% ／ 連対率 '+dr.cr+'%<br>／ 複勝率 '+dr.pr+'%<br>'+dr.results+'</div>';
+    row.appendChild(dc);
+    dev.laps.forEach(lap=>{
+      const key=dev.name+'_'+lap;const rows=CORNER[key]||[];
+      const cell=document.createElement('div');
+      if(rows.length===0){cell.className='dev-cell empty-cell';cell.innerHTML='<div><div class="lap-header"><span class="dot c-none"></span>'+lap+'</div><div style="color:var(--muted2);font-size:10px;margin-top:4px">データなし</div></div>';}
+      else{const rates=calcRates(rows);cell.className='dev-cell lap-tab'+(activeKey===key?' active':'');cell.dataset.key=key;
+        cell.innerHTML='<div class="lap-header"><span class="dot '+dotc(rates.wr)+'"></span>'+lap+'<span class="lap-count">'+rates.total+'件</span></div><div class="win-big '+wc(rates.wr)+'">'+rates.wr+'<span style="font-size:12px;font-weight:400">%</span></div><div class="results-txt">'+rates.results+'</div><div class="rate-row">連 '+rates.cr+'% 複 '+rates.pr+'%</div>';
+        cell.addEventListener('click',()=>{const was=activeKey===key;document.querySelectorAll('.lap-tab').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.detail-wrap').forEach(el=>{el.classList.remove('open');el.innerHTML='';});if(was){activeKey=null;return;}activeKey=key;cell.classList.add('active');const dw=row.nextElementSibling;if(dw&&dw.classList.contains('detail-wrap')){dw.classList.add('open');renderDetail(dw,key,dev.name,lap);}});}
+      row.appendChild(cell);
+    });
+    app.appendChild(row);
+    const dr2=document.createElement('div');dr2.className='detail-wrap';app.appendChild(dr2);
+  });
+}
+function renderDetail(wrap,key,devName,lapName){
+  const rows=CORNER[key]||[];let cards='';
+  rows.forEach(r=>{cards+='<div class="jyuni-card"><div class="jyuni-label">'+r.label+'</div><div class="jyuni-wr '+wc(r.winRate)+'">'+r.winRate+'</div><div class="jyuni-results">'+r.results+'</div><div class="jyuni-rates">連 '+crStr(r.results)+' 複 '+r.placeRate+'</div></div>';});
+  wrap.innerHTML='<div class="detail-panel"><div class="detail-title">4コーナー順位詳細：'+devName+' × '+lapName+'</div><div class="jyuni-grid">'+cards+'</div></div>';
+}
+build();
+</script>
+</body>
+</html>
