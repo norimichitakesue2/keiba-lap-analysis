@@ -4,61 +4,302 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>展開×ラップ×4角分析 コース一覧</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#0c0c10; --s1:#14141c; --s2:#1a1a26;
+  --bg:#0c0c10; --s1:#14141c; --s2:#1a1a26; --s3:#20202e;
   --bd:#28283c; --bd2:#34344a;
-  --gold:#f0c040; --blue:#5b9cf6; --green:#56d08b;
-  --text:#dddddf; --muted:#606090;
-  --font:'Noto Sans JP',sans-serif;
+  --gold:#f0c040; --blue:#5b9cf6; --green:#56d08b; --orange:#f09050;
+  --text:#ddddef; --muted:#6060a0;
+  --font:'Noto Sans JP',sans-serif; --mono:'DM Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
-.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:16px 24px;}
-.header h1{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:4px;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5;min-height:100vh;}
+
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:18px 28px;}
+.header h1{font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px;}
 .header p{font-size:12px;color:var(--muted);}
-.container{padding:20px 16px;max-width:1200px;margin:0 auto;}
-.section-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:32px;}
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:16px;text-decoration:none;color:var(--text);transition:border-color .15s,background .15s;display:block;}
-.card:hover{border-color:var(--gold);background:var(--s2);}
-.card-badge{display:inline-block;background:var(--s2);border:1px solid var(--bd2);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--blue);margin-bottom:8px;}
-.card-title{font-size:17px;font-weight:700;color:var(--gold);margin-bottom:4px;}
-.card-sub{font-size:11px;color:var(--muted);margin-bottom:8px;}
-.card-stats{font-size:11px;color:var(--text);}
+
+.container{max-width:900px;margin:0 auto;padding:32px 20px;}
+
+.section-title{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--bd);}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:40px;}
+
+.course-card{
+  display:block;text-decoration:none;
+  background:var(--s1);border:1px solid var(--bd);border-radius:8px;
+  padding:18px 20px;transition:border-color .15s,background .15s;
+  position:relative;overflow:hidden;
+}
+.course-card:hover{border-color:var(--gold);background:var(--s2);}
+.course-card::before{
+  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+}
+.course-card.turf::before{background:var(--green);}
+.course-card.dirt::before{background:var(--orange);}
+
+.course-label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.badge{
+  display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px;font-family:var(--mono);
+}
+.badge.turf{background:rgba(86,208,139,.15);color:var(--green);border:1px solid rgba(86,208,139,.3);}
+.badge.dirt{background:rgba(240,144,80,.15);color:var(--orange);border:1px solid rgba(240,144,80,.3);}
+
+.course-name{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.course-meta{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;}
+.meta-item{display:flex;align-items:center;gap:4px;}
+.meta-item::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+
+.dev-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;}
+.dev-tag{font-size:9px;padding:2px 7px;border-radius:3px;background:var(--s3);color:var(--muted);border:1px solid var(--bd);font-family:var(--mono);}
+.dev-tag.main{color:var(--gold);border-color:rgba(240,192,64,.3);background:rgba(240,192,64,.06);}
+
+.arrow{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;transition:color .15s,right .15s;}
+.course-card:hover .arrow{color:var(--gold);right:12px;}
+
+.coming-soon{opacity:.4;pointer-events:none;cursor:default;}
+.coming-soon .arrow{display:none;}
+.cs-badge{position:absolute;top:10px;right:10px;font-size:9px;background:var(--s3);color:var(--muted);padding:2px 8px;border-radius:3px;border:1px solid var(--bd);}
+
+.note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7;}
+.note a{color:var(--blue);text-decoration:none;}
+.note a:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
+
 <div class="header">
-  <h1>展開×ラップ×4角分析</h1>
-  <p>コース別の展開タイプ・ラップタイプ・4コーナー順位データ</p>
+  <h1>📊 展開×ラップ×4コーナー分析</h1>
+  <p>展開タイプ × 個別ラップタイプ × 4コーナー順位の3段クロス集計 — netkeibaデータより作成</p>
 </div>
+
 <div class="container">
-  <div class="section-title">中山競馬場</div>
-  <div class="cards">
-    <a href="nakayama_1600_corner4.html" class="card">
-      <div class="card-badge">4角順位</div>
-      <div class="card-title">中山芝1600m</div>
-      <div class="card-sub">展開×ラップ×4コーナー順位分析</div>
-      <div class="card-stats">均衡戦・持続戦・HP消耗戦ほる</div>
+
+  <div class="section-title">芝コース</div>
+  <div class="grid">
+
+    <a href="corner4_full.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・阪神</div>
+      <div class="course-name">阪神 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">5,871件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
     </a>
-    <a href="nakayama_2000_corner4.html" class="card">
-      <div class="card-badge">4角順位</div>
-      <div class="card-title">中山芝2000m</div>
-      <div class="card-sub">展開×ラップ×4コーナー順位分析</div>
-      <div class="card-stats">均衡戦1896 持続戦1087 瞬発戦778</div>
+
+    <a href="nakayama_1600_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中山</div>
+      <div class="course-name">中山 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">5,871件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
     </a>
+    <a href="nakayama_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中山</div>
+      <div class="course-name">中山 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">4,550件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="fukushima_1800_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・福島</div>
+      <div class="course-name">福島 芝1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">2,195件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+
+    <a href="nakayama_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中山</div>
+      <div class="course-name">中山 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">3,133件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <div class="course-card turf coming-soon">
+      <span class="cs-badge">準備中</span>
+      <div class="course-label"><span class="badge turf">芝</span>JRA・東京</div>
+      <div class="course-name">東京 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">左外回り</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag">Coming soon</span>
+      </div>
+    </div>
+
+    <div class="course-card turf coming-soon">
+      <span class="cs-badge">準備中</span>
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag">Coming soon</span>
+      </div>
+    </div>
+
   </div>
-  <div class="section-title">福島競馬場</div>
-  <div class="cards">
-    <a href="fukushima_1800_corner4.html" class="card">
-      <div class="card-badge">4角順位</div>
-      <div class="card-title">福島芝1800m</div>
-      <div class="card-sub">展開×ラップ×4コーナー順位分析</div>
-      <div class="card-stats">均衡戦1414 持続戦510 瞬発戦271</div>
+
+  <div class="section-title">パドック映像比較</div>
+  <div class="grid" style="margin-bottom:40px;">
+
+    
+    <a href="paddock_2026_satsuki.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山11R · 2026/4/19</div>
+      <div class="course-name" style="font-size:15px;">皐月賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">GI</span></div>
+      <div class="course-detail">芝2000m ／ 21頭 ／ 前走パドック映像</div>
     </a>
+    <a href="paddock_2026_fukushima_himba.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R · 2026/4/19</div>
+      <div class="course-name" style="font-size:15px;">福島牝馬Ｓ <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-detail">芝1800m ／ 20頭 ／ 前走パドック映像</div>
+    </a>
+    <a href="paddock_2026_tatsukyo.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神11R · 2026/4/19</div>
+      <div class="course-name" style="font-size:15px;">立雲峡Ｓ <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝クラス</span></div>
+      <div class="course-detail">芝1600m ／ 13頭 ／ 前走パドック映像</div>
+    </a>
+
+    <a href="paddock_2026_nzt.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山11R · 2026/4/11</div>
+      <div class="course-name" style="font-size:15px;">ニュージーランドT <span style="font-size:11px;color:var(--muted);font-weight:400;">GII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">14頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+  2   <span class="arrow">→</span>
+    </a>
+
+    <a href="paddock_2026_sakurakai.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神11R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">桜花賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">GI</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">18頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="paddock_2026_akebono.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山10R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">あけぼのS <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝クラス</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">11頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="paddock_2026_shunrai.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山11R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">春雷S <span style="font-size:11px;color:var(--muted);font-weight:400;">L</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="paddock_2026_kyobashi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神10R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">京橋S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝クラス</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">15頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="paddock_2026_fukushima.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">福島民報杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">L</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">15頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
   </div>
+
+  <div class="section-title">使い方</div>
+  <p class="note">
+    各コースページでは <strong style="color:var(--text)">展開タイプ</strong> → <strong style="color:var(--text)">個別ラップタイプ</strong> をクリックすると、その条件での <strong style="color:var(--text)">4コーナー順位別 勝率・連対率・複勝率</strong> が表示されます。<br>
+    例）「均衡戦 × 持続型」で逃げ馬（1番手）の連対率を確認 → 前受けが有利かどうかの判断材料に。<br><br>
+    データはnetkeibaの勝ち馬サーチより取得。8割を占める上位3展開タイプのみ掲載しています。
+  </p>
+
 </div>
 </body>
 </html>
