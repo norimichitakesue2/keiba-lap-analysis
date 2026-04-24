@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>京都芝1600m 展開×ラップ×4角分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0c10;--s1:#14141c;--s2:#1a1a26;--s3:#20202e;--bd:#28283c;--bd2:#34344a;--gold:#f0c040;--blue:#5b9cf6;--green:#56d08b;--orange:#f09050;--red:#e05555;--purple:#a080f0;--text:#ddddef;--muted:#6060a0;--muted2:#444466;--font:'Noto Sans JP',sans-serif;--mono:'DM Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5}
+a{color:inherit}
+.ph{background:var(--s1);border-bottom:2px solid var(--gold);padding:14px 22px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ph h1{font-size:16px;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.ph p{font-size:11px;color:var(--muted)}
+.ph a.back{font-size:11px;color:var(--muted);text-decoration:none;margin-right:4px}
+.ph a.back:hover{color:var(--gold)}
+.chip{background:var(--gold);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;font-family:var(--mono)}
+.hint-bar{background:var(--s2);border-bottom:1px solid var(--bd);padding:6px 22px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.hint-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.hdot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.container{padding:14px 18px}
+.dev-section{margin-bottom:20px;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.dev-summary{display:grid;grid-template-columns:170px 1fr;background:var(--s2);border-bottom:1px solid var(--bd)}
+.dev-info{padding:12px 14px;border-right:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center;gap:5px}
+.dev-name{font-size:15px;font-weight:700;letter-spacing:.05em}
+.dev-name.shunpatsu{color:#f0c040}
+.dev-name.kinko{color:#5b9cf6}
+.dev-name.jizoku{color:#56d08b}
+.dev-name.mae{color:#f09050}
+.dev-total-num{font-family:var(--mono);font-size:19px;font-weight:500;color:var(--text)}
+.dev-meta{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.lap-tabs{display:flex;overflow-x:auto}
+.lap-tab{flex:1 1 0;min-width:120px;padding:9px 10px;border-right:1px solid var(--bd);cursor:pointer;transition:background .12s;border-bottom:2px solid transparent;position:relative}
+.lap-tab:last-child{border-right:none}
+.lap-tab:hover{background:var(--s3)}
+.lap-tab.active{background:var(--s3);border-bottom-color:var(--gold)}
+.lt-name{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.07em;margin-bottom:4px}
+.lt-win{font-family:var(--mono);font-size:14px;font-weight:500}
+.lt-row{display:flex;align-items:baseline;gap:6px;margin-bottom:2px}
+.lt-count{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.lt-results{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.lt-place{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle}
+.detail-panel{display:none;padding:14px 16px;background:var(--s1);border-top:1px solid var(--bd)}
+.detail-panel.open{display:block}
+.dp-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.dp-badge{font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px}
+.dp-badge.ok{background:#1a3a1a;color:var(--green)}
+.dp-badge.ng{background:#3a1a1a;color:var(--red)}
+.dp-badge.pending{background:#1a1a2a;color:var(--muted)}
+.bars{display:flex;flex-direction:column;gap:4px}
+.bar-row{display:flex;align-items:center;gap:8px;height:22px}
+.bl{font-family:var(--mono);font-size:10px;color:var(--muted);width:40px;text-align:right;flex-shrink:0}
+.bt{flex:1 1 0;height:14px;background:var(--s2);border-radius:2px;overflow:hidden;max-width:280px}
+.bf{height:100%;border-radius:2px}
+.bm{display:flex;align-items:center;gap:7px;flex-shrink:0;width:70px}
+.bw{font-family:var(--mono);font-size:11px;font-weight:500;width:38px;text-align:right}
+.bn{font-family:var(--mono);font-size:10px;color:var(--muted);width:28px}
+.br{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.no-data{font-size:11px;color:var(--muted);font-style:italic}
+</style>
+</head>
+<body>
+<div class="ph">
+  <a class="back" href="index.html">&#9664; 戻る</a>
+  <h1>京都芝1600m｜展開×ラップ×4角分析</h1>
+  <span class="chip">3,166件 / 京都 右外回り</span>
+  <p>netkeiba勝ち馬サーチより集計 ／ 上位3展開タイプ（合計 79.0%）を掲載</p>
+</div>
+
+<div class="hint-bar">
+  <div class="hint-item"><span class="hdot" style="background:#f0c040"></span>瞬発戦 414件(13.1%)</div>
+  <div class="hint-item"><span class="hdot" style="background:#5b9cf6"></span>均衡戦 1,751件(55.3%)</div>
+  <div class="hint-item"><span class="hdot" style="background:#56d08b"></span>持続戦 337件(10.6%)</div>
+  <div class="hint-item"><span class="hdot" style="background:var(--muted2)"></span>他5展開(21.0%)</div>
+  <div class="hint-item" style="margin-left:auto">ラップタイプをクリックで 4角順位別成績を表示</div>
+</div>
+
+<div class="container" id="root"></div>
+
+<script>
+// ====== DATA ======
+// 展開タイプ×個別ラップタイプごとの 4コーナー順位別成績
+// {I:4角順位, T:件数, K:着度数, W:勝率%, D:連対率%, P:複勝率%}
+const CORNER = {
+  "瞬発戦_終い伸び型":[{I:1,T:9,K:"4-2-1-2",W:44.4,D:66.7,P:77.8},{I:2,T:16,K:"3-8-0-5",W:18.8,D:68.8,P:68.8},{I:3,T:21,K:"3-3-5-10",W:14.3,D:28.6,P:52.4},{I:4,T:12,K:"2-1-3-6",W:16.7,D:25.0,P:50.0},{I:5,T:6,K:"0-1-1-4",W:0.0,D:16.7,P:33.3},{I:6,T:15,K:"2-0-1-12",W:13.3,D:13.3,P:20.0},{I:7,T:8,K:"0-1-1-6",W:0.0,D:12.5,P:25.0},{I:8,T:9,K:"2-0-0-7",W:22.2,D:22.2,P:22.2},{I:9,T:11,K:"0-1-0-10",W:0.0,D:9.1,P:9.1},{I:10,T:10,K:"1-0-1-8",W:10.0,D:10.0,P:20.0},{I:11,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:12,T:12,K:"0-0-0-12",W:0.0,D:0.0,P:0.0},{I:13,T:5,K:"0-0-0-5",W:0.0,D:0.0,P:0.0},{I:14,T:5,K:"0-0-0-5",W:0.0,D:0.0,P:0.0},{I:15,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:16,T:5,K:"0-0-0-5",W:0.0,D:0.0,P:0.0},{I:17,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0}],
+  "瞬発戦_加速型":[{I:1,T:6,K:"0-0-1-5",W:0.0,D:0.0,P:16.7},{I:2,T:4,K:"1-0-1-2",W:25.0,D:25.0,P:50.0},{I:3,T:4,K:"0-0-1-3",W:0.0,D:0.0,P:25.0},{I:4,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:6,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:7,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:8,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:9,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:10,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:11,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:12,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:13,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:17,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0}],
+  "瞬発戦_持続型":[{I:1,T:2,K:"0-0-1-1",W:0.0,D:0.0,P:50.0},{I:2,T:2,K:"0-1-0-1",W:0.0,D:50.0,P:50.0},{I:3,T:5,K:"0-0-1-4",W:0.0,D:0.0,P:20.0},{I:4,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:5,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:6,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:7,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:9,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:10,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:12,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:13,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:15,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0}],
+  "瞬発戦_耐久型":[{I:3,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:4,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:6,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:16,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0}],
+  "瞬発戦_先行型":[{I:1,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:2,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:7,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:10,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0}],
+
+  "均衡戦_持続型":[{I:1,T:19,K:"6-3-1-9",W:31.6,D:47.4,P:52.6},{I:2,T:34,K:"3-5-8-18",W:8.8,D:23.5,P:47.1},{I:3,T:28,K:"3-5-2-18",W:10.7,D:28.6,P:35.7},{I:4,T:28,K:"2-2-5-19",W:7.1,D:14.3,P:32.1},{I:5,T:32,K:"5-4-2-21",W:15.6,D:28.1,P:34.4},{I:6,T:37,K:"7-2-4-24",W:18.9,D:24.3,P:35.1},{I:7,T:41,K:"3-1-5-32",W:7.3,D:9.8,P:22.0},{I:8,T:32,K:"2-3-2-25",W:6.3,D:15.6,P:21.9},{I:9,T:34,K:"1-3-0-30",W:2.9,D:11.8,P:11.8},{I:10,T:32,K:"1-2-1-28",W:3.1,D:9.4,P:12.5},{I:11,T:27,K:"3-2-1-21",W:11.1,D:18.5,P:22.2},{I:12,T:22,K:"1-2-1-18",W:4.6,D:13.6,P:18.2},{I:13,T:26,K:"0-1-1-24",W:0.0,D:3.9,P:7.7},{I:14,T:19,K:"0-0-1-18",W:0.0,D:0.0,P:5.3},{I:15,T:22,K:"0-0-0-22",W:0.0,D:0.0,P:0.0},{I:16,T:17,K:"0-0-1-16",W:0.0,D:0.0,P:5.9},{I:17,T:17,K:"0-1-0-16",W:0.0,D:5.9,P:5.9},{I:18,T:8,K:"0-0-0-8",W:0.0,D:0.0,P:0.0}],
+  "均衡戦_耐久型":[{I:1,T:21,K:"5-5-2-9",W:23.8,D:47.6,P:57.1},{I:2,T:30,K:"2-6-3-19",W:6.7,D:26.7,P:36.7},{I:3,T:21,K:"4-3-1-13",W:19.1,D:33.3,P:38.1},{I:4,T:19,K:"3-1-2-13",W:15.8,D:21.1,P:31.6},{I:5,T:22,K:"3-1-3-15",W:13.6,D:18.2,P:31.8},{I:6,T:20,K:"0-2-2-16",W:0.0,D:10.0,P:20.0},{I:7,T:22,K:"2-1-3-16",W:9.1,D:13.6,P:27.3},{I:8,T:12,K:"0-1-1-10",W:0.0,D:8.3,P:16.7},{I:9,T:23,K:"2-1-1-19",W:8.7,D:13.0,P:17.4},{I:10,T:19,K:"0-1-0-18",W:0.0,D:5.3,P:5.3},{I:11,T:15,K:"0-0-0-15",W:0.0,D:0.0,P:0.0},{I:12,T:11,K:"0-0-0-11",W:0.0,D:0.0,P:0.0},{I:13,T:14,K:"0-0-0-14",W:0.0,D:0.0,P:0.0},{I:14,T:7,K:"0-0-0-7",W:0.0,D:0.0,P:0.0},{I:15,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:16,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:17,T:5,K:"0-0-0-5",W:0.0,D:0.0,P:0.0}],
+  "均衡戦_先行型":[{I:1,T:46,K:"4-3-3-36",W:8.7,D:15.2,P:21.7},{I:2,T:50,K:"0-1-1-48",W:0.0,D:2.0,P:4.0},{I:3,T:47,K:"1-0-2-44",W:2.1,D:2.1,P:6.4},{I:4,T:31,K:"1-2-2-26",W:3.2,D:9.7,P:16.1},{I:5,T:20,K:"0-2-2-16",W:0.0,D:10.0,P:20.0},{I:6,T:14,K:"0-0-0-14",W:0.0,D:0.0,P:0.0},{I:7,T:16,K:"0-0-0-16",W:0.0,D:0.0,P:0.0},{I:8,T:11,K:"0-0-0-11",W:0.0,D:0.0,P:0.0},{I:9,T:11,K:"0-1-0-10",W:0.0,D:9.1,P:9.1},{I:10,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:11,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:12,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:13,T:7,K:"0-0-0-7",W:0.0,D:0.0,P:0.0},{I:14,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:15,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:16,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:17,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0}],
+  "均衡戦_加速型":[{I:2,T:6,K:"2-3-0-1",W:33.3,D:83.3,P:83.3},{I:3,T:11,K:"3-1-2-5",W:27.3,D:36.4,P:54.6},{I:4,T:5,K:"1-1-3-0",W:20.0,D:40.0,P:100.0},{I:5,T:15,K:"4-0-5-6",W:26.7,D:26.7,P:60.0},{I:6,T:12,K:"1-3-1-7",W:8.3,D:33.3,P:41.7},{I:7,T:11,K:"1-2-1-7",W:9.1,D:27.3,P:36.4},{I:8,T:9,K:"3-1-1-4",W:33.3,D:44.4,P:55.6},{I:9,T:12,K:"0-2-1-9",W:0.0,D:16.7,P:25.0},{I:10,T:11,K:"0-1-3-7",W:0.0,D:9.1,P:36.4},{I:11,T:6,K:"0-0-1-5",W:0.0,D:0.0,P:16.7},{I:12,T:8,K:"0-1-3-4",W:0.0,D:12.5,P:50.0},{I:13,T:5,K:"0-0-0-5",W:0.0,D:0.0,P:0.0},{I:14,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:15,T:12,K:"1-0-0-11",W:8.3,D:8.3,P:8.3},{I:16,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:17,T:4,K:"0-0-0-4",W:0.0,D:0.0,P:0.0},{I:18,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0}],
+  "均衡戦_終い伸び型":[{I:5,T:2,K:"2-0-0-0",W:100.0,D:100.0,P:100.0},{I:6,T:2,K:"1-1-0-0",W:50.0,D:100.0,P:100.0},{I:7,T:2,K:"0-0-1-1",W:0.0,D:0.0,P:50.0},{I:8,T:4,K:"1-1-0-2",W:25.0,D:50.0,P:50.0},{I:10,T:6,K:"0-1-0-5",W:0.0,D:16.7,P:16.7},{I:11,T:2,K:"1-0-0-1",W:50.0,D:50.0,P:50.0},{I:12,T:8,K:"0-1-0-7",W:0.0,D:12.5,P:12.5},{I:13,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:14,T:5,K:"0-0-1-4",W:0.0,D:0.0,P:20.0},{I:15,T:7,K:"1-0-0-6",W:14.3,D:14.3,P:14.3},{I:16,T:5,K:"0-0-0-5",W:0.0,D:0.0,P:0.0},{I:17,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:18,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0}],
+
+  "持続戦_持続型":[{I:1,T:10,K:"3-1-0-6",W:30.0,D:40.0,P:40.0},{I:2,T:9,K:"2-2-1-4",W:22.2,D:44.4,P:55.6},{I:3,T:12,K:"0-0-2-10",W:0.0,D:0.0,P:16.7},{I:4,T:10,K:"0-2-0-8",W:0.0,D:20.0,P:20.0},{I:5,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:6,T:7,K:"0-1-0-6",W:0.0,D:14.3,P:14.3},{I:7,T:9,K:"0-0-0-9",W:0.0,D:0.0,P:0.0},{I:8,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:9,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:10,T:6,K:"0-0-0-6",W:0.0,D:0.0,P:0.0},{I:11,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:12,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:13,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:15,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0}],
+  "持続戦_終い伸び型":[{I:2,T:3,K:"1-1-1-0",W:33.3,D:66.7,P:100.0},{I:4,T:4,K:"1-0-0-3",W:25.0,D:25.0,P:25.0},{I:5,T:3,K:"0-0-1-2",W:0.0,D:0.0,P:33.3},{I:6,T:6,K:"4-1-0-1",W:66.7,D:83.3,P:83.3},{I:7,T:7,K:"1-1-2-3",W:14.3,D:28.6,P:57.1},{I:8,T:1,K:"0-0-1-0",W:0.0,D:0.0,P:100.0},{I:9,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:10,T:5,K:"0-0-0-5",W:0.0,D:0.0,P:0.0},{I:11,T:3,K:"0-0-2-1",W:0.0,D:0.0,P:66.7},{I:12,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:13,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:14,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:15,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:16,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:17,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0}],
+  "持続戦_加速型":[{I:1,T:3,K:"1-2-0-0",W:33.3,D:100.0,P:100.0},{I:2,T:4,K:"0-1-2-1",W:0.0,D:25.0,P:75.0},{I:3,T:4,K:"1-1-0-2",W:25.0,D:50.0,P:50.0},{I:4,T:3,K:"0-0-0-3",W:0.0,D:0.0,P:0.0},{I:5,T:6,K:"0-0-1-5",W:0.0,D:0.0,P:16.7},{I:7,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:9,T:2,K:"0-0-0-2",W:0.0,D:0.0,P:0.0},{I:10,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:12,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0}],
+  "持続戦_耐久型":[{I:1,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:2,T:3,K:"0-1-1-1",W:0.0,D:33.3,P:66.7},{I:7,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:8,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0},{I:9,T:1,K:"0-0-0-1",W:0.0,D:0.0,P:0.0}]
+};
+
+const DEV = [
+  {
+    name:"瞬発戦", cls:"shunpatsu", total:414, pct:"13.1%", results:"35-35-35-309",
+    winRate:"8.5%", placeRate:"16.9%", showRate:"25.4%",
+    laps:[
+      {name:"終い伸び型", total:155, results:"17-17-13-108", winRate:"11.0%", placeRate:"21.9%", showRate:"30.3%"},
+      {name:"加速型",     total:32,  results:"1-0-3-28",     winRate:"3.1%",  placeRate:"3.1%",  showRate:"12.5%"},
+      {name:"持続型",     total:26,  results:"0-1-2-23",     winRate:"0.0%",  placeRate:"3.9%",  showRate:"11.5%"},
+      {name:"耐久型",     total:6,   results:"0-0-0-6",      winRate:"0.0%",  placeRate:"0.0%",  showRate:"0.0%"},
+      {name:"先行型",     total:4,   results:"0-0-0-4",      winRate:"0.0%",  placeRate:"0.0%",  showRate:"0.0%"}
+    ]
+  },
+  {
+    name:"均衡戦", cls:"kinko", total:1751, pct:"55.3%", results:"124-124-125-1378",
+    winRate:"7.1%", placeRate:"14.2%", showRate:"21.3%",
+    laps:[
+      {name:"持続型",     total:475, results:"37-36-35-367", winRate:"7.8%",  placeRate:"15.4%", showRate:"22.7%"},
+      {name:"先行型",     total:282, results:"6-9-10-257",   winRate:"2.1%",  placeRate:"5.3%",  showRate:"8.9%"},
+      {name:"耐久型",     total:271, results:"21-22-18-210", winRate:"7.8%",  placeRate:"15.9%", showRate:"22.5%"},
+      {name:"加速型",     total:138, results:"16-15-21-86",  winRate:"11.6%", placeRate:"22.5%", showRate:"37.7%"},
+      {name:"終い伸び型", total:53,  results:"6-4-2-41",     winRate:"11.3%", placeRate:"18.9%", showRate:"22.6%"}
+    ]
+  },
+  {
+    name:"持続戦", cls:"jizoku", total:337, pct:"10.6%", results:"28-28-28-253",
+    winRate:"8.3%", placeRate:"16.6%", showRate:"24.9%",
+    laps:[
+      {name:"持続型",     total:80, results:"5-6-3-66",  winRate:"6.3%",  placeRate:"13.8%", showRate:"17.5%"},
+      {name:"終い伸び型", total:45, results:"7-3-7-28",  winRate:"15.6%", placeRate:"22.2%", showRate:"37.8%"},
+      {name:"加速型",     total:26, results:"2-4-3-17",  winRate:"7.7%",  placeRate:"23.1%", showRate:"34.6%"},
+      {name:"耐久型",     total:7,  results:"0-1-1-5",   winRate:"0.0%",  placeRate:"14.3%", showRate:"28.6%"}
+    ]
+  }
+];
+
+// ====== RENDER ======
+function barColor(p){
+  if(p>=30) return "var(--green)";
+  if(p>=20) return "var(--gold)";
+  if(p>=10) return "var(--orange)";
+  return "var(--muted2)";
+}
+function statusDot(p){
+  if(p>=20) return "var(--green)";
+  if(p>=10) return "var(--gold)";
+  if(p>=5)  return "var(--orange)";
+  return "var(--muted2)";
+}
+function barsHTML(list){
+  if(!list || !list.length) return '<div class="no-data">データなし</div>';
+  // Show up to 14 corner positions; cap bar width based on max T
+  const maxT = Math.max(...list.map(x=>x.T));
+  return list.map(row=>{
+    const pct = Number(row.P);
+    const barW = Math.round((row.T / maxT) * 100);
+    const col = barColor(pct);
+    return `<div class="bar-row">
+      <span class="bl">${row.I}番手</span>
+      <div class="bt"><div class="bf" style="width:${barW}%;background:${col}"></div></div>
+      <span class="bm">
+        <span class="bw">${row.P.toFixed(1)}%</span>
+        <span class="bn">(${row.T})</span>
+      </span>
+      <span class="br">${row.K}｜勝 ${row.W.toFixed(1)}%／連 ${row.D.toFixed(1)}%</span>
+    </div>`;
+  }).join("");
+}
+function badge(pct){
+  const v = parseFloat(pct);
+  if(v>=20) return `<span class="dp-badge ok">${pct}</span>`;
+  if(v>=10) return `<span class="dp-badge pending">${pct}</span>`;
+  return `<span class="dp-badge ng">${pct}</span>`;
+}
+
+function render(){
+  const root = document.getElementById('root');
+  root.innerHTML = DEV.map((dev, di)=>{
+    const lapTabs = dev.laps.map((lap, li)=>{
+      const dot = statusDot(parseFloat(lap.showRate));
+      return `<div class="lap-tab" data-dev="${di}" data-lap="${li}">
+        <div class="lt-name">${lap.name}<span class="status-dot" style="background:${dot}"></span></div>
+        <div class="lt-row"><span class="lt-win">${lap.winRate}</span><span class="lt-count">${lap.total}件</span></div>
+        <div class="lt-results">${lap.results}</div>
+        <div class="lt-place">連 ${lap.placeRate}　複 ${lap.showRate}</div>
+      </div>`;
+    }).join("");
+    const panels = dev.laps.map((lap, li)=>{
+      const key = dev.name + "_" + lap.name;
+      const data = CORNER[key] || [];
+      return `<div class="detail-panel" data-dev="${di}" data-lap="${li}">
+        <div class="dp-title">
+          <span>${dev.name} × ${lap.name}　4コーナー順位別成績</span>
+          ${badge(lap.showRate)}
+          <span style="color:var(--muted);font-family:var(--mono);font-size:10px">n=${lap.total}</span>
+        </div>
+        <div class="bars">${barsHTML(data)}</div>
+      </div>`;
+    }).join("");
+    return `<div class="dev-section">
+      <div class="dev-summary">
+        <div class="dev-info">
+          <div class="dev-name ${dev.cls}">${dev.name}</div>
+          <div class="dev-total-num">${dev.total.toLocaleString()}<span style="font-size:10px;color:var(--muted);margin-left:6px">件 ${dev.pct}</span></div>
+          <div class="dev-meta">勝率 ${dev.winRate} ／ 連対率 ${dev.placeRate} ／ 複勝率 ${dev.showRate}</div>
+          <div class="dev-meta">${dev.results}</div>
+        </div>
+        <div class="lap-tabs">${lapTabs}</div>
+      </div>
+      ${panels}
+    </div>`;
+  }).join("");
+
+  // Bind clicks
+  root.querySelectorAll('.lap-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const di = tab.dataset.dev, li = tab.dataset.lap;
+      const section = tab.closest('.dev-section');
+      const wasActive = tab.classList.contains('active');
+      // Toggle
+      section.querySelectorAll('.lap-tab').forEach(t=>t.classList.remove('active'));
+      section.querySelectorAll('.detail-panel').forEach(p=>p.classList.remove('open'));
+      if(!wasActive){
+        tab.classList.add('active');
+        const panel = section.querySelector(`.detail-panel[data-dev="${di}"][data-lap="${li}"]`);
+        panel.classList.add('open');
+      }
+    });
+  });
+
+  // Auto-open first lap of each dev
+  root.querySelectorAll('.dev-section').forEach(sec=>{
+    const first = sec.querySelector('.lap-tab');
+    if(first) first.click();
+  });
+}
+render();
+</script>
+</body>
+</html>
