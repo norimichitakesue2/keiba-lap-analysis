@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>越後S(OP)2026 前走パドック映像比較</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+<style>
+:root{--bg:#0e0e12;--s1:#16161e;--s2:#1e1e28;--s3:#252535;--bd:#2a2a3a;--bd2:#3a3a55;--gold:#f0c040;--blue:#5b9cf6;--green:#56d08b;--red:#e05555;--orange:#f09840;--text:#ddddef;--muted:#5a5a80;--font:'Hiragino Sans','Noto Sans JP',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;display:flex;flex-direction:column;}
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex-shrink:0;}
+.header h1{font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap;}
+.header a.back{font-size:11px;color:var(--muted);text-decoration:none;margin-right:4px;}
+.header a.back:hover{color:var(--gold);}
+.controls{display:flex;gap:6px;align-items:center;padding:6px 14px;background:var(--s2);border-bottom:1px solid var(--bd);flex-wrap:wrap;flex-shrink:0;}
+.btn{background:var(--s1);color:var(--text);border:1px solid var(--bd);padding:5px 13px;border-radius:4px;cursor:pointer;font-size:12px;font-family:var(--font);transition:background .12s,border-color .12s;white-space:nowrap;}
+.btn:hover{background:var(--bd);}
+.btn.primary{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.btn.primary:hover{background:#d9b030;}
+.btn.danger{border-color:var(--red);color:var(--red);}
+.btn.danger:hover{background:#2a1515;}
+.btn.toggle-sel{border-color:var(--blue);color:var(--blue);}
+.btn.loop-on{border-color:var(--orange);color:var(--orange);background:#1e1508;}
+.sep{width:1px;background:var(--bd);height:22px;margin:0 4px;}
+.sel-panel{background:var(--s2);border-bottom:1px solid var(--bd);padding:8px 14px;display:none;flex-shrink:0;}
+.sel-panel.open{display:block;}
+.sel-title{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.sel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;}
+.sel-item{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--bd);background:var(--s1);user-select:none;}
+.sel-item.checked{border-color:var(--gold);background:#1e1a08;}
+.sel-checkbox{width:14px;height:14px;border:1px solid var(--muted);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;background:var(--s2);}
+.sel-item.checked .sel-checkbox{border-color:var(--gold);background:var(--gold);color:#000;}
+.sel-num{font-weight:700;color:var(--gold);font-size:11px;width:18px;flex-shrink:0;}
+.sel-name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.grid-wrap{flex:1;overflow-y:auto;padding:8px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;transition:border-color .15s;}
+.card:hover{border-color:var(--bd2);}
+.card.playing{border-color:var(--gold);}
+.card.hidden-card{display:none;}
+.card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
+.num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prev-info{font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-max{background:none;border:1px solid var(--bd);color:var(--muted);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-max:hover{background:var(--bd2);color:var(--text);}
+.video-wrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;}
+.video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:opacity .2s;}
+.overlay.hidden{opacity:0;pointer-events:none;}
+.play-circle{width:36px;height:36px;background:rgba(255,255,255,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.play-circle::after{content:'';border-left:13px solid #000;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px;}
+.loop-badge{position:absolute;top:4px;right:4px;background:var(--orange);color:#000;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:none;}
+.card.looping .loop-badge{display:block;}
+.card.looping .num-badge{outline:2px solid var(--orange);}
+.spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,0.25);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.card-footer{padding:3px 8px;display:flex;align-items:center;gap:6px;background:var(--s2);border-top:1px solid var(--bd);}
+.time-disp{font-family:monospace;font-size:10px;color:var(--muted);flex:1;}
+.vol-btn{cursor:pointer;font-size:13px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.modal-overlay.open{display:flex;}
+.modal-header{display:flex;align-items:center;gap:10px;color:var(--text);font-size:14px;font-weight:700;width:min(90vw,1200px);}
+.modal-num{background:var(--gold);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.modal-close{margin-left:auto;background:none;border:1px solid var(--bd);color:var(--muted);width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--bd);color:var(--text);}
+.modal-video-wrap{width:min(90vw,1200px);aspect-ratio:16/9;background:#000;border-radius:6px;overflow:hidden;border:1px solid var(--bd);}
+.modal-video-wrap video{width:100%;height:100%;object-fit:contain;}
+.modal-controls{display:flex;gap:8px;align-items:center;width:min(90vw,1200px);}
+.modal-time{font-family:monospace;font-size:12px;color:var(--muted);flex:1;}
+.status-bar{background:var(--s1);border-top:1px solid var(--bd);padding:4px 14px;font-size:10px;color:var(--muted);flex-shrink:0;}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="index.html">◀ 戻る</a>
+  <h1>🏇 越後S(OP)2026 前走パドック映像比較</h1>
+  <span style="font-size:11px;color:var(--muted)">2026年5月3日 新潟11R ／ 前走パドック映像 16頭</span>
+</div>
+<div class="controls">
+  <button class="btn primary" onclick="playAll()">▶ 全頭再生</button>
+  <button class="btn danger" onclick="stopAll()">■ 全頭停止</button>
+  <button class="btn" onclick="restartAll()">⟳ 先頭から再生</button>
+  <div class="sep"></div>
+  <button class="btn" id="loop-btn" onclick="toggleLoopAll()">🔁 ループ</button>
+  <div class="sep"></div>
+  <button class="btn toggle-sel" onclick="toggleSelPanel()" id="sel-btn">☑ 馬を選択</button>
+  <button class="btn" onclick="selectAll(true)" style="font-size:11px">全選択</button>
+  <button class="btn" onclick="selectAll(false)" style="font-size:11px">全解除</button>
+  <div class="sep"></div>
+  <span style="font-size:11px;color:var(--muted)" id="count-label">16頭表示中</span>
+</div>
+<div class="sel-panel" id="sel-panel">
+  <div class="sel-title">表示する馬を選択</div>
+  <div class="sel-grid" id="sel-grid"></div>
+</div>
+<div class="grid-wrap"><div class="grid" id="grid"></div></div>
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-header">
+    <div class="modal-num" id="modal-num">1</div>
+    <span id="modal-name">馬名</span>
+    <button class="btn" id="modal-loop-btn" onclick="toggleModalLoop()" style="margin-left:8px;font-size:11px;">🔁 ループ</button>
+    <button class="modal-close" onclick="closeModal(null)">×</button>
+  </div>
+  <div class="modal-video-wrap"><video id="modal-video" playsinline controls></video></div>
+  <div class="modal-controls">
+    <span class="modal-time" id="modal-time">0:00 / 0:00</span>
+    <button class="btn" onclick="document.getElementById('modal-video').muted=!document.getElementById('modal-video').muted;updateModalVol()" id="modal-vol-btn">🔇 ミュート解除</button>
+    <button class="btn danger" onclick="closeModal(null)">✕ 閉じる</button>
+  </div>
+</div>
+<div class="status-bar" id="status">準備完了 ― 「▶ 全頭再生」または映像をクリックして再生</div>
+<script>
+const VIDEOS=[{"num":"1","name":"アルムラトゥール","prev":"オアシスＳ L 8 26年4月26日(日) 東京ダ1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/ee2d4fa65456432981d057196d40b075/1777276111934.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/ee2d4fa65456432981d057196d40b075/1777276111934.0000000.jpg"},{"num":"2","name":"エコロガイア","prev":"千葉Ｓ 13 26年3月22日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/389f65b9bf0e4fceab7d35f0025d0eb7/1774240447851.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/389f65b9bf0e4fceab7d35f0025d0eb7/1774240447851.0000000.jpg"},{"num":"3","name":"エスカル","prev":"京葉Ｓ L 5 26年4月19日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6449f83fb82247b3a1e9be97e7e4a080/1776662341433.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6449f83fb82247b3a1e9be97e7e4a080/1776662341433.0000000.jpg"},{"num":"4","name":"エティエンヌ","prev":"京葉Ｓ L 11 26年4月19日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6f9feb2ae91b4627a00f46bb296ba231/1776662340998.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6f9feb2ae91b4627a00f46bb296ba231/1776662340998.0000000.jpg"},{"num":"5","name":"グッジョブ","prev":"すばるＳ L 11 26年1月10日(土) 京都ダ1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/8abcbeba78494bd0a5e25201c56cae42/1768278077202.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/8abcbeba78494bd0a5e25201c56cae42/1768278077202.0000000.jpg"},{"num":"6","name":"サフランヒーロー","prev":"すばるＳ L 14 26年1月10日(土) 京都ダ1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/e6e069f2189444b384b07bca65024a0c/1768278082446.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/e6e069f2189444b384b07bca65024a0c/1768278082446.0000000.jpg"},{"num":"7","name":"サンライズパスカル","prev":"ジャニュアリ 5 26年1月18日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/9fee7e06a24e4f389f8fe529760a9476/1768799418669.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/9fee7e06a24e4f389f8fe529760a9476/1768799418669.0000000.jpg"},{"num":"8","name":"ショウナンアビアス","prev":"千葉Ｓ 7 26年3月22日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/2c4c785698aa4a9fa3ef734012158793/1774240438880.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/2c4c785698aa4a9fa3ef734012158793/1774240438880.0000000.jpg"},{"num":"9","name":"スリーピース","prev":"京葉Ｓ L 10 26年4月19日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b54249f016c041518eb0954ac4a99162/1776662356751.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b54249f016c041518eb0954ac4a99162/1776662356751.0000000.jpg"},{"num":"10","name":"ヒルノドゴール","prev":"天王山Ｓ 4 26年4月25日(土) 京都ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/f0dab43b5f0a4075ad44b942aaf751c1/1777268174810.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/f0dab43b5f0a4075ad44b942aaf751c1/1777268174810.0000000.jpg"},{"num":"11","name":"ブレーザー","prev":"千葉Ｓ 8 26年3月22日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/d8664ffe89224fa5bfbbb431ed458376/1774240436131.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/d8664ffe89224fa5bfbbb431ed458376/1774240436131.0000000.jpg"},{"num":"12","name":"ボディブロー","prev":"陽春Ｓ 7 26年4月19日(日) 阪神ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/3c8a833b4c5b4e15bd45fc00edc0bc20/1776662572281.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/3c8a833b4c5b4e15bd45fc00edc0bc20/1776662572281.0000000.jpg"},{"num":"13","name":"ポールセン","prev":"コーラルＳ L 5 26年3月14日(土) 阪神ダ1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/23c9375fd7ad432794e3bf70ef87223f/1773638572262.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/23c9375fd7ad432794e3bf70ef87223f/1773638572262.0000000.jpg"},{"num":"14","name":"ユキマル","prev":"千葉Ｓ 3 26年3月22日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/68bea50ee5d6430090c9a8132819b9f0/1774240451132.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/68bea50ee5d6430090c9a8132819b9f0/1774240451132.0000000.jpg"},{"num":"15","name":"ルディック","prev":"千葉Ｓ 9 26年3月22日(日) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a4e0f4cbe1614bf09cd0bfbb2ea921a4/1774240450751.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a4e0f4cbe1614bf09cd0bfbb2ea921a4/1774240450751.0000000.jpg"},{"num":"16","name":"レアンダー","prev":"吾妻小富士Ｓ 14 26年4月11日(土) 福島ダ1700m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/2d6068054eaf40638ed536b46713ce66/1776051084445.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/2d6068054eaf40638ed536b46713ce66/1776051084445.0000000.jpg"}];
+const sel=new Set(VIDEOS.map(v=>v.num));
+const hlsMap={};let loopAll=false;let modalHls=null;let modalLooping=false;
+function fmt(s){if(!isFinite(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
+function initCard(v){
+  const d=document.getElementById('card-'+v.num);
+  const video=d.querySelector('video');
+  if(video.dataset.init)return;
+  video.dataset.init='1';
+  video.muted=true;
+  if(Hls.isSupported()){
+    const h=new Hls({enableWorker:false});
+    h.loadSource(v.m3u8);h.attachMedia(video);
+    hlsMap[v.num]=h;
+  } else if(video.canPlayType('application/vnd.apple.mpegurl')){
+    video.src=v.m3u8;
+  }
+  const overlay=d.querySelector('.overlay');
+  const spinner=d.querySelector('.spinner');
+  video.addEventListener('waiting',()=>{spinner.style.display='block';});
+  video.addEventListener('playing',()=>{spinner.style.display='none';overlay.classList.add('hidden');d.classList.add('playing');});
+  video.addEventListener('pause',()=>{overlay.classList.remove('hidden');d.classList.remove('playing');});
+  video.addEventListener('ended',()=>{if(loopAll||d.classList.contains('looping')){video.currentTime=0;video.play();}else{overlay.classList.remove('hidden');d.classList.remove('playing');}});
+  video.addEventListener('timeupdate',()=>{d.querySelector('.time-disp').textContent=fmt(video.currentTime)+' / '+fmt(video.duration);});
+  d.querySelector('.video-wrap').addEventListener('click',()=>{if(video.paused)video.play();else video.pause();});
+  d.querySelector('.btn-max').addEventListener('click',e=>{e.stopPropagation();openModal(v);});
+}
+function playAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
+function stopAll(){VIDEOS.forEach(v=>{const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video&&!video.paused)video.pause();});}
+function restartAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
+function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').className='btn'+(loopAll?' loop-on':'');document.getElementById('status').textContent='ループ'+(loopAll?'ON':'OFF');}
+function toggleSelPanel(){const p=document.getElementById('sel-panel');p.classList.toggle('open');document.getElementById('sel-btn').textContent=p.classList.contains('open')?'▲ 閉じる':'☑ 馬を選択';}
+function selectAll(v){VIDEOS.forEach(video=>{const el=document.querySelector('.sel-item[data-num="'+video.num+'"]');if(el){if(v){sel.add(video.num);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}else{sel.delete(video.num);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}}});updateVisibility();}
+function updateVisibility(){VIDEOS.forEach(v=>{const c=document.getElementById('card-'+v.num);if(c)c.classList.toggle('hidden-card',!sel.has(v.num));});document.getElementById('count-label').textContent=sel.size+'頭表示中';}
+function openModal(v){
+  document.getElementById('modal-num').textContent=v.num;
+  document.getElementById('modal-name').textContent=v.name;
+  const video=document.getElementById('modal-video');
+  if(modalHls){modalHls.destroy();modalHls=null;}
+  video.muted=true;modalLooping=false;
+  document.getElementById('modal-loop-btn').className='btn';
+  document.getElementById('modal-vol-btn').textContent='🔇 ミュート解除';
+  if(Hls.isSupported()){modalHls=new Hls({enableWorker:false});modalHls.loadSource(v.m3u8);modalHls.attachMedia(video);}
+  else{video.src=v.m3u8;}
+  video.play();
+  document.getElementById('modal').classList.add('open');
+  video.addEventListener('timeupdate',updateModalTime);
+  video.addEventListener('ended',()=>{if(modalLooping){video.currentTime=0;video.play();}});
+}
+function updateModalTime(){const v=document.getElementById('modal-video');document.getElementById('modal-time').textContent=fmt(v.currentTime)+' / '+fmt(v.duration);}
+function toggleModalLoop(){modalLooping=!modalLooping;document.getElementById('modal-loop-btn').className='btn'+(modalLooping?' loop-on':'');}
+function updateModalVol(){document.getElementById('modal-vol-btn').textContent=document.getElementById('modal-video').muted?'🔇 ミュート解除':'🔊 ミュート';}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal'))return;const video=document.getElementById('modal-video');video.pause();if(modalHls){modalHls.destroy();modalHls=null;}document.getElementById('modal').classList.remove('open');}
+function build(){
+  const grid=document.getElementById('grid');
+  const selGrid=document.getElementById('sel-grid');
+  VIDEOS.forEach(v=>{
+    const thumb=v.thumb||'';
+    grid.innerHTML+=`<div class="card" id="card-${v.num}">
+      <div class="card-header">
+        <div class="num-badge">${v.num}</div>
+        <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
+        <button class="btn-max" title="拡大">⛶</button>
+      </div>
+      <div class="video-wrap">
+        <video playsinline muted preload="none" ${thumb?'poster="'+thumb+'"':''}></video>
+        <div class="overlay"><div class="play-circle"></div></div>
+        <div class="loop-badge">LOOP</div>
+        <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      </div>
+      <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>
+    </div>`;
+    selGrid.innerHTML+=`<div class="sel-item checked" data-num="${v.num}" onclick="(function(el){const n=el.dataset.num;if(sel.has(n)){sel.delete(n);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}else{sel.add(n);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}updateVisibility();}).call(this,this)"><div class="sel-checkbox">✓</div><div class="sel-num">${v.num}</div><div class="sel-name">${v.name}</div></div>`;
+  });
+}
+build();
+</script>
+</body>
+</html>
