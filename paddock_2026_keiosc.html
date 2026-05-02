@@ -40,6 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .card:hover{border-color:var(--bd2);}
 .card.playing{border-color:var(--gold);}
 .card.hidden-card{display:none;}
+.card.no-video{opacity:.6;}
 .card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
 .num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
 .horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -47,6 +48,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .btn-max{background:none;border:1px solid var(--bd);color:var(--muted);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .btn-max:hover{background:var(--bd2);color:var(--text);}
 .video-wrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;}
+.video-wrap.no-video-bg{background:#1a1a26;cursor:default;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;}
 .video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
 .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:opacity .2s;}
 .overlay.hidden{opacity:0;pointer-events:none;}
@@ -79,7 +81,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 <div class="header">
   <a class="back" href="index.html">◀ 戻る</a>
   <h1>🏇 京王杯スプリングC(G2)2026 前走パドック映像比較</h1>
-  <span style="font-size:11px;color:var(--muted)">2026年5月3日 東京11R ／ 前走パドック映像 20頭</span>
+  <span style="font-size:11px;color:var(--muted)">2026年5月3日 東京11R ／ 前走パドック映像 18頭 (馬番順)</span>
 </div>
 <div class="controls">
   <button class="btn primary" onclick="playAll()">▶ 全頭再生</button>
@@ -92,7 +94,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
   <button class="btn" onclick="selectAll(true)" style="font-size:11px">全選択</button>
   <button class="btn" onclick="selectAll(false)" style="font-size:11px">全解除</button>
   <div class="sep"></div>
-  <span style="font-size:11px;color:var(--muted)" id="count-label">20頭表示中</span>
+  <span style="font-size:11px;color:var(--muted)" id="count-label">18頭表示中</span>
 </div>
 <div class="sel-panel" id="sel-panel">
   <div class="sel-title">表示する馬を選択</div>
@@ -115,14 +117,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 </div>
 <div class="status-bar" id="status">準備完了 ― 「▶ 全頭再生」または映像をクリックして再生</div>
 <script>
-const VIDEOS=[{"num":"1","name":"アサカラキング","prev":"阪急杯 GIII 5 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/4dc91d449bb34e9aa563b57d1219d225/1771820936123.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/4dc91d449bb34e9aa563b57d1219d225/1771820936123.0000000.jpg"},{"num":"2","name":"アルセナール","prev":"ラピスラズリ L 12 25年12月7日(日) 中山芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/c52e8fa1063f4711a781302c8e797859/1765166617314.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/c52e8fa1063f4711a781302c8e797859/1765166617314.0000000.jpg"},{"num":"3","name":"ウイントワイライト","prev":"愛知杯 GIII 7 26年3月22日(日) 中京芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b80a487a6f3940b5be96d0d319f8a019/1774241045973.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b80a487a6f3940b5be96d0d319f8a019/1774241045973.0000000.jpg"},{"num":"4","name":"カンチェンジュンガ","prev":"阪急杯 GIII 15 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/3e673541913e44738ff20dc1ba97c311/1771820930955.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/3e673541913e44738ff20dc1ba97c311/1771820930955.0000000.jpg"},{"num":"5","name":"キープカルム","prev":"スポ京都金杯 GIII 9 26年1月4日(日) 京都芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0838654404c946f5931a963d33f088b2/1767684321526.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0838654404c946f5931a963d33f088b2/1767684321526.0000000.jpg"},{"num":"6","name":"シリウスコルト","prev":"ダービーＣＴ GIII 13 26年4月4日(土) 中山芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/2e743dd735944ae797640c1b5acd346f/1775457957455.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/2e743dd735944ae797640c1b5acd346f/1775457957455.0000000.jpg"},{"num":"7","name":"シンフォーエバー","prev":"スポ京都金杯 GIII 16 26年1月4日(日) 京都芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/cef3719d3d694230ac720abfb09a12cc/1767684326315.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/cef3719d3d694230ac720abfb09a12cc/1767684326315.0000000.jpg"},{"num":"8","name":"セフィロ","prev":"愛知杯 GIII 3 26年3月22日(日) 中京芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/27da44d9e22945cea6d643c3715dae77/1774241049203.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/27da44d9e22945cea6d643c3715dae77/1774241049203.0000000.jpg"},{"num":"9","name":"ダノンセンチュリー","prev":"雲雀Ｓ 1 26年2月15日(日) 東京芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b019446e26e94025a8cbc2dcbfb2b7b7/1771220601376.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b019446e26e94025a8cbc2dcbfb2b7b7/1771220601376.0000000.jpg"},{"num":"10","name":"ダノンマッキンリー","prev":"高松宮記念 GI 7 26年3月29日(日) 中京芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6133a7c59ccd4effa95e0326318c5436/1774849397874.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6133a7c59ccd4effa95e0326318c5436/1774849397874.0000000.jpg"},{"num":"11","name":"ファンダム","prev":"オーシャンＳ GIII 12 26年2月28日(土) 中山芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/eedb08944fc346c7a2324139f5a5b3ed/1772425804095.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/eedb08944fc346c7a2324139f5a5b3ed/1772425804095.0000000.jpg"},{"num":"12","name":"フリームファクシ","prev":"オーシャンＳ GIII 13 26年2月28日(土) 中山芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/77d89f64ad004cc48ba9cd2a24935aaf/1772425813471.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/77d89f64ad004cc48ba9cd2a24935aaf/1772425813471.0000000.jpg"},{"num":"13","name":"マイネルチケット","prev":"阪急杯 GIII 9 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/5594613af6f14050b27938c2d5b40f05/1771820947995.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/5594613af6f14050b27938c2d5b40f05/1771820947995.0000000.jpg"},{"num":"14","name":"ヤブサメ","prev":"シルクロード GIII 5 26年2月1日(日) 京都芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/399dbf8b7d6343a588b4381bf0775103/1770008918523.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/399dbf8b7d6343a588b4381bf0775103/1770008918523.0000000.jpg"},{"num":"15","name":"ラケマーダ","prev":"小倉大賞典 GIII 10 26年2月22日(日) 小倉芝1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/69500de99b3c4e80a5c7df54cc044527/1771822397980.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/69500de99b3c4e80a5c7df54cc044527/1771822397980.0000000.jpg"},{"num":"16","name":"ララマセラシオン","prev":"高松宮記念 GI 16 26年3月29日(日) 中京芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/e5a1cfe51aa149bdb9ef11f99c70e2d3/1774849394135.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/e5a1cfe51aa149bdb9ef11f99c70e2d3/1774849394135.0000000.jpg"},{"num":"17","name":"レイベリング","prev":"阪急杯 GIII 8 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/eb5069dd3ad54e25bb9b761fffd4afdb/1771820929939.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/eb5069dd3ad54e25bb9b761fffd4afdb/1771820929939.0000000.jpg"},{"num":"18","name":"レッドシュヴェルト","prev":"米子城Ｓ 11 26年3月15日(日) 阪神芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/bfd61937e40140e19cf09fc21fa56030/1773640686810.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/bfd61937e40140e19cf09fc21fa56030/1773640686810.0000000.jpg"},{"num":"19","name":"ワールズエンド","prev":"リゲルＳ L 2 25年12月13日(土) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/1d297773fadd4b2da8df89ae3c6fce79/1765777653363.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/1d297773fadd4b2da8df89ae3c6fce79/1765777653363.0000000.jpg"},{"num":"20","name":"ワイドラトゥール","prev":"愛知杯 GIII 4 26年3月22日(日) 中京芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/34b1131d9214420ab06c799ec73fd74b/1774241030108.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/34b1131d9214420ab06c799ec73fd74b/1774241030108.0000000.jpg"}];
+const VIDEOS=[{"num":"1","name":"レッドシュヴェルト","prev":"米子城Ｓ 11 26年3月15日(日) 阪神芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/bfd61937e40140e19cf09fc21fa56030/1773640686810.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/bfd61937e40140e19cf09fc21fa56030/1773640686810.0000000.jpg"},{"num":"2","name":"ダノンセンチュリー","prev":"雲雀Ｓ 1 26年2月15日(日) 東京芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b019446e26e94025a8cbc2dcbfb2b7b7/1771220601376.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b019446e26e94025a8cbc2dcbfb2b7b7/1771220601376.0000000.jpg"},{"num":"3","name":"カンチェンジュンガ","prev":"阪急杯 GIII 15 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/3e673541913e44738ff20dc1ba97c311/1771820930955.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/3e673541913e44738ff20dc1ba97c311/1771820930955.0000000.jpg"},{"num":"4","name":"シリウスコルト","prev":"ダービーＣＴ GIII 13 26年4月4日(土) 中山芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/2e743dd735944ae797640c1b5acd346f/1775457957455.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/2e743dd735944ae797640c1b5acd346f/1775457957455.0000000.jpg"},{"num":"5","name":"ワイドラトゥール","prev":"愛知杯 GIII 4 26年3月22日(日) 中京芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/34b1131d9214420ab06c799ec73fd74b/1774241030108.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/34b1131d9214420ab06c799ec73fd74b/1774241030108.0000000.jpg"},{"num":"6","name":"セフィロ","prev":"愛知杯 GIII 3 26年3月22日(日) 中京芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/27da44d9e22945cea6d643c3715dae77/1774241049203.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/27da44d9e22945cea6d643c3715dae77/1774241049203.0000000.jpg"},{"num":"7","name":"ラケマーダ","prev":"小倉大賞典 GIII 10 26年2月22日(日) 小倉芝1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/69500de99b3c4e80a5c7df54cc044527/1771822397980.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/69500de99b3c4e80a5c7df54cc044527/1771822397980.0000000.jpg"},{"num":"8","name":"ララマセラシオン","prev":"高松宮記念 GI 16 26年3月29日(日) 中京芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/e5a1cfe51aa149bdb9ef11f99c70e2d3/1774849394135.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/e5a1cfe51aa149bdb9ef11f99c70e2d3/1774849394135.0000000.jpg"},{"num":"9","name":"フリームファクシ","prev":"オーシャンＳ GIII 13 26年2月28日(土) 中山芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/77d89f64ad004cc48ba9cd2a24935aaf/1772425813471.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/77d89f64ad004cc48ba9cd2a24935aaf/1772425813471.0000000.jpg"},{"num":"10","name":"キープカルム","prev":"スポ京都金杯 GIII 9 26年1月4日(日) 京都芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0838654404c946f5931a963d33f088b2/1767684321526.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0838654404c946f5931a963d33f088b2/1767684321526.0000000.jpg"},{"num":"11","name":"アサカラキング","prev":"阪急杯 GIII 5 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/4dc91d449bb34e9aa563b57d1219d225/1771820936123.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/4dc91d449bb34e9aa563b57d1219d225/1771820936123.0000000.jpg"},{"num":"12","name":"ウイントワイライト","prev":"愛知杯 GIII 7 26年3月22日(日) 中京芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b80a487a6f3940b5be96d0d319f8a019/1774241045973.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b80a487a6f3940b5be96d0d319f8a019/1774241045973.0000000.jpg"},{"num":"13","name":"ファンダム","prev":"オーシャンＳ GIII 12 26年2月28日(土) 中山芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/eedb08944fc346c7a2324139f5a5b3ed/1772425804095.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/eedb08944fc346c7a2324139f5a5b3ed/1772425804095.0000000.jpg"},{"num":"14","name":"マイネルチケット","prev":"阪急杯 GIII 9 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/5594613af6f14050b27938c2d5b40f05/1771820947995.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/5594613af6f14050b27938c2d5b40f05/1771820947995.0000000.jpg"},{"num":"15","name":"レイベリング","prev":"阪急杯 GIII 8 26年2月21日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/eb5069dd3ad54e25bb9b761fffd4afdb/1771820929939.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/eb5069dd3ad54e25bb9b761fffd4afdb/1771820929939.0000000.jpg"},{"num":"16","name":"ワールズエンド","prev":"リゲルＳ L 2 25年12月13日(土) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/1d297773fadd4b2da8df89ae3c6fce79/1765777653363.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/1d297773fadd4b2da8df89ae3c6fce79/1765777653363.0000000.jpg"},{"num":"17","name":"ダノンマッキンリー","prev":"高松宮記念 GI 7 26年3月29日(日) 中京芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6133a7c59ccd4effa95e0326318c5436/1774849397874.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6133a7c59ccd4effa95e0326318c5436/1774849397874.0000000.jpg"},{"num":"18","name":"ヤブサメ","prev":"シルクロード GIII 5 26年2月1日(日) 京都芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/399dbf8b7d6343a588b4381bf0775103/1770008918523.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/399dbf8b7d6343a588b4381bf0775103/1770008918523.0000000.jpg"}];
 const sel=new Set(VIDEOS.map(v=>v.num));
 const hlsMap={};let loopAll=false;let modalHls=null;let modalLooping=false;
 function fmt(s){if(!isFinite(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
 function initCard(v){
+  if(!v.m3u8)return;
   const d=document.getElementById('card-'+v.num);
   const video=d.querySelector('video');
-  if(video.dataset.init)return;
+  if(!video||video.dataset.init)return;
   video.dataset.init='1';
   video.muted=true;
   if(Hls.isSupported()){
@@ -142,14 +145,15 @@ function initCard(v){
   d.querySelector('.video-wrap').addEventListener('click',()=>{if(video.paused)video.play();else video.pause();});
   d.querySelector('.btn-max').addEventListener('click',e=>{e.stopPropagation();openModal(v);});
 }
-function playAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
+function playAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
 function stopAll(){VIDEOS.forEach(v=>{const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video&&!video.paused)video.pause();});}
-function restartAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
+function restartAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
 function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').className='btn'+(loopAll?' loop-on':'');document.getElementById('status').textContent='ループ'+(loopAll?'ON':'OFF');}
 function toggleSelPanel(){const p=document.getElementById('sel-panel');p.classList.toggle('open');document.getElementById('sel-btn').textContent=p.classList.contains('open')?'▲ 閉じる':'☑ 馬を選択';}
 function selectAll(v){VIDEOS.forEach(video=>{const el=document.querySelector('.sel-item[data-num="'+video.num+'"]');if(el){if(v){sel.add(video.num);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}else{sel.delete(video.num);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}}});updateVisibility();}
 function updateVisibility(){VIDEOS.forEach(v=>{const c=document.getElementById('card-'+v.num);if(c)c.classList.toggle('hidden-card',!sel.has(v.num));});document.getElementById('count-label').textContent=sel.size+'頭表示中';}
 function openModal(v){
+  if(!v.m3u8)return;
   document.getElementById('modal-num').textContent=v.num;
   document.getElementById('modal-name').textContent=v.name;
   const video=document.getElementById('modal-video');
@@ -173,19 +177,23 @@ function build(){
   const selGrid=document.getElementById('sel-grid');
   VIDEOS.forEach(v=>{
     const thumb=v.thumb||'';
-    grid.innerHTML+=`<div class="card" id="card-${v.num}">
+    const noVideo=!v.m3u8;
+    const videoBlock = noVideo
+      ? `<div class="video-wrap no-video-bg">前走パドック映像なし</div><div class="card-footer"><span class="time-disp">--</span></div>`
+      : `<div class="video-wrap">
+          <video playsinline muted preload="none" ${thumb?'poster="'+thumb+'"':''}></video>
+          <div class="overlay"><div class="play-circle"></div></div>
+          <div class="loop-badge">LOOP</div>
+          <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        </div>
+        <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>`;
+    grid.innerHTML+=`<div class="card${noVideo?' no-video':''}" id="card-${v.num}">
       <div class="card-header">
         <div class="num-badge">${v.num}</div>
         <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
-        <button class="btn-max" title="拡大">⛶</button>
+        ${noVideo?'':'<button class="btn-max" title="拡大">⛶</button>'}
       </div>
-      <div class="video-wrap">
-        <video playsinline muted preload="none" ${thumb?'poster="'+thumb+'"':''}></video>
-        <div class="overlay"><div class="play-circle"></div></div>
-        <div class="loop-badge">LOOP</div>
-        <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
-      </div>
-      <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>
+      ${videoBlock}
     </div>`;
     selGrid.innerHTML+=`<div class="sel-item checked" data-num="${v.num}" onclick="(function(el){const n=el.dataset.num;if(sel.has(n)){sel.delete(n);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}else{sel.add(n);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}updateVisibility();}).call(this,this)"><div class="sel-checkbox">✓</div><div class="sel-num">${v.num}</div><div class="sel-name">${v.name}</div></div>`;
   });

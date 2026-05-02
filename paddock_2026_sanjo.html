@@ -40,6 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .card:hover{border-color:var(--bd2);}
 .card.playing{border-color:var(--gold);}
 .card.hidden-card{display:none;}
+.card.no-video{opacity:.6;}
 .card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
 .num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
 .horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -47,6 +48,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .btn-max{background:none;border:1px solid var(--bd);color:var(--muted);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .btn-max:hover{background:var(--bd2);color:var(--text);}
 .video-wrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;}
+.video-wrap.no-video-bg{background:#1a1a26;cursor:default;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;}
 .video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
 .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:opacity .2s;}
 .overlay.hidden{opacity:0;pointer-events:none;}
@@ -79,7 +81,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 <div class="header">
   <a class="back" href="index.html">◀ 戻る</a>
   <h1>🏇 三条S(3勝クラス)2026 前走パドック映像比較</h1>
-  <span style="font-size:11px;color:var(--muted)">2026年5月3日 新潟11R ／ 前走パドック映像 17頭</span>
+  <span style="font-size:11px;color:var(--muted)">2026年5月3日 新潟11R ／ 前走パドック映像 15頭 (馬番順)</span>
 </div>
 <div class="controls">
   <button class="btn primary" onclick="playAll()">▶ 全頭再生</button>
@@ -92,7 +94,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
   <button class="btn" onclick="selectAll(true)" style="font-size:11px">全選択</button>
   <button class="btn" onclick="selectAll(false)" style="font-size:11px">全解除</button>
   <div class="sep"></div>
-  <span style="font-size:11px;color:var(--muted)" id="count-label">17頭表示中</span>
+  <span style="font-size:11px;color:var(--muted)" id="count-label">15頭表示中</span>
 </div>
 <div class="sel-panel" id="sel-panel">
   <div class="sel-title">表示する馬を選択</div>
@@ -115,14 +117,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 </div>
 <div class="status-bar" id="status">準備完了 ― 「▶ 全頭再生」または映像をクリックして再生</div>
 <script>
-const VIDEOS=[{"num":"1","name":"ウィンターダフネ","prev":"４歳以上２勝クラス 1 26年4月19日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/3e5aadf9daa44d448a2bb221a21a0a20/1776661725926.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/3e5aadf9daa44d448a2bb221a21a0a20/1776661725926.0000000.jpg"},{"num":"2","name":"エリカサファイア","prev":"韓国馬事会杯 8 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/2e258958f9964593ab1493fa7d1c1f9a/1774245472684.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/2e258958f9964593ab1493fa7d1c1f9a/1774245472684.0000000.jpg"},{"num":"3","name":"エルフストラック","prev":"４歳以上２勝クラス 1 26年3月22日(日) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/72a569232a6548d8a17c64f73749a889/1774350553978.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/72a569232a6548d8a17c64f73749a889/1774350553978.0000000.jpg"},{"num":"4","name":"カフェニクス","prev":"銀蹄Ｓ 10 26年2月14日(土) 東京ダ1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b4173ac9320b415e90c3d273da2e5534/1771219154624.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b4173ac9320b415e90c3d273da2e5534/1771219154624.0000000.jpg"},{"num":"5","name":"クインズショコラ","prev":"韓国馬事会杯 4 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/873a5f2869e8434598dfea9ae255de2b/1774245459684.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/873a5f2869e8434598dfea9ae255de2b/1774245459684.0000000.jpg"},{"num":"6","name":"ゴールドアローン","prev":"上総Ｓ 10 26年3月7日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b650b11ed2a24b658cd8c2954a7a9b6d/1773029058086.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b650b11ed2a24b658cd8c2954a7a9b6d/1773029058086.0000000.jpg"},{"num":"7","name":"サイモンブーケ","prev":"韓国馬事会杯 9 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/77b730a4a64a4ae782213d2497543d97/1774245471604.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/77b730a4a64a4ae782213d2497543d97/1774245471604.0000000.jpg"},{"num":"8","name":"サンセットブライト","prev":"上総Ｓ 9 26年3月7日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7f0350c3956943fea6207d8256751026/1773029053935.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7f0350c3956943fea6207d8256751026/1773029053935.0000000.jpg"},{"num":"9","name":"ツキノアカリ","prev":"幕張Ｓ 15 26年3月14日(土) 中山芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0bafa64c6416419ca4dc3b851a876154/1773637696586.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0bafa64c6416419ca4dc3b851a876154/1773637696586.0000000.jpg"},{"num":"10","name":"テーオールビー","prev":"韓国馬事会杯 7 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/ddb906e7d8ab499da972daaafa90faf1/1774245470323.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/ddb906e7d8ab499da972daaafa90faf1/1774245470323.0000000.jpg"},{"num":"11","name":"トウカイポワール","prev":"伊丹Ｓ 8 26年3月1日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6c198e50b1bd4d79934cbe3914c0efa9/1772427219894.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6c198e50b1bd4d79934cbe3914c0efa9/1772427219894.0000000.jpg"},{"num":"12","name":"ドゥラリス","prev":"小倉城Ｓ 10 26年2月21日(土) 小倉ダ1700m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/847be953cc054c898e0273dadff256ac/1771821321862.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/847be953cc054c898e0273dadff256ac/1771821321862.0000000.jpg"},{"num":"13","name":"ハワイアンティアレ","prev":"伊丹Ｓ 14 26年3月1日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/35752257440d4c2e87ea5936c7c25970/1772427218260.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/35752257440d4c2e87ea5936c7c25970/1772427218260.0000000.jpg"},{"num":"14","name":"ファリーザ","prev":"白嶺Ｓ 13 26年1月31日(土) 東京ダ1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/bbee99ea89e1486bab1d118bb0aa7473/1770006843999.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/bbee99ea89e1486bab1d118bb0aa7473/1770006843999.0000000.jpg"},{"num":"15","name":"メイショウポペット","prev":"韓国馬事会杯 12 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/571a19b940f643d2a04c33f3c2ac4aed/1774245458451.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/571a19b940f643d2a04c33f3c2ac4aed/1774245458451.0000000.jpg"},{"num":"16","name":"モズカトレア","prev":"舞鶴Ｓ 9 26年1月31日(土) 京都ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0fcde8cdb3a04c1ea49a94d2fa99dca9/1770007272271.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0fcde8cdb3a04c1ea49a94d2fa99dca9/1770007272271.0000000.jpg"},{"num":"17","name":"ロフティストーリー","prev":"韓国馬事会杯 5 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a1b6d5b0074949559c982a1c6e4e0734/1774245468902.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a1b6d5b0074949559c982a1c6e4e0734/1774245468902.0000000.jpg"}];
+const VIDEOS=[{"num":"1","name":"サンセットブライト","prev":"上総Ｓ 9 26年3月7日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/7f0350c3956943fea6207d8256751026/1773029053935.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/7f0350c3956943fea6207d8256751026/1773029053935.0000000.jpg"},{"num":"2","name":"ルージュミラージュ","prev":"映像なし","m3u8":null,"thumb":null},{"num":"3","name":"ツキノアカリ","prev":"幕張Ｓ 15 26年3月14日(土) 中山芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0bafa64c6416419ca4dc3b851a876154/1773637696586.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0bafa64c6416419ca4dc3b851a876154/1773637696586.0000000.jpg"},{"num":"4","name":"サイモンブーケ","prev":"韓国馬事会杯 9 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/77b730a4a64a4ae782213d2497543d97/1774245471604.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/77b730a4a64a4ae782213d2497543d97/1774245471604.0000000.jpg"},{"num":"5","name":"クインズショコラ","prev":"韓国馬事会杯 4 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/873a5f2869e8434598dfea9ae255de2b/1774245459684.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/873a5f2869e8434598dfea9ae255de2b/1774245459684.0000000.jpg"},{"num":"6","name":"ファリーザ","prev":"白嶺Ｓ 13 26年1月31日(土) 東京ダ1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/bbee99ea89e1486bab1d118bb0aa7473/1770006843999.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/bbee99ea89e1486bab1d118bb0aa7473/1770006843999.0000000.jpg"},{"num":"7","name":"ゴールドアローン","prev":"上総Ｓ 10 26年3月7日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b650b11ed2a24b658cd8c2954a7a9b6d/1773029058086.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b650b11ed2a24b658cd8c2954a7a9b6d/1773029058086.0000000.jpg"},{"num":"8","name":"エリカサファイア","prev":"韓国馬事会杯 8 26年3月21日(土) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/2e258958f9964593ab1493fa7d1c1f9a/1774245472684.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/2e258958f9964593ab1493fa7d1c1f9a/1774245472684.0000000.jpg"},{"num":"9","name":"モズカトレア","prev":"舞鶴Ｓ 9 26年1月31日(土) 京都ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0fcde8cdb3a04c1ea49a94d2fa99dca9/1770007272271.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0fcde8cdb3a04c1ea49a94d2fa99dca9/1770007272271.0000000.jpg"},{"num":"10","name":"ハワイアンティアレ","prev":"伊丹Ｓ 14 26年3月1日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/35752257440d4c2e87ea5936c7c25970/1772427218260.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/35752257440d4c2e87ea5936c7c25970/1772427218260.0000000.jpg"},{"num":"11","name":"ドゥラリス","prev":"小倉城Ｓ 10 26年2月21日(土) 小倉ダ1700m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/847be953cc054c898e0273dadff256ac/1771821321862.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/847be953cc054c898e0273dadff256ac/1771821321862.0000000.jpg"},{"num":"12","name":"エルフストラック","prev":"４歳以上２勝クラス 1 26年3月22日(日) 中山ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/72a569232a6548d8a17c64f73749a889/1774350553978.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/72a569232a6548d8a17c64f73749a889/1774350553978.0000000.jpg"},{"num":"13","name":"ウィンターダフネ","prev":"４歳以上２勝クラス 1 26年4月19日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/3e5aadf9daa44d448a2bb221a21a0a20/1776661725926.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/3e5aadf9daa44d448a2bb221a21a0a20/1776661725926.0000000.jpg"},{"num":"14","name":"トウカイポワール","prev":"伊丹Ｓ 8 26年3月1日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/6c198e50b1bd4d79934cbe3914c0efa9/1772427219894.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/6c198e50b1bd4d79934cbe3914c0efa9/1772427219894.0000000.jpg"},{"num":"15","name":"カフェニクス","prev":"銀蹄Ｓ 10 26年2月14日(土) 東京ダ1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/b4173ac9320b415e90c3d273da2e5534/1771219154624.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/b4173ac9320b415e90c3d273da2e5534/1771219154624.0000000.jpg"}];
 const sel=new Set(VIDEOS.map(v=>v.num));
 const hlsMap={};let loopAll=false;let modalHls=null;let modalLooping=false;
 function fmt(s){if(!isFinite(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
 function initCard(v){
+  if(!v.m3u8)return;
   const d=document.getElementById('card-'+v.num);
   const video=d.querySelector('video');
-  if(video.dataset.init)return;
+  if(!video||video.dataset.init)return;
   video.dataset.init='1';
   video.muted=true;
   if(Hls.isSupported()){
@@ -142,14 +145,15 @@ function initCard(v){
   d.querySelector('.video-wrap').addEventListener('click',()=>{if(video.paused)video.play();else video.pause();});
   d.querySelector('.btn-max').addEventListener('click',e=>{e.stopPropagation();openModal(v);});
 }
-function playAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
+function playAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
 function stopAll(){VIDEOS.forEach(v=>{const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video&&!video.paused)video.pause();});}
-function restartAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
+function restartAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
 function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').className='btn'+(loopAll?' loop-on':'');document.getElementById('status').textContent='ループ'+(loopAll?'ON':'OFF');}
 function toggleSelPanel(){const p=document.getElementById('sel-panel');p.classList.toggle('open');document.getElementById('sel-btn').textContent=p.classList.contains('open')?'▲ 閉じる':'☑ 馬を選択';}
 function selectAll(v){VIDEOS.forEach(video=>{const el=document.querySelector('.sel-item[data-num="'+video.num+'"]');if(el){if(v){sel.add(video.num);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}else{sel.delete(video.num);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}}});updateVisibility();}
 function updateVisibility(){VIDEOS.forEach(v=>{const c=document.getElementById('card-'+v.num);if(c)c.classList.toggle('hidden-card',!sel.has(v.num));});document.getElementById('count-label').textContent=sel.size+'頭表示中';}
 function openModal(v){
+  if(!v.m3u8)return;
   document.getElementById('modal-num').textContent=v.num;
   document.getElementById('modal-name').textContent=v.name;
   const video=document.getElementById('modal-video');
@@ -173,19 +177,23 @@ function build(){
   const selGrid=document.getElementById('sel-grid');
   VIDEOS.forEach(v=>{
     const thumb=v.thumb||'';
-    grid.innerHTML+=`<div class="card" id="card-${v.num}">
+    const noVideo=!v.m3u8;
+    const videoBlock = noVideo
+      ? `<div class="video-wrap no-video-bg">前走パドック映像なし</div><div class="card-footer"><span class="time-disp">--</span></div>`
+      : `<div class="video-wrap">
+          <video playsinline muted preload="none" ${thumb?'poster="'+thumb+'"':''}></video>
+          <div class="overlay"><div class="play-circle"></div></div>
+          <div class="loop-badge">LOOP</div>
+          <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        </div>
+        <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>`;
+    grid.innerHTML+=`<div class="card${noVideo?' no-video':''}" id="card-${v.num}">
       <div class="card-header">
         <div class="num-badge">${v.num}</div>
         <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
-        <button class="btn-max" title="拡大">⛶</button>
+        ${noVideo?'':'<button class="btn-max" title="拡大">⛶</button>'}
       </div>
-      <div class="video-wrap">
-        <video playsinline muted preload="none" ${thumb?'poster="'+thumb+'"':''}></video>
-        <div class="overlay"><div class="play-circle"></div></div>
-        <div class="loop-badge">LOOP</div>
-        <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
-      </div>
-      <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>
+      ${videoBlock}
     </div>`;
     selGrid.innerHTML+=`<div class="sel-item checked" data-num="${v.num}" onclick="(function(el){const n=el.dataset.num;if(sel.has(n)){sel.delete(n);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}else{sel.add(n);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}updateVisibility();}).call(this,this)"><div class="sel-checkbox">✓</div><div class="sel-num">${v.num}</div><div class="sel-name">${v.name}</div></div>`;
   });

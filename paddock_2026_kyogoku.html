@@ -40,6 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .card:hover{border-color:var(--bd2);}
 .card.playing{border-color:var(--gold);}
 .card.hidden-card{display:none;}
+.card.no-video{opacity:.6;}
 .card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
 .num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
 .horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -47,6 +48,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .btn-max{background:none;border:1px solid var(--bd);color:var(--muted);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .btn-max:hover{background:var(--bd2);color:var(--text);}
 .video-wrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;}
+.video-wrap.no-video-bg{background:#1a1a26;cursor:default;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;}
 .video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
 .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:opacity .2s;}
 .overlay.hidden{opacity:0;pointer-events:none;}
@@ -79,7 +81,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 <div class="header">
   <a class="back" href="index.html">◀ 戻る</a>
   <h1>🏇 京極特別(2勝クラス)2026 前走パドック映像比較</h1>
-  <span style="font-size:11px;color:var(--muted)">2026年5月3日 京都10R ／ 前走パドック映像 20頭</span>
+  <span style="font-size:11px;color:var(--muted)">2026年5月3日 京都10R ／ 前走パドック映像 12頭 (馬番順)</span>
 </div>
 <div class="controls">
   <button class="btn primary" onclick="playAll()">▶ 全頭再生</button>
@@ -92,7 +94,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
   <button class="btn" onclick="selectAll(true)" style="font-size:11px">全選択</button>
   <button class="btn" onclick="selectAll(false)" style="font-size:11px">全解除</button>
   <div class="sep"></div>
-  <span style="font-size:11px;color:var(--muted)" id="count-label">20頭表示中</span>
+  <span style="font-size:11px;color:var(--muted)" id="count-label">12頭表示中</span>
 </div>
 <div class="sel-panel" id="sel-panel">
   <div class="sel-title">表示する馬を選択</div>
@@ -115,14 +117,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 </div>
 <div class="status-bar" id="status">準備完了 ― 「▶ 全頭再生」または映像をクリックして再生</div>
 <script>
-const VIDEOS=[{"num":"1","name":"アオイレーギーナ","prev":"袖ケ浦特別 9 26年4月18日(土) 中山芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/38164b9c8c694505ab695ceb9d0d2b42/1776658768766.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/38164b9c8c694505ab695ceb9d0d2b42/1776658768766.0000000.jpg"},{"num":"2","name":"アスクキングコング","prev":"４歳以上２勝クラス 8 26年4月12日(日) 阪神芝1600m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a3d6dc63685949cfb1d2811cf02d8e02/1776053093903.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a3d6dc63685949cfb1d2811cf02d8e02/1776053093903.0000000.jpg"},{"num":"3","name":"アストラカ","prev":"葛飾特別 7 26年4月18日(土) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/5c98e6254d634c9694861d2215a30e62/1776659534484.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/5c98e6254d634c9694861d2215a30e62/1776659534484.0000000.jpg"},{"num":"4","name":"オコタンペ","prev":"ラジオ福島賞 8 26年4月18日(土) 福島ダ1700m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/8f570519dd01482088dc1f73cc58996e/1776657436375.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/8f570519dd01482088dc1f73cc58996e/1776657436375.0000000.jpg"},{"num":"5","name":"クアトロジャック","prev":"川西特別 10 26年4月12日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0cc4c9617edf44c08e80385241cc337c/1776231260237.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0cc4c9617edf44c08e80385241cc337c/1776231260237.0000000.jpg"},{"num":"6","name":"クリノハレルヤ","prev":"花見山特別 16 26年4月11日(土) 福島芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/3c2b3fac9d094bc8b628a4e280c3719c/1776051063903.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/3c2b3fac9d094bc8b628a4e280c3719c/1776051063903.0000000.jpg"},{"num":"7","name":"ジーベック","prev":"４歳以上２勝クラス 9 26年2月10日(火) 京都ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/9010f689b252461a866d4063211d2a64/1770874492770.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/9010f689b252461a866d4063211d2a64/1770874492770.0000000.jpg"},{"num":"8","name":"セールヴォラン","prev":"４歳以上２勝クラス 5 26年4月11日(土) 阪神ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/8501abf08bd244e2b2c9acc1fe051a32/1776052105064.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/8501abf08bd244e2b2c9acc1fe051a32/1776052105064.0000000.jpg"},{"num":"9","name":"セルヴァンス","prev":"４歳以上２勝クラス 8 26年3月1日(日) 阪神ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/efc5703da1e54277bd10d610049f6291/1772427276427.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/efc5703da1e54277bd10d610049f6291/1772427276427.0000000.jpg"},{"num":"10","name":"タイセイディアマン","prev":"４歳以上２勝クラス 3 26年4月11日(土) 阪神ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/f9fd1598901e4af2bf776992f6d20e55/1776052111436.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/f9fd1598901e4af2bf776992f6d20e55/1776052111436.0000000.jpg"},{"num":"11","name":"ハピアーザンエバー","prev":"丹波特別 9 26年4月18日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/642f6f3390b044369451b97a2a0bec3a/1776659105316.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/642f6f3390b044369451b97a2a0bec3a/1776659105316.0000000.jpg"},{"num":"12","name":"ヒラボクカレラ","prev":"４歳以上１勝クラス 1 26年4月11日(土) 福島ダ1150m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/eae676f4433f43c3b3e4a210fd78eae2/1776050870179.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/eae676f4433f43c3b3e4a210fd78eae2/1776050870179.0000000.jpg"},{"num":"13","name":"フェデラー","prev":"４歳以上２勝クラス 6 26年2月10日(火) 東京ダ1300m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/49df00a54f2b4680984dfe9b4e9478fc/1770866560758.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/49df00a54f2b4680984dfe9b4e9478fc/1770866560758.0000000.jpg"},{"num":"14","name":"フォーワンセルフ","prev":"葛飾特別 8 26年4月18日(土) 中山ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/c9340457cfd849d69fc3af96915f28f4/1776659533258.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/c9340457cfd849d69fc3af96915f28f4/1776659533258.0000000.jpg"},{"num":"15","name":"ベンダバール","prev":"４歳以上２勝クラス 2 26年2月10日(火) 京都ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/5faad4d6262a4fb9ad33cb5dd61d04c9/1770867079610.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/5faad4d6262a4fb9ad33cb5dd61d04c9/1770867079610.0000000.jpg"},{"num":"16","name":"ペプチドクレマチス","prev":"大濠特別 18 26年2月15日(日) 小倉芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a0f6ab39a3fa47eebc7d13aa2f6525da/1771411851930.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a0f6ab39a3fa47eebc7d13aa2f6525da/1771411851930.0000000.jpg"},{"num":"17","name":"マジカルフェアリー","prev":"花見山特別 6 26年4月11日(土) 福島芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/8cfc8a5742a0453dbb1122e5d1b0dbb7/1776078692362.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/8cfc8a5742a0453dbb1122e5d1b0dbb7/1776078692362.0000000.jpg"},{"num":"18","name":"ミロワール","prev":"４歳以上２勝クラス 5 26年4月4日(土) 阪神芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/9318273eef3c4406b1c1c5556a644a88/1775458243054.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/9318273eef3c4406b1c1c5556a644a88/1775458243054.0000000.jpg"},{"num":"19","name":"メイショウゴールド","prev":"吹田特別 4 26年4月18日(土) 阪神ダ1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/79f8834b567441a8ad666f0cafd37653/1776767428883.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/79f8834b567441a8ad666f0cafd37653/1776767428883.0000000.jpg"},{"num":"20","name":"ヴリトラハン","prev":"４歳以上２勝クラス 4 26年2月10日(火) 京都ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/9bde7d2d5743492ab71f29df4a43766c/1770867071614.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/9bde7d2d5743492ab71f29df4a43766c/1770867071614.0000000.jpg"}];
+const VIDEOS=[{"num":"1","name":"フェデラー","prev":"４歳以上２勝クラス 6 26年2月10日(火) 東京ダ1300m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/49df00a54f2b4680984dfe9b4e9478fc/1770866560758.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/49df00a54f2b4680984dfe9b4e9478fc/1770866560758.0000000.jpg"},{"num":"2","name":"ヴリトラハン","prev":"４歳以上２勝クラス 4 26年2月10日(火) 京都ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/9bde7d2d5743492ab71f29df4a43766c/1770867071614.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/9bde7d2d5743492ab71f29df4a43766c/1770867071614.0000000.jpg"},{"num":"3","name":"メイショウゴールド","prev":"吹田特別 4 26年4月18日(土) 阪神ダ1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/79f8834b567441a8ad666f0cafd37653/1776767428883.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/79f8834b567441a8ad666f0cafd37653/1776767428883.0000000.jpg"},{"num":"4","name":"ペプチドクレマチス","prev":"大濠特別 18 26年2月15日(日) 小倉芝1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/a0f6ab39a3fa47eebc7d13aa2f6525da/1771411851930.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/a0f6ab39a3fa47eebc7d13aa2f6525da/1771411851930.0000000.jpg"},{"num":"5","name":"クアトロジャック","prev":"川西特別 10 26年4月12日(日) 阪神ダ1800m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/0cc4c9617edf44c08e80385241cc337c/1776231260237.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/0cc4c9617edf44c08e80385241cc337c/1776231260237.0000000.jpg"},{"num":"6","name":"ハピアーザンエバー","prev":"丹波特別 9 26年4月18日(土) 阪神芝1400m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/642f6f3390b044369451b97a2a0bec3a/1776659105316.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/642f6f3390b044369451b97a2a0bec3a/1776659105316.0000000.jpg"},{"num":"7","name":"ヒラボクカレラ","prev":"４歳以上１勝クラス 1 26年4月11日(土) 福島ダ1150m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/eae676f4433f43c3b3e4a210fd78eae2/1776050870179.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/eae676f4433f43c3b3e4a210fd78eae2/1776050870179.0000000.jpg"},{"num":"8","name":"タイセイディアマン","prev":"４歳以上２勝クラス 3 26年4月11日(土) 阪神ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/f9fd1598901e4af2bf776992f6d20e55/1776052111436.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/f9fd1598901e4af2bf776992f6d20e55/1776052111436.0000000.jpg"},{"num":"9","name":"ゴイゴイスー","prev":"映像なし","m3u8":null,"thumb":null},{"num":"10","name":"セルヴァンス","prev":"４歳以上２勝クラス 8 26年3月1日(日) 阪神ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/efc5703da1e54277bd10d610049f6291/1772427276427.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/efc5703da1e54277bd10d610049f6291/1772427276427.0000000.jpg"},{"num":"11","name":"セールヴォラン","prev":"４歳以上２勝クラス 5 26年4月11日(土) 阪神ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/8501abf08bd244e2b2c9acc1fe051a32/1776052105064.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/8501abf08bd244e2b2c9acc1fe051a32/1776052105064.0000000.jpg"},{"num":"12","name":"ジーベック","prev":"４歳以上２勝クラス 9 26年2月10日(火) 京都ダ1200m","m3u8":"https://race-player.netkeiba.com/5e4a7effafe26/media/9010f689b252461a866d4063211d2a64/1770874492770.m3u8","thumb":"https://race-player.netkeiba.com/5e4a7effafe26/thumbnail/9010f689b252461a866d4063211d2a64/1770874492770.0000000.jpg"}];
 const sel=new Set(VIDEOS.map(v=>v.num));
 const hlsMap={};let loopAll=false;let modalHls=null;let modalLooping=false;
 function fmt(s){if(!isFinite(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
 function initCard(v){
+  if(!v.m3u8)return;
   const d=document.getElementById('card-'+v.num);
   const video=d.querySelector('video');
-  if(video.dataset.init)return;
+  if(!video||video.dataset.init)return;
   video.dataset.init='1';
   video.muted=true;
   if(Hls.isSupported()){
@@ -142,14 +145,15 @@ function initCard(v){
   d.querySelector('.video-wrap').addEventListener('click',()=>{if(video.paused)video.play();else video.pause();});
   d.querySelector('.btn-max').addEventListener('click',e=>{e.stopPropagation();openModal(v);});
 }
-function playAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
+function playAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
 function stopAll(){VIDEOS.forEach(v=>{const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video&&!video.paused)video.pause();});}
-function restartAll(){VIDEOS.filter(v=>sel.has(v.num)).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
+function restartAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
 function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').className='btn'+(loopAll?' loop-on':'');document.getElementById('status').textContent='ループ'+(loopAll?'ON':'OFF');}
 function toggleSelPanel(){const p=document.getElementById('sel-panel');p.classList.toggle('open');document.getElementById('sel-btn').textContent=p.classList.contains('open')?'▲ 閉じる':'☑ 馬を選択';}
 function selectAll(v){VIDEOS.forEach(video=>{const el=document.querySelector('.sel-item[data-num="'+video.num+'"]');if(el){if(v){sel.add(video.num);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}else{sel.delete(video.num);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}}});updateVisibility();}
 function updateVisibility(){VIDEOS.forEach(v=>{const c=document.getElementById('card-'+v.num);if(c)c.classList.toggle('hidden-card',!sel.has(v.num));});document.getElementById('count-label').textContent=sel.size+'頭表示中';}
 function openModal(v){
+  if(!v.m3u8)return;
   document.getElementById('modal-num').textContent=v.num;
   document.getElementById('modal-name').textContent=v.name;
   const video=document.getElementById('modal-video');
@@ -173,19 +177,23 @@ function build(){
   const selGrid=document.getElementById('sel-grid');
   VIDEOS.forEach(v=>{
     const thumb=v.thumb||'';
-    grid.innerHTML+=`<div class="card" id="card-${v.num}">
+    const noVideo=!v.m3u8;
+    const videoBlock = noVideo
+      ? `<div class="video-wrap no-video-bg">前走パドック映像なし</div><div class="card-footer"><span class="time-disp">--</span></div>`
+      : `<div class="video-wrap">
+          <video playsinline muted preload="none" ${thumb?'poster="'+thumb+'"':''}></video>
+          <div class="overlay"><div class="play-circle"></div></div>
+          <div class="loop-badge">LOOP</div>
+          <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+        </div>
+        <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>`;
+    grid.innerHTML+=`<div class="card${noVideo?' no-video':''}" id="card-${v.num}">
       <div class="card-header">
         <div class="num-badge">${v.num}</div>
         <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
-        <button class="btn-max" title="拡大">⛶</button>
+        ${noVideo?'':'<button class="btn-max" title="拡大">⛶</button>'}
       </div>
-      <div class="video-wrap">
-        <video playsinline muted preload="none" ${thumb?'poster="'+thumb+'"':''}></video>
-        <div class="overlay"><div class="play-circle"></div></div>
-        <div class="loop-badge">LOOP</div>
-        <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
-      </div>
-      <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>
+      ${videoBlock}
     </div>`;
     selGrid.innerHTML+=`<div class="sel-item checked" data-num="${v.num}" onclick="(function(el){const n=el.dataset.num;if(sel.has(n)){sel.delete(n);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}else{sel.add(n);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}updateVisibility();}).call(this,this)"><div class="sel-checkbox">✓</div><div class="sel-num">${v.num}</div><div class="sel-name">${v.name}</div></div>`;
   });
