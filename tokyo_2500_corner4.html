@@ -61,7 +61,8 @@ a{color:inherit}
 .bn{font-family:var(--mono);font-size:10px;color:var(--muted);width:28px}
 .br{font-family:var(--mono);font-size:9px;color:var(--muted)}
 .no-data{font-size:11px;color:var(--muted);font-style:italic}
-</style>
+.ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}</style>
+<script>function rateBar(pct,kind){var v=parseFloat(pct)||0;var max=kind==='win'?25:50;var w=Math.min(100,Math.round(v/max*100));var col=kind==='win'?(v>=15?'#56d08b':v>=10?'#f0c040':v>=6?'#f09050':'#3a3a55'):(v>=30?'#56d08b':v>=20?'#f0c040':v>=12?'#f09050':'#3a3a55');var lab=kind==='win'?'勝率':'複勝';return '<div class="ratebar"><span class="rb-lab">'+lab+'</span><div class="rb-track"><div class="rb-fill" style="width:'+w+'%;background:'+col+'"></div></div><span class="rb-val">'+pct+'</span></div>';}</script>
 </head>
 <body>
 <div class="ph">
@@ -164,9 +165,9 @@ function render(){
       const dot = statusDot(parseFloat(lap.showRate));
       return `<div class="lap-tab" data-dev="${di}" data-lap="${li}">
         <div class="lt-name">${lap.name}<span class="status-dot" style="background:${dot}"></span></div>
-        <div class="lt-row"><span class="lt-win">${lap.winRate}</span><span class="lt-count">${lap.total}件</span></div>
-        <div class="lt-results">${lap.results}</div>
-        <div class="lt-place">連 ${lap.placeRate}　複 ${lap.showRate}</div>
+        <div class="lt-count">${lap.total}件</div>
+        ${rateBar(lap.winRate,'win')}${rateBar(lap.showRate,'show')}
+        <div class="lt-place">連対 ${lap.placeRate}　${lap.results}</div>
       </div>`;
     }).join("");
     const panels = dev.laps.map((lap, li)=>{
@@ -186,8 +187,8 @@ function render(){
         <div class="dev-info">
           <div class="dev-name ${dev.cls}">${dev.name}</div>
           <div class="dev-total-num">${dev.total.toLocaleString()}<span style="font-size:10px;color:var(--muted);margin-left:6px">件 ${dev.pct}</span></div>
-          <div class="dev-meta">勝率 ${dev.winRate} ／ 連対率 ${dev.placeRate} ／ 複勝率 ${dev.showRate}</div>
-          <div class="dev-meta">${dev.results}</div>
+          ${rateBar(dev.winRate,'win')}${rateBar(dev.showRate,'show')}
+          <div class="dev-meta">連対率 ${dev.placeRate} ／ ${dev.results}</div>
         </div>
         <div class="lap-tabs">${lapTabs}</div>
       </div>

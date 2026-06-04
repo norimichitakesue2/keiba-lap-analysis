@@ -54,7 +54,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 .empty-cell{display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:11px;}
 @media(max-width:1100px){.dev-row{grid-template-columns:160px repeat(3,1fr);}}
 @media(max-width:700px){.dev-row{grid-template-columns:1fr 1fr;}}
-</style>
+.ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}</style>
+<script>function rateBar(pct,kind){var v=parseFloat(pct)||0;var max=kind==='win'?25:50;var w=Math.min(100,Math.round(v/max*100));var col=kind==='win'?(v>=15?'#56d08b':v>=10?'#f0c040':v>=6?'#f09050':'#3a3a55'):(v>=30?'#56d08b':v>=20?'#f0c040':v>=12?'#f09050':'#3a3a55');var lab=kind==='win'?'勝率':'複勝';return '<div class="ratebar"><span class="rb-lab">'+lab+'</span><div class="rb-track"><div class="rb-fill" style="width:'+w+'%;background:'+col+'"></div></div><span class="rb-val">'+pct+'</span></div>';}</script>
 </head>
 <body>
 <div class="ph">
@@ -1541,5 +1542,43 @@ function renderDetail(wrap, key, devName, lapName) {
 buildBars();
 
 </script>
-</body>
+<script>/*rb-postproc*/(function(){
+function num(s){var m=String(s).match(/([0-9.]+)/);return m?m[1]:null;}
+function mu(re,s){var m=String(s).match(re);return m?m[1]:null;}
+function devEls(){return document.querySelectorAll('.dev-summary,.dev-meta');}
+function inject(){
+  if(typeof rateBar!=='function')return;
+  devEls().forEach(function(el){
+    if(el.dataset.rb)return;
+    var h=el.innerHTML;
+    var w=mu(/勝率\s*([0-9.]+)/,h), s=mu(/複勝率?\s*([0-9.]+)/,h);
+    if(!(w&&s))return;
+    el.dataset.rb='1';
+    var c=mu(/連対率\s*([0-9.]+)/,h);
+    var parts=h.split(/<br\s*\/?>/i);
+    var resu=parts.length>1?parts[parts.length-1].trim():'';
+    el.innerHTML=rateBar(w+'%','win')+rateBar(s+'%','show')
+      +'<div style="font-size:10px;color:#7a7aa8;margin-top:2px">'+(c?'連対率 '+c+'%':'')+(resu?'　'+resu:'')+'</div>';
+  });
+  document.querySelectorAll('.rate-row').forEach(function(el){
+    if(el.dataset.rb)return;
+    var cell=el.closest('.dev-cell'); var wb=cell&&cell.querySelector('.win-big');
+    var s=mu(/複\s*([0-9.]+)/,el.innerHTML), w=wb?num(wb.textContent):null;
+    if(!(w&&s))return; el.dataset.rb='1';
+    var c=mu(/連\s*([0-9.]+)/,el.innerHTML);
+    el.innerHTML=rateBar(w+'%','win')+rateBar(s+'%','show')+(c?'<div style="font-size:10px;color:#7a7aa8">連対 '+c+'%</div>':'');
+  });
+  document.querySelectorAll('.lt-place').forEach(function(el){
+    if(el.dataset.rb)return;
+    var tab=el.closest('.lap-tab')||el.parentElement; var lw=tab&&tab.querySelector('.lt-win');
+    var s=mu(/複\s*([0-9.]+)/,el.innerHTML), w=lw?num(lw.textContent):null;
+    if(!(w&&s))return; el.dataset.rb='1';
+    var c=mu(/連\s*([0-9.]+)/,el.innerHTML);
+    el.innerHTML=rateBar(w+'%','win')+rateBar(s+'%','show')+(c?'<div style="font-size:10px;color:#7a7aa8">連対 '+c+'%</div>':'');
+  });
+}
+function run(){setTimeout(inject,80);}
+if(document.readyState!=='loading')run();else document.addEventListener('DOMContentLoaded',run);
+document.addEventListener('click',function(){setTimeout(inject,60);});
+})();</script></body>
 </html>
