@@ -47,7 +47,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 .empty-cell{display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:11px;}
 @media(max-width:1100px){.dev-row{grid-template-columns:160px repeat(3,1fr);}}
 @media(max-width:700px){.dev-row{grid-template-columns:1fr 1fr;}}
-.ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}</style>
+.ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}.rbc-row{display:flex;gap:6px;flex:1;min-width:0}.rbc-row .ratebar{margin:0;flex:1;min-width:0}.rbc-row .rb-track{max-width:none}.rbc-row .rb-lab{width:18px}.rbc-row .rb-val{width:40px}.rbc-col{display:flex;flex-direction:column;gap:1px;margin-top:3px}.rbc-col .ratebar{margin:0}</style>
 <script>function rateBar(pct,kind){var v=parseFloat(pct)||0;var max=kind==='win'?25:50;var w=Math.min(100,Math.round(v/max*100));var col=kind==='win'?(v>=15?'#56d08b':v>=10?'#f0c040':v>=6?'#f09050':'#3a3a55'):(v>=30?'#56d08b':v>=20?'#f0c040':v>=12?'#f09050':'#3a3a55');var lab=kind==='win'?'勝率':'複勝';return '<div class="ratebar"><span class="rb-lab">'+lab+'</span><div class="rb-track"><div class="rb-fill" style="width:'+w+'%;background:'+col+'"></div></div><span class="rb-val">'+pct+'</span></div>';}</script>
 </head>
 <body>
@@ -144,5 +144,26 @@ function inject(){
 function run(){setTimeout(inject,80);}
 if(document.readyState!=='loading')run();else document.addEventListener('DOMContentLoaded',run);
 document.addEventListener('click',function(){setTimeout(inject,60);});
+})();</script><script>/*rb-corner*/(function(){
+function K(el){var m=el&&el.textContent&&el.textContent.match(/(\d+)-(\d+)-(\d+)-(\d+)/);return m?[+m[1],+m[2],+m[3],+m[4]]:null;}
+function gauges(k,row){var tot=k[0]+k[1]+k[2]+k[3];if(tot<=0)return null;
+ var win=(k[0]/tot*100).toFixed(1)+'%',show=((k[0]+k[1]+k[2])/tot*100).toFixed(1)+'%';
+ var c=document.createElement(row?'span':'div');c.className=row?'rbc-row':'rbc-col';
+ c.innerHTML=rateBar(win,'win')+rateBar(show,'show');return c;}
+function run(){
+ if(typeof rateBar!=='function')return;
+ document.querySelectorAll('.bar-row').forEach(function(r){
+  if(r.dataset.rbc)return;var br=r.querySelector('.br');var k=K(br)||K(r);if(!k)return;
+  var g=gauges(k,true);if(!g)return;r.dataset.rbc='1';
+  var bt=r.querySelector('.bt');if(bt)bt.replaceWith(g);else r.insertBefore(g,r.children[1]||null);
+ });
+ document.querySelectorAll('.jyuni-card').forEach(function(c){
+  if(c.dataset.rbc)return;var k=K(c.querySelector('.jyuni-results'));if(!k)return;
+  var g=gauges(k,false);if(!g)return;c.dataset.rbc='1';
+  var rt=c.querySelector('.jyuni-rates');if(rt)rt.replaceWith(g);else c.appendChild(g);
+ });
+}
+if(document.readyState!=='loading')setTimeout(run,150);else document.addEventListener('DOMContentLoaded',function(){setTimeout(run,150);});
+document.addEventListener('click',function(){setTimeout(run,80);});
 })();</script></body>
 </html>
