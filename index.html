@@ -27,6 +27,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 .group-title{font-size:12px;font-weight:600;color:var(--text);letter-spacing:.05em;margin:18px 0 10px;padding-left:8px;border-left:3px solid var(--gold);}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:40px;}
+.group-title{cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;}
+.group-title::before{content:'▾';font-size:10px;color:var(--muted);flex-shrink:0;}
+.group-title.collapsed::before{content:'▸';}
+.group-title:hover{color:var(--gold);}
+.group-title .cnt{font-size:10px;color:var(--muted);font-weight:400;}
+.group-title.collapsed + .grid{display:none;}
+.acc-tools{display:flex;gap:8px;margin:-4px 0 10px;}
+.acc-tools button{background:var(--s1);border:1px solid var(--bd);color:var(--muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;}
+.acc-tools button:hover{border-color:var(--gold);color:var(--text);}
 
 .course-card{
   display:block;text-decoration:none;
@@ -2351,5 +2360,38 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
   </p>
 
 </div>
+<script>
+(function(){
+  var groups={course:[],paddock:[]};
+  function mkTools(sectionTitle,key){
+    var d=document.createElement('div');d.className='acc-tools';
+    d.innerHTML='<button data-a="open">すべて展開</button><button data-a="close">すべて折りたたむ</button>';
+    sectionTitle.insertAdjacentElement('afterend',d);
+    d.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var open=b.getAttribute('data-a')==='open';groups[key].forEach(function(t){t.classList.toggle('collapsed',!open);});});
+  }
+  var nodes=[].slice.call(document.querySelectorAll('.section-title,.group-title'));
+  var cur='';
+  nodes.forEach(function(n){
+    if(n.classList.contains('section-title')){
+      cur=n.textContent||'';
+      if(cur.indexOf('コース分析')>=0) mkTools(n,'course');
+      else if(cur.indexOf('パドック')>=0) mkTools(n,'paddock');
+    } else {
+      (cur.indexOf('パドック')>=0?groups.paddock:groups.course).push(n);
+    }
+  });
+  function wire(t){
+    var g=t.nextElementSibling;
+    if(g&&g.classList.contains('grid')){
+      var n=g.querySelectorAll('.course-card').length;
+      var c=document.createElement('span');c.className='cnt';c.textContent='('+n+')';
+      t.appendChild(c);
+    }
+    t.addEventListener('click',function(){t.classList.toggle('collapsed');});
+  }
+  groups.course.forEach(function(t){wire(t);t.classList.add('collapsed');});
+  groups.paddock.forEach(function(t,i){wire(t);if(i>0)t.classList.add('collapsed');});
+})();
+</script>
 </body>
 </html>
