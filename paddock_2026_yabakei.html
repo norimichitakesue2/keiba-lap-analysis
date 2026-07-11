@@ -75,6 +75,26 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .status-bar{background:var(--s1);border-top:1px solid var(--bd);padding:4px 14px;font-size:10px;color:var(--muted);flex-shrink:0;}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}
+.stat-bar{display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--s3);border-bottom:1px solid var(--bd);flex-wrap:wrap;}
+.rtype{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;white-space:nowrap;border:1px solid var(--bd2);}
+.rtype .sub{font-weight:400;opacity:.7;font-size:9px;}
+.rt-close{color:var(--green);border-color:#2e6b47;background:#0f2019;}
+.rt-front{color:var(--orange);border-color:#6b4a1e;background:#20180a;}
+.rt-sus{color:var(--blue);border-color:#2e4a6b;background:#0f1620;}
+.rt-end{color:var(--gold);border-color:#6b5a1e;background:#201c0a;}
+.rt-oth{color:var(--muted);}
+.idxs{display:flex;gap:3px;margin-left:auto;}
+.ic{font-family:monospace;font-size:10px;color:var(--text);background:var(--s1);border:1px solid var(--bd);border-radius:3px;padding:1px 4px;display:flex;align-items:center;gap:2px;}
+.ic i{font-style:normal;color:var(--muted);font-size:9px;}
+.ic.hi{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700;}
+.ic.na{color:var(--muted);opacity:.5;}
+.rec-bar{display:flex;gap:10px;padding:3px 8px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:10px;}
+.rec{display:flex;align-items:center;gap:3px;font-family:monospace;color:var(--text);}
+.rec i{font-style:normal;color:var(--muted);font-size:9px;}
+.rec.zero{opacity:.4;}
+.rec.win b{color:var(--gold);}
+.course-link{margin-left:auto;font-size:11px;color:var(--gold);text-decoration:none;border:1px solid var(--bd2);border-radius:4px;padding:4px 10px;white-space:nowrap;background:var(--s1);transition:background .12s,border-color .12s;}
+.course-link:hover{background:var(--s2);border-color:var(--gold);}
 </style>
 </head>
 <body>
@@ -82,6 +102,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
   <a class="back" href="index.html">◀ 戻る</a>
   <h1>🏇 耶馬渓特別(2勝クラス)2026 前走パドック映像比較</h1>
   <span style="font-size:11px;color:var(--muted)">2026年7月11日 小倉10R ／ 前走パドック映像 20頭 (馬番順)</span>
+  <a class="course-link" href="kokura_1200_corner4.html" title="当該コースの展開×ラップ×4角成績">📊 コース成績（展開×ラップ）</a>
 </div>
 <div class="controls">
   <button class="btn primary" onclick="playAll()">▶ 全頭再生</button>
@@ -175,9 +196,15 @@ function closeModal(e){if(e&&e.target!==document.getElementById('modal'))return;
 function build(){
   const grid=document.getElementById('grid');
   const selGrid=document.getElementById('sel-grid');
+  const runClass=t=>!t?'oth':/終い伸び|加速/.test(t)?'close':/先行/.test(t)?'front':/持続/.test(t)?'sus':/耐久/.test(t)?'end':'oth';
+  const runFmt=t=>{if(!t)return'';const m=t.match(/^(.+?型)(（.+）|\(.+\))?$/);return m?`${m[1]}${m[2]?'<span class="sub">'+m[2]+'</span>':''}`:t;};
+  const ic=(lb,val)=>{const s=String(val==null?'':val);const has=/^\d+$/.test(s);const hi=has&&parseInt(s,10)>=105;return `<span class="ic${has?(hi?' hi':''):' na'}"><i>${lb}</i>${has?s:'—'}</span>`;};
+  const rc=(lb,r)=>{if(!r)return'';const zero=/^0-0-0-0$/.test(r);const win=/^[1-9]/.test(r);return `<span class="rec${zero?' zero':''}${win?' win':''}"><i>${lb}</i><b>${r}</b></span>`;};
   VIDEOS.forEach(v=>{
     const thumb=v.thumb||'';
     const noVideo=!v.m3u8;
+    const statBar=(v.typ||v.zen||v.st||v.ch||v.ag)?`<div class="stat-bar">${v.typ?`<span class="rtype rt-${runClass(v.typ)}" title="前走の走行タイプ">${runFmt(v.typ)}</span>`:''}<span class="idxs" title="タイム指数マスター（前走）">${ic('全',v.zen)}${ic('S',v.st)}${ic('追',v.ch)}${ic('上',v.ag)}</span></div>`:'';
+    const recBar=(v.cr||v.dr)?`<div class="rec-bar" title="当該コース／当該距離 成績 (1-2-3-着外)">${rc('コース',v.cr)}${rc('距離',v.dr)}</div>`:'';
     const videoBlock = noVideo
       ? `<div class="video-wrap no-video-bg">前走パドック映像なし</div><div class="card-footer"><span class="time-disp">--</span></div>`
       : `<div class="video-wrap">
@@ -193,6 +220,8 @@ function build(){
         <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
         ${noVideo?'':'<button class="btn-max" title="拡大">⛶</button>'}
       </div>
+      ${statBar}
+      ${recBar}
       ${videoBlock}
     </div>`;
     selGrid.innerHTML+=`<div class="sel-item checked" data-num="${v.num}" onclick="(function(el){const n=el.dataset.num;if(sel.has(n)){sel.delete(n);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}else{sel.add(n);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}updateVisibility();}).call(this,this)"><div class="sel-checkbox">✓</div><div class="sel-num">${v.num}</div><div class="sel-name">${v.name}</div></div>`;
