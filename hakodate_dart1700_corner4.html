@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>函館ダ1700m 展開×ラップ×4角分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0c10;--s1:#14141c;--s2:#1a1a26;--s3:#20202e;--bd:#28283c;--bd2:#34344a;--gold:#f0c040;--blue:#5b9cf6;--green:#56d08b;--orange:#f09050;--red:#e05555;--purple:#a080f0;--text:#ddddef;--muted:#6060a0;--muted2:#444466;--font:'Noto Sans JP',sans-serif;--mono:'DM Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5}
+a{color:inherit}
+.ph{background:var(--s1);border-bottom:2px solid var(--gold);padding:14px 22px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ph h1{font-size:16px;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.ph p{font-size:11px;color:var(--muted)}
+.ph a.back{font-size:11px;color:var(--muted);text-decoration:none;margin-right:4px}
+.ph a.back:hover{color:var(--gold)}
+.chip{background:var(--gold);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;font-family:var(--mono)}
+.hint-bar{background:var(--s2);border-bottom:1px solid var(--bd);padding:6px 22px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.hint-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.hdot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.container{padding:14px 18px}
+.dev-section{margin-bottom:20px;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.dev-summary{display:grid;grid-template-columns:170px 1fr;background:var(--s2);border-bottom:1px solid var(--bd)}
+.dev-info{padding:12px 14px;border-right:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center;gap:5px}
+.dev-name{font-size:15px;font-weight:700;letter-spacing:.05em}
+.dev-name.shunpatsu{color:#f0c040}
+.dev-name.kinko{color:#5b9cf6}
+.dev-name.jizoku{color:#56d08b}
+.dev-name.mae{color:#f09050}
+.dev-name.hptai{color:#e05555}
+.dev-name.hpsho{color:#a080f0}
+.dev-name.longsp{color:#e088c0}
+.dev-name.kasoku{color:#50c0c0}
+.dev-total-num{font-family:var(--mono);font-size:19px;font-weight:500;color:var(--text)}
+.dev-meta{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.lap-tabs{display:flex;overflow-x:auto}
+.lap-tab{flex:1 1 0;min-width:120px;padding:9px 10px;border-right:1px solid var(--bd);cursor:pointer;transition:background .12s;border-bottom:2px solid transparent;position:relative}
+.lap-tab:last-child{border-right:none}
+.lap-tab:hover{background:var(--s3)}
+.lap-tab.active{background:var(--s3);border-bottom-color:var(--gold)}
+.lt-name{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.07em;margin-bottom:4px}
+.lt-win{font-family:var(--mono);font-size:14px;font-weight:500}
+.lt-row{display:flex;align-items:baseline;gap:6px;margin-bottom:2px}
+.lt-count{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.lt-results{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.lt-place{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle}
+.detail-panel{display:none;padding:14px 16px;background:var(--s1);border-top:1px solid var(--bd)}
+.detail-panel.open{display:block}
+.dp-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.dp-badge{font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px}
+.dp-badge.ok{background:#1a3a1a;color:var(--green)}
+.dp-badge.ng{background:#3a1a1a;color:var(--red)}
+.dp-badge.pending{background:#1a1a2a;color:var(--muted)}
+.bars{display:flex;flex-direction:column;gap:4px}
+.bar-row{display:flex;align-items:center;gap:8px;height:22px}
+.bl{font-family:var(--mono);font-size:10px;color:var(--muted);width:40px;text-align:right;flex-shrink:0}
+.bt{flex:1 1 0;height:14px;background:var(--s2);border-radius:2px;overflow:hidden;max-width:280px}
+.bf{height:100%;border-radius:2px}
+.bm{display:flex;align-items:center;gap:7px;flex-shrink:0;width:70px}
+.bw{font-family:var(--mono);font-size:11px;font-weight:500;width:38px;text-align:right}
+.bn{font-family:var(--mono);font-size:10px;color:var(--muted);width:28px}
+.br{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.no-data{font-size:11px;color:var(--muted);font-style:italic}
+.ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}.rbc-row{display:flex;gap:6px;flex:1;min-width:0}.rbc-row .ratebar{margin:0;flex:1;min-width:0}.rbc-row .rb-track{max-width:none}.rbc-row .rb-lab{width:18px}.rbc-row .rb-val{width:40px}.rbc-col{display:flex;flex-direction:column;gap:1px;margin-top:3px}.rbc-col .ratebar{margin:0}</style>
+<script>function rateBar(pct,kind){var v=parseFloat(pct)||0;var max=kind==='win'?25:50;var w=Math.min(100,Math.round(v/max*100));var col=kind==='win'?(v>=15?'#56d08b':v>=10?'#f0c040':v>=6?'#f09050':'#3a3a55'):(v>=30?'#56d08b':v>=20?'#f0c040':v>=12?'#f09050':'#3a3a55');var lab=kind==='win'?'勝率':'複勝';return '<div class="ratebar"><span class="rb-lab">'+lab+'</span><div class="rb-track"><div class="rb-fill" style="width:'+w+'%;background:'+col+'"></div></div><span class="rb-val">'+pct+'</span></div>';}</script>
+</head>
+<body>
+<div class="ph">
+  <a class="back" href="index.html">&#9664; 戻る</a>
+  <h1>函館ダ1700m｜展開×ラップ×4角分析</h1>
+  <span class="chip">2,414件 / 函館 ダート1700m</span>
+  <p>netkeiba勝ち馬サーチより集計 ／ 上位3展開タイプ（合計 98%）を掲載</p>
+</div>
+
+<div class="hint-bar">
+  <div class="hint-item"><span class="hdot" style="background:#5b9cf6"></span>均衡戦 1,155件(47.8%)</div>
+  <div class="hint-item"><span class="hdot" style="background:#a080f0"></span>ハイペース消耗戦 704件(29.2%)</div>
+  <div class="hint-item"><span class="hdot" style="background:#e05555"></span>ハイペース耐久戦 509件(21.1%)</div>
+  <div class="hint-item"><span class="hdot" style="background:var(--muted2)"></span>他展開(2%)</div>
+  <div class="hint-item" style="margin-left:auto">ラップタイプをクリックで 4角順位別成績を表示</div>
+</div>
+
+<div class="container" id="root"></div>
+
+<script>
+// ====== DATA ======
+// 展開タイプ×個別ラップタイプごとの 4コーナー順位別成績
+// {I:4角順位, T:件数, K:着度数, W:勝率%, D:連対率%, P:複勝率%}
+const CORNER = {"均衡戦_先行型":[{"I":1,"T":46,"K":"16-9-5-16","W":34.8,"D":54.4,"P":65.2},{"I":2,"T":79,"K":"9-16-15-39","W":11.4,"D":31.7,"P":50.6},{"I":3,"T":34,"K":"3-4-3-24","W":8.8,"D":20.6,"P":29.4},{"I":4,"T":37,"K":"1-3-6-27","W":2.7,"D":10.8,"P":27},{"I":5,"T":46,"K":"1-2-5-38","W":2.2,"D":6.5,"P":17.4},{"I":6,"T":42,"K":"2-1-2-37","W":4.8,"D":7.1,"P":11.9},{"I":7,"T":45,"K":"1-2-2-40","W":2.2,"D":6.7,"P":11.1},{"I":8,"T":40,"K":"0-0-0-40","W":0,"D":0,"P":0},{"I":9,"T":34,"K":"0-0-0-34","W":0,"D":0,"P":0},{"I":10,"T":28,"K":"0-0-1-27","W":0,"D":0,"P":3.6},{"I":11,"T":29,"K":"0-0-0-29","W":0,"D":0,"P":0},{"I":12,"T":27,"K":"0-0-0-27","W":0,"D":0,"P":0},{"I":13,"T":15,"K":"0-0-0-15","W":0,"D":0,"P":0},{"I":14,"T":8,"K":"0-0-0-8","W":0,"D":0,"P":0}],"均衡戦_持続型":[{"I":1,"T":4,"K":"2-2-0-0","W":50,"D":100,"P":100},{"I":2,"T":10,"K":"6-2-0-2","W":60,"D":80,"P":80},{"I":3,"T":8,"K":"2-3-1-2","W":25,"D":62.5,"P":75},{"I":4,"T":8,"K":"2-0-2-4","W":25,"D":25,"P":50},{"I":5,"T":3,"K":"1-0-0-2","W":33.3,"D":33.3,"P":33.3},{"I":6,"T":5,"K":"0-1-2-2","W":0,"D":20,"P":60},{"I":7,"T":5,"K":"0-1-0-4","W":0,"D":20,"P":20},{"I":8,"T":4,"K":"0-0-1-3","W":0,"D":0,"P":25},{"I":9,"T":8,"K":"0-0-0-8","W":0,"D":0,"P":0},{"I":10,"T":3,"K":"0-0-0-3","W":0,"D":0,"P":0},{"I":12,"T":4,"K":"0-0-1-3","W":0,"D":0,"P":25},{"I":13,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0}],"均衡戦_耐久型":[{"I":1,"T":3,"K":"1-1-1-0","W":33.3,"D":66.7,"P":100},{"I":2,"T":4,"K":"2-0-1-1","W":50,"D":50,"P":75},{"I":3,"T":6,"K":"2-2-0-2","W":33.3,"D":66.7,"P":66.7},{"I":4,"T":4,"K":"0-1-1-2","W":0,"D":25,"P":50},{"I":5,"T":1,"K":"1-0-0-0","W":100,"D":100,"P":100},{"I":6,"T":7,"K":"0-0-3-4","W":0,"D":0,"P":42.9},{"I":7,"T":5,"K":"1-1-1-2","W":20,"D":40,"P":60},{"I":8,"T":6,"K":"0-1-0-5","W":0,"D":16.7,"P":16.7},{"I":9,"T":6,"K":"0-0-0-6","W":0,"D":0,"P":0},{"I":10,"T":5,"K":"0-1-0-4","W":0,"D":20,"P":20},{"I":11,"T":3,"K":"0-0-0-3","W":0,"D":0,"P":0},{"I":12,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0},{"I":13,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0},{"I":14,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0}],"均衡戦_加速型":[{"I":11,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0}],"ハイペース消耗戦_先行型":[{"I":1,"T":23,"K":"8-4-3-8","W":34.8,"D":52.2,"P":65.2},{"I":2,"T":35,"K":"7-5-4-19","W":20,"D":34.3,"P":45.7},{"I":3,"T":23,"K":"1-3-6-13","W":4.4,"D":17.4,"P":43.5},{"I":4,"T":20,"K":"2-4-2-12","W":10,"D":30,"P":40},{"I":5,"T":22,"K":"1-3-4-14","W":4.6,"D":18.2,"P":36.4},{"I":6,"T":22,"K":"2-1-0-19","W":9.1,"D":13.6,"P":13.6},{"I":7,"T":25,"K":"0-1-2-22","W":0,"D":4,"P":12},{"I":8,"T":19,"K":"0-1-0-18","W":0,"D":5.3,"P":5.3},{"I":9,"T":23,"K":"1-0-1-21","W":4.4,"D":4.4,"P":8.7},{"I":10,"T":20,"K":"0-0-1-19","W":0,"D":0,"P":5},{"I":11,"T":25,"K":"0-0-0-25","W":0,"D":0,"P":0},{"I":12,"T":13,"K":"0-0-0-13","W":0,"D":0,"P":0},{"I":13,"T":9,"K":"0-0-0-9","W":0,"D":0,"P":0},{"I":14,"T":9,"K":"0-0-0-9","W":0,"D":0,"P":0}],"ハイペース消耗戦_持続型":[{"I":5,"T":1,"K":"0-1-0-0","W":0,"D":100,"P":100},{"I":7,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0},{"I":8,"T":1,"K":"1-0-0-0","W":100,"D":100,"P":100},{"I":11,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0},{"I":13,"T":2,"K":"0-0-0-2","W":0,"D":0,"P":0}],"ハイペース消耗戦_耐久型":[{"I":8,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0}],"ハイペース耐久戦_先行型":[{"I":1,"T":21,"K":"6-5-2-8","W":28.6,"D":52.4,"P":61.9},{"I":2,"T":33,"K":"9-3-2-19","W":27.3,"D":36.4,"P":42.4},{"I":3,"T":14,"K":"1-3-4-6","W":7.1,"D":28.6,"P":57.1},{"I":4,"T":29,"K":"3-3-5-18","W":10.3,"D":20.7,"P":37.9},{"I":5,"T":15,"K":"0-1-2-12","W":0,"D":6.7,"P":20},{"I":6,"T":24,"K":"0-1-2-21","W":0,"D":4.2,"P":12.5},{"I":7,"T":19,"K":"1-2-0-16","W":5.3,"D":15.8,"P":15.8},{"I":8,"T":17,"K":"1-0-1-15","W":5.9,"D":5.9,"P":11.8},{"I":9,"T":22,"K":"0-0-0-22","W":0,"D":0,"P":0},{"I":10,"T":15,"K":"0-1-0-14","W":0,"D":6.7,"P":6.7},{"I":11,"T":15,"K":"0-0-2-13","W":0,"D":0,"P":13.3},{"I":12,"T":14,"K":"0-0-0-14","W":0,"D":0,"P":0},{"I":13,"T":9,"K":"0-1-0-8","W":0,"D":11.1,"P":11.1},{"I":14,"T":7,"K":"0-0-0-7","W":0,"D":0,"P":0}],"ハイペース耐久戦_持続型":[{"I":5,"T":1,"K":"0-1-0-0","W":0,"D":100,"P":100},{"I":9,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0},{"I":10,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0},{"I":12,"T":2,"K":"0-0-0-2","W":0,"D":0,"P":0}],"ハイペース耐久戦_耐久型":[{"I":4,"T":1,"K":"0-0-1-0","W":0,"D":0,"P":100},{"I":7,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0},{"I":11,"T":1,"K":"0-0-0-1","W":0,"D":0,"P":0}]};
+
+const DEV = [{"name":"均衡戦","cls":"kinko","total":1155,"pct":"47.8%","results":"95-95-95-870","winRate":"8.2%","placeRate":"16.5%","showRate":"24.7%","laps":[{"name":"耐久型","total":53,"results":"7-7-7-32","winRate":"13.2%","placeRate":"26.4%","showRate":"39.6%"},{"name":"先行型","total":510,"results":"33-37-39-401","winRate":"6.5%","placeRate":"13.7%","showRate":"21.4%"},{"name":"加速型","total":1,"results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%","showRate":"0.0%"},{"name":"持続型","total":63,"results":"13-9-7-34","winRate":"20.6%","placeRate":"34.9%","showRate":"46.0%"}]},{"name":"ハイペース消耗戦","cls":"hpsho","total":704,"pct":"29.2%","results":"55-55-55-539","winRate":"7.8%","placeRate":"15.6%","showRate":"23.4%","laps":[{"name":"耐久型","total":1,"results":"0-0-0-1","winRate":"0.0%","placeRate":"0.0%","showRate":"0.0%"},{"name":"先行型","total":289,"results":"22-22-23-222","winRate":"7.6%","placeRate":"15.2%","showRate":"23.2%"},{"name":"持続型","total":6,"results":"1-1-0-4","winRate":"16.7%","placeRate":"33.3%","showRate":"33.3%"}]},{"name":"ハイペース耐久戦","cls":"hptai","total":509,"pct":"21.1%","results":"40-40-40-389","winRate":"7.9%","placeRate":"15.7%","showRate":"23.6%","laps":[{"name":"耐久型","total":3,"results":"0-0-1-2","winRate":"0.0%","placeRate":"0.0%","showRate":"33.3%"},{"name":"先行型","total":254,"results":"21-20-20-193","winRate":"8.3%","placeRate":"16.1%","showRate":"24.0%"},{"name":"持続型","total":5,"results":"0-1-0-4","winRate":"0.0%","placeRate":"20.0%","showRate":"20.0%"}]}];
+
+// ====== RENDER ======
+function barColor(p){
+  if(p>=30) return "var(--green)";
+  if(p>=20) return "var(--gold)";
+  if(p>=10) return "var(--orange)";
+  return "var(--muted2)";
+}
+function statusDot(p){
+  if(p>=20) return "var(--green)";
+  if(p>=10) return "var(--gold)";
+  if(p>=5)  return "var(--orange)";
+  return "var(--muted2)";
+}
+function barsHTML(list){
+  if(!list || !list.length) return '<div class="no-data">データなし</div>';
+  // Show up to 14 corner positions; cap bar width based on max T
+  const maxT = Math.max(...list.map(x=>x.T));
+  return list.map(row=>{
+    const pct = Number(row.P);
+    const barW = Math.round((row.T / maxT) * 100);
+    const col = barColor(pct);
+    return `<div class="bar-row">
+      <span class="bl">${row.I}番手</span>
+      <div class="bt"><div class="bf" style="width:${barW}%;background:${col}"></div></div>
+      <span class="bm">
+        <span class="bw">${row.P.toFixed(1)}%</span>
+        <span class="bn">(${row.T})</span>
+      </span>
+      <span class="br">${row.K}｜勝 ${row.W.toFixed(1)}%／連 ${row.D.toFixed(1)}%</span>
+    </div>`;
+  }).join("");
+}
+function badge(pct){
+  const v = parseFloat(pct);
+  if(v>=20) return `<span class="dp-badge ok">${pct}</span>`;
+  if(v>=10) return `<span class="dp-badge pending">${pct}</span>`;
+  return `<span class="dp-badge ng">${pct}</span>`;
+}
+
+function render(){
+  const root = document.getElementById('root');
+  root.innerHTML = DEV.map((dev, di)=>{
+    const lapTabs = dev.laps.map((lap, li)=>{
+      const dot = statusDot(parseFloat(lap.showRate));
+      return `<div class="lap-tab" data-dev="${di}" data-lap="${li}">
+        <div class="lt-name">${lap.name}<span class="status-dot" style="background:${dot}"></span></div>
+        <div class="lt-count">${lap.total}件</div>
+        ${rateBar(lap.winRate,'win')}${rateBar(lap.showRate,'show')}
+        <div class="lt-place">連対 ${lap.placeRate}　${lap.results}</div>
+      </div>`;
+    }).join("");
+    const panels = dev.laps.map((lap, li)=>{
+      const key = dev.name + "_" + lap.name;
+      const data = CORNER[key] || [];
+      return `<div class="detail-panel" data-dev="${di}" data-lap="${li}">
+        <div class="dp-title">
+          <span>${dev.name} × ${lap.name}　4コーナー順位別成績</span>
+          ${badge(lap.showRate)}
+          <span style="color:var(--muted);font-family:var(--mono);font-size:10px">n=${lap.total}</span>
+        </div>
+        <div class="bars">${barsHTML(data)}</div>
+      </div>`;
+    }).join("");
+    return `<div class="dev-section">
+      <div class="dev-summary">
+        <div class="dev-info">
+          <div class="dev-name ${dev.cls}">${dev.name}</div>
+          <div class="dev-total-num">${dev.total.toLocaleString()}<span style="font-size:10px;color:var(--muted);margin-left:6px">件 ${dev.pct}</span></div>
+          ${rateBar(dev.winRate,'win')}${rateBar(dev.showRate,'show')}
+          <div class="dev-meta">連対率 ${dev.placeRate} ／ ${dev.results}</div>
+        </div>
+        <div class="lap-tabs">${lapTabs}</div>
+      </div>
+      ${panels}
+    </div>`;
+  }).join("");
+
+  // Bind clicks
+  root.querySelectorAll('.lap-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const di = tab.dataset.dev, li = tab.dataset.lap;
+      const section = tab.closest('.dev-section');
+      const wasActive = tab.classList.contains('active');
+      // Toggle
+      section.querySelectorAll('.lap-tab').forEach(t=>t.classList.remove('active'));
+      section.querySelectorAll('.detail-panel').forEach(p=>p.classList.remove('open'));
+      if(!wasActive){
+        tab.classList.add('active');
+        const panel = section.querySelector(`.detail-panel[data-dev="${di}"][data-lap="${li}"]`);
+        panel.classList.add('open');
+      }
+    });
+  });
+
+  // Auto-open first lap of each dev
+  root.querySelectorAll('.dev-section').forEach(sec=>{
+    const first = sec.querySelector('.lap-tab');
+    if(first) first.click();
+  });
+}
+render();
+</script>
+<script>/*rb-corner*/(function(){
+function K(el){var m=el&&el.textContent&&el.textContent.match(/(\d+)-(\d+)-(\d+)-(\d+)/);return m?[+m[1],+m[2],+m[3],+m[4]]:null;}
+function gauges(k,row){var tot=k[0]+k[1]+k[2]+k[3];if(tot<=0)return null;
+ var win=(k[0]/tot*100).toFixed(1)+'%',show=((k[0]+k[1]+k[2])/tot*100).toFixed(1)+'%';
+ var c=document.createElement(row?'span':'div');c.className=row?'rbc-row':'rbc-col';
+ c.innerHTML=rateBar(win,'win')+rateBar(show,'show');return c;}
+function run(){
+ if(typeof rateBar!=='function')return;
+ document.querySelectorAll('.bar-row').forEach(function(r){
+  if(r.dataset.rbc)return;var br=r.querySelector('.br');var k=K(br)||K(r);if(!k)return;
+  var g=gauges(k,true);if(!g)return;r.dataset.rbc='1';
+  var bt=r.querySelector('.bt');if(bt)bt.replaceWith(g);else r.insertBefore(g,r.children[1]||null);
+ });
+ document.querySelectorAll('.jyuni-card').forEach(function(c){
+  if(c.dataset.rbc)return;var k=K(c.querySelector('.jyuni-results'));if(!k)return;
+  var g=gauges(k,false);if(!g)return;c.dataset.rbc='1';
+  var rt=c.querySelector('.jyuni-rates');if(rt)rt.replaceWith(g);else c.appendChild(g);
+ });
+}
+if(document.readyState!=='loading')setTimeout(run,150);else document.addEventListener('DOMContentLoaded',function(){setTimeout(run,150);});
+document.addEventListener('click',function(){setTimeout(run,80);});
+})();</script></body>
+</html>
