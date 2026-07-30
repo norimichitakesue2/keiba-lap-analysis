@@ -56,6 +56,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .play-circle::after{content:'';border-left:13px solid #000;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px;}
 .loop-badge{position:absolute;top:4px;right:4px;background:var(--orange);color:#000;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:none;}
 .card.looping .loop-badge{display:block;}
+.loop-btn-card{cursor:pointer;font-size:12px;opacity:.5;user-select:none;filter:grayscale(1);margin-left:auto;padding:0 4px;}
+.loop-btn-card.on,.card.looping .loop-btn-card{opacity:1;filter:none;}
 .card.looping .num-badge{outline:2px solid var(--orange);}
 .spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,0.25);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -149,6 +151,7 @@ function initCard(v){
   if(!video||video.dataset.init)return;
   video.dataset.init='1';
   video.muted=true;
+  video.loop=loopAll||d.classList.contains('looping');
   if(Hls.isSupported()){
     const h=new Hls({enableWorker:false});
     h.loadSource(v.m3u8);h.attachMedia(video);
@@ -169,7 +172,9 @@ function initCard(v){
 function playAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video?.paused)video.play();});}
 function stopAll(){VIDEOS.forEach(v=>{const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video&&!video.paused)video.pause();});}
 function restartAll(){VIDEOS.filter(v=>sel.has(v.num)&&v.m3u8).forEach(v=>{initCard(v);const video=document.getElementById('card-'+v.num)?.querySelector('video');if(video){video.currentTime=0;video.play();}});}
-function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').className='btn'+(loopAll?' loop-on':'');document.getElementById('status').textContent='ループ'+(loopAll?'ON':'OFF');}
+function applyLoop(d){const video=d.querySelector('video');if(video)video.loop=loopAll||d.classList.contains('looping');}
+function toggleLoopAll(){loopAll=!loopAll;document.getElementById('loop-btn').className='btn'+(loopAll?' loop-on':'');document.getElementById('status').textContent='ループ'+(loopAll?'ON':'OFF');VIDEOS.forEach(v=>{const d=document.getElementById('card-'+v.num);if(d)applyLoop(d);});}
+function toggleCardLoop(num){const d=document.getElementById('card-'+num);if(!d)return;d.classList.toggle('looping');applyLoop(d);const b=d.querySelector('.loop-btn-card');if(b)b.classList.toggle('on',d.classList.contains('looping'));}
 function toggleSelPanel(){const p=document.getElementById('sel-panel');p.classList.toggle('open');document.getElementById('sel-btn').textContent=p.classList.contains('open')?'▲ 閉じる':'☑ 馬を選択';}
 function selectAll(v){VIDEOS.forEach(video=>{const el=document.querySelector('.sel-item[data-num="'+video.num+'"]');if(el){if(v){sel.add(video.num);el.classList.add('checked');el.querySelector('.sel-checkbox').textContent='✓';}else{sel.delete(video.num);el.classList.remove('checked');el.querySelector('.sel-checkbox').textContent='';}}});updateVisibility();}
 function updateVisibility(){VIDEOS.forEach(v=>{const c=document.getElementById('card-'+v.num);if(c)c.classList.toggle('hidden-card',!sel.has(v.num));});document.getElementById('count-label').textContent=sel.size+'頭表示中';}
@@ -179,7 +184,7 @@ function openModal(v){
   document.getElementById('modal-name').textContent=v.name;
   const video=document.getElementById('modal-video');
   if(modalHls){modalHls.destroy();modalHls=null;}
-  video.muted=true;modalLooping=false;
+  video.muted=true;modalLooping=false;video.loop=false;
   document.getElementById('modal-loop-btn').className='btn';
   document.getElementById('modal-vol-btn').textContent='🔇 ミュート解除';
   if(Hls.isSupported()){modalHls=new Hls({enableWorker:false});modalHls.loadSource(v.m3u8);modalHls.attachMedia(video);}
@@ -190,7 +195,7 @@ function openModal(v){
   video.addEventListener('ended',()=>{if(modalLooping){video.currentTime=0;video.play();}});
 }
 function updateModalTime(){const v=document.getElementById('modal-video');document.getElementById('modal-time').textContent=fmt(v.currentTime)+' / '+fmt(v.duration);}
-function toggleModalLoop(){modalLooping=!modalLooping;document.getElementById('modal-loop-btn').className='btn'+(modalLooping?' loop-on':'');}
+function toggleModalLoop(){modalLooping=!modalLooping;document.getElementById('modal-video').loop=modalLooping;document.getElementById('modal-loop-btn').className='btn'+(modalLooping?' loop-on':'');}
 function updateModalVol(){document.getElementById('modal-vol-btn').textContent=document.getElementById('modal-video').muted?'🔇 ミュート解除':'🔊 ミュート';}
 function closeModal(e){if(e&&e.target!==document.getElementById('modal'))return;const video=document.getElementById('modal-video');video.pause();if(modalHls){modalHls.destroy();modalHls=null;}document.getElementById('modal').classList.remove('open');}
 function build(){
@@ -213,7 +218,7 @@ function build(){
           <div class="loop-badge">LOOP</div>
           <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
         </div>
-        <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>`;
+        <div class="card-footer"><span class="time-disp">0:00 / 0:00</span><span class="loop-btn-card" title="このカードをループ" onclick="toggleCardLoop('${v.num}')">🔁</span><span class="vol-btn" title="音声切替" onclick="(function(){var v=document.getElementById('card-${v.num}').querySelector('video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';}).call(this)">🔇</span></div>`;
     grid.innerHTML+=`<div class="card${noVideo?' no-video':''}" id="card-${v.num}">
       <div class="card-header">
         <div class="num-badge">${v.num}</div>
