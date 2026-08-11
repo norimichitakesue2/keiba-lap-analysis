@@ -4,6 +4,8 @@ import os, subprocess, sys
 BASE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(BASE)
 RAW = os.path.join(BASE, "win5_raw_0815.tsv")
+STATS_RAW = os.path.join(BASE, "win5_stats_0815.tsv")
+REC_RAW = os.path.join(BASE, "win5_records_0815.tsv")
 IMG = "https://cdnv2.netkeiba.com/img/paddock/2026/{}.jpg"
 MOV = "https://race.netkeiba.com/race/paddock_movie.html?race_id={}&id={}"
 
@@ -22,6 +24,18 @@ META = [
 ]
 BY_RID = {m[1]: m for m in META}
 
+def parse_grouped(path):
+    d = {}; cur = None
+    if not os.path.exists(path):
+        return d
+    for line in open(path, encoding="utf-8"):
+        line = line.rstrip("\n")
+        if line.startswith("#R "):
+            cur = line[3:].strip(); d[cur] = []
+        elif line.strip():
+            d[cur].append(line)
+    return d
+
 # parse raw
 races = {}
 cur = None
@@ -32,7 +46,12 @@ for line in open(RAW, encoding="utf-8"):
     elif line.strip():
         races[cur].append(line.split("\t"))
 
+stats_raw = parse_grouped(STATS_RAW)
+rec_raw = parse_grouped(REC_RAW)
+
 os.makedirs(os.path.join(REPO, "data"), exist_ok=True)
+os.makedirs(os.path.join(REPO, "stats"), exist_ok=True)
+os.makedirs(os.path.join(REPO, "records"), exist_ok=True)
 summary = []
 for short, rid, rname, jyor, sd, date, course in META:
     rows = races.get(rid, [])
@@ -42,13 +61,21 @@ for short, rid, rname, jyor, sd, date, course in META:
             img = IMG.format(imgid) if imgid else ""
             mov = MOV.format(pr, hid) if pr and hid else ""
             f.write(f"\t{nm}\t{prev}\t{img}\t{mov}\n")   # num empty (枠順未確定)
+    # stats/<short>.tsv
+    stats_path = os.path.join(REPO, "stats", f"{short}.tsv")
+    with open(stats_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(stats_raw.get(rid, [])) + "\n")
+    # records/<short>.tsv
+    rec_path = os.path.join(REPO, "records", f"{short}.tsv")
+    with open(rec_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(rec_raw.get(rid, [])) + "\n")
     n = len(rows)
     title = f"{rname} 前走パドック（静止画＋映像リンク）"
     h1 = f"{rname} 前走パドック"
     header = f"{date} {jyor} {sd} ／ 前走パドック {n}頭 (暫定・枠順未確定/五十音順)"
     out = os.path.join(REPO, f"paddock_2026_{short}.html")
     args = [sys.executable, os.path.join(BASE, "gen_still.py"), data_path, title, h1, header, out]
-    args += ["", ""]  # no stats/records for provisional pass
+    args += [stats_path, rec_path]
     if course:
         args += [course]
     subprocess.run(args, check=True)
