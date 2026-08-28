@@ -98,6 +98,9 @@ a{color:inherit}
 .pf-cv{flex:1 1 0;min-width:56px;font-family:var(--mono);font-size:13px;font-weight:600;color:#cfcfe6;text-align:center}
 .pf-cv small{display:block;font-size:8px;font-weight:400;color:var(--muted)}
 .pf-tab .pf-cv{font-size:9px;font-weight:400}
+.pf-warn{font-size:9px;color:#e8b23a;margin-top:6px}
+.pt.dim{opacity:.35;cursor:default}
+.pt.dim:hover{color:var(--muted)}
 .ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}.rbc-row{display:flex;gap:6px;flex:1;min-width:0}.rbc-row .ratebar{margin:0;flex:1;min-width:0}.rbc-row .rb-track{max-width:none}.rbc-row .rb-lab{width:18px}.rbc-row .rb-val{width:40px}.rbc-col{display:flex;flex-direction:column;gap:1px;margin-top:3px}.rbc-col .ratebar{margin:0}</style>
 <script>function rateBar(pct,kind){var v=parseFloat(pct)||0;var max=kind==='win'?25:50;var w=Math.min(100,Math.round(v/max*100));var col=kind==='win'?(v>=15?'#56d08b':v>=10?'#f0c040':v>=6?'#f09050':'#3a3a55'):(v>=30?'#56d08b':v>=20?'#f0c040':v>=12?'#f09050':'#3a3a55');var lab=kind==='win'?'勝率':'複勝';return '<div class="ratebar"><span class="rb-lab">'+lab+'</span><div class="rb-track"><div class="rb-fill" style="width:'+w+'%;background:'+col+'"></div></div><span class="rb-val">'+pct+'</span></div>';}</script>
 </head>
@@ -220,38 +223,50 @@ function badge(pct){
 }
 
 const PROF = {};
+const PROFD = {};
 function renderProf(){
   const host=document.getElementById('prof');
   const laps=Object.keys(PROF);
   if(!host) return;
-  if(!laps.length){ host.innerHTML=''; return; }
+  if(!laps.length && !Object.keys(PROFD).length){ host.innerHTML=''; return; }
   const OTH={zen:["st","ou","ri"],st:["zen","ou","ri"],ou:["zen","st","ri"],ri:["zen","st","ou"]};
-  let curLap=laps[0], curBase="st";
+  // 展開タイプ options: "" = 全展開
+  const devsOf=lap=>Object.keys(PROFD).filter(k=>k.split("|")[1]===lap).map(k=>k.split("|")[0]);
+  let curLap=laps[0]||Object.keys(PROFD)[0].split("|")[1], curBase="st", curDev="";
+  function cur(){
+    if(curDev) return PROFD[curDev+"|"+curLap];
+    return PROF[curLap];
+  }
   function table(){
-    const d=PROF[curLap]; const rows=(d.byBase||{})[curBase]||[];
+    const d=cur();
+    if(!d) return '<div class="no-data">この組み合わせは集計対象外です（3着内 n&lt;20）</div>';
+    const rows=(d.byBase||{})[curBase]||[];
     if(!rows.length) return '<div class="no-data">この基準指数では十分なサンプルがありません</div>';
     const oth=OTH[curBase];
     const head=`<div class="pf-row pf-tab"><span class="pf-c0">${IDXLAB[curBase]}指数</span><span class="pf-cn">n</span>`
       + oth.map(o=>`<span class="pf-cv">${IDXLAB[o]}</span>`).join('') + '</div>';
+    const warn = d.n<30 ? `<div class="pf-warn">⚠ 母数 n=${d.n} と小さいため参考値です</div>` : "";
     return head + rows.map(r=>`<div class="pf-row">
       <span class="pf-c0">${BINLAB[r.b]}</span>
       <span class="pf-cn">${r.n}頭</span>
       ${r.m.map(v=>`<span class="pf-cv">${v===null||v==="-"?"–":v}</span>`).join('')}
-    </div>`).join('');
+    </div>`).join('') + warn;
   }
   function paint(){
     host.innerHTML=`<div class="prof">
       <div class="prof-head">
         <div class="prof-title">ラップタイプ別 指数プロファイル（3着内馬）</div>
-        <div class="prof-sub">基準にした指数のビンごとに、同じ馬たちの他3指数の中央値。展開タイプは問わず、コース全体の3着内馬が対象（各ラップタイプ n≧30、各ビン n≧8 のみ表示）。<br>読み方の例：スタート100-109の行 → 「スタート指数が100台だった3着内馬は、全体○○・追走○○・上がり○○くらい」</div>
+        <div class="prof-sub">基準にした指数のビンごとに、同じ馬たちの他3指数の中央値。対象はコースの3着内馬。展開タイプは「全展開」または個別に切替（全展開 n≧30／展開タイプ別 n≧20、各ビン n≧8 のみ表示）。<br>読み方の例：スタート100-109の行 → 「スタート指数が100台だった3着内馬は、全体○○・追走○○・上がり○○くらい」</div>
       </div>
       <div class="prof-ctl">
         <span class="prof-grp"><em>ラップタイプ</em>${laps.map(l=>`<span class="pt ${l===curLap?'active':''}" data-l="${l}">${l} <span style="color:var(--muted)">${PROF[l].n}</span></span>`).join('')}</span>
+        <span class="prof-grp"><em>展開タイプ</em><span class="pt ${curDev===''?'active':''}" data-d="">全展開</span>${devsOf(curLap).map(dv=>`<span class="pt ${dv===curDev?'active':''}" data-d="${dv}">${dv} <span style="color:var(--muted)">${PROFD[dv+'|'+curLap].n}</span></span>`).join('')}</span>
         <span class="prof-grp"><em>基準指数</em>${["zen","st","ou","ri"].map(t=>`<span class="pt ${t===curBase?'active':''}" data-b="${t}">${IDXLAB[t]}</span>`).join('')}</span>
       </div>
       <div class="prof-body">${table()}</div>
     </div>`;
-    host.querySelectorAll('.pt[data-l]').forEach(e=>e.addEventListener('click',()=>{curLap=e.dataset.l;paint();}));
+    host.querySelectorAll('.pt[data-l]').forEach(e=>e.addEventListener('click',()=>{curLap=e.dataset.l;curDev="";paint();}));
+    host.querySelectorAll('.pt[data-d]').forEach(e=>e.addEventListener('click',()=>{curDev=e.dataset.d;paint();}));
     host.querySelectorAll('.pt[data-b]').forEach(e=>e.addEventListener('click',()=>{curBase=e.dataset.b;paint();}));
   }
   paint();
