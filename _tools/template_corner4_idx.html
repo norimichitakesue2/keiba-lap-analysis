@@ -71,6 +71,15 @@ a{color:inherit}
 .sub-tab.active{background:var(--s2);color:var(--text);border-color:#5b9cf6}
 .sub-view[hidden]{display:none}
 .idx-note{font-size:9px;color:var(--muted);margin:-4px 0 6px}
+.idx-grid{display:flex;flex-direction:column;gap:2px;margin:2px 0 8px;overflow-x:auto}
+.ig-row{display:flex;gap:2px;align-items:stretch;min-width:520px}
+.ig-lab{width:58px;flex-shrink:0;font-size:10px;color:var(--muted);display:flex;align-items:center}
+.ig-cell{flex:1 1 0;min-width:46px;border-radius:3px;background:var(--s2);padding:3px 2px;text-align:center;display:flex;flex-direction:column;gap:1px;line-height:1.2}
+.ig-cell b{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);min-height:14px}
+.ig-cell i{font-family:var(--mono);font-size:9px;font-style:normal;color:var(--muted)}
+.ig-med{width:56px;flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:600;color:#56d08b;display:flex;align-items:center;justify-content:flex-end}
+.ig-head .ig-cell{background:none;font-size:9px;color:var(--muted);padding:0 2px 2px}
+.ig-head .ig-med{font-size:9px;color:var(--muted);font-weight:400}
 .ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}.rbc-row{display:flex;gap:6px;flex:1;min-width:0}.rbc-row .ratebar{margin:0;flex:1;min-width:0}.rbc-row .rb-track{max-width:none}.rbc-row .rb-lab{width:18px}.rbc-row .rb-val{width:40px}.rbc-col{display:flex;flex-direction:column;gap:1px;margin-top:3px}.rbc-col .ratebar{margin:0}</style>
 <script>function rateBar(pct,kind){var v=parseFloat(pct)||0;var max=kind==='win'?25:50;var w=Math.min(100,Math.round(v/max*100));var col=kind==='win'?(v>=15?'#56d08b':v>=10?'#f0c040':v>=6?'#f09050':'#3a3a55'):(v>=30?'#56d08b':v>=20?'#f0c040':v>=12?'#f09050':'#3a3a55');var lab=kind==='win'?'勝率':'複勝';return '<div class="ratebar"><span class="rb-lab">'+lab+'</span><div class="rb-track"><div class="rb-fill" style="width:'+w+'%;background:'+col+'"></div></div><span class="rb-val">'+pct+'</span></div>';}</script>
 </head>
@@ -86,7 +95,7 @@ a{color:inherit}
   <div class="hint-item"><span class="hdot" style="background:#5b9cf6"></span>均衡戦 326件(71.0%)</div>
   <div class="hint-item"><span class="hdot" style="background:#e05555"></span>ハイペース耐久戦 89件(19.4%)</div>
   <div class="hint-item"><span class="hdot" style="background:#a080f0"></span>ハイペース消耗戦 44件(9.6%)</div>
-  <div class="hint-item" style="margin-left:auto">ラップタイプをクリック → 4角順位別／タイム指数マスター別を切替</div>
+  <div class="hint-item" style="margin-left:auto">ラップタイプをクリック → 4角順位別／勝ち馬の指数水準（4指数同時）を表示</div>
 </div>
 
 <div class="container" id="root"></div>
@@ -155,6 +164,35 @@ function barsIdxHTML(list){
     </div>`;
   }).join("");
 }
+function idxSummaryHTML(key){
+  const types=["zen","st","ou","ri"].filter(t=>IDX[key+"_"+t] && IDX[key+"_"+t].length);
+  if(!types.length) return '<div class="no-data">データなし</div>';
+  const LO=[50,60,70,80,90,100,110], HI=[60,70,80,90,100,110,120];
+  const head='<div class="ig-row ig-head"><span class="ig-lab"></span>'
+    + BINLAB.map(b=>`<span class="ig-cell">${b}</span>`).join('')
+    + '<span class="ig-med">勝ち馬中央値</span></div>';
+  const rows=types.map(t=>{
+    const byB={}; IDX[key+"_"+t].forEach(r=>byB[r.B]=r);
+    const wins=BINLAB.map((_,i)=> byB[i]? Number(byB[i].K.split("-")[0]) : 0);
+    const tots=BINLAB.map((_,i)=> byB[i]? byB[i].T : 0);
+    const W=wins.reduce((a,b)=>a+b,0);
+    let med="–";
+    if(W>0){ let c=0;
+      for(let i=0;i<7;i++){
+        if(wins[i]>0 && c+wins[i] >= W/2){ med=Math.round(LO[i]+((W/2-c)/wins[i])*(HI[i]-LO[i])); break; }
+        c+=wins[i];
+      } }
+    const cells=BINLAB.map((_,i)=>{
+      const share = W? wins[i]/W : 0;
+      const bg = wins[i]>0 ? `background:rgba(86,208,139,${(0.10+share*0.70).toFixed(2)})` : "";
+      const wr = tots[i]>0 ? (wins[i]/tots[i]*100).toFixed(0)+"%" : "";
+      return `<span class="ig-cell" style="${bg}" title="${tots[i]}頭中${wins[i]}勝"><b>${wins[i]||""}</b><i>${wr}</i></span>`;
+    }).join("");
+    return `<div class="ig-row"><span class="ig-lab">${IDXLAB[t]}</span>${cells}<span class="ig-med">${med}</span></div>`;
+  }).join("");
+  return `<div class="idx-grid">${head}${rows}</div>`
+    + '<div class="idx-note">上段=勝ち馬の頭数（濃さ＝勝ち馬がどのビンに集中しているか）／下段=そのビンの勝率　※指数は当該レースでの記録値</div>';
+}
 function badge(pct){
   const v = parseFloat(pct);
   if(v>=20) return `<span class="dp-badge ok">${pct}</span>`;
@@ -179,8 +217,10 @@ function render(){
       const data = CORNER[key] || [];
       const idxTypes = ["zen","st","ou","ri"].filter(t=>IDX[key+"_"+t] && IDX[key+"_"+t].length);
       const tabs = ['<span class="sub-tab active" data-v="corner">4角順位</span>']
+        .concat(idxTypes.length?['<span class="sub-tab" data-v="idxsum">指数水準（4指数同時）</span>']:[])
         .concat(idxTypes.map(t=>`<span class="sub-tab" data-v="${t}">${IDXLAB[t]}指数</span>`)).join("");
       const views = [`<div class="sub-view" data-v="corner"><div class="bars">${barsHTML(data)}</div></div>`]
+        .concat(idxTypes.length?[`<div class="sub-view" data-v="idxsum" hidden>${idxSummaryHTML(key)}</div>`]:[])
         .concat(idxTypes.map(t=>{
           const rows = IDX[key+"_"+t];
           const n = rows.reduce((a,r)=>a+r.T,0);
