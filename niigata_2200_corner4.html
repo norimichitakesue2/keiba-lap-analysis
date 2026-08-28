@@ -65,6 +65,12 @@ a{color:inherit}
 .bn{font-family:var(--mono);font-size:10px;color:var(--muted);width:28px}
 .br{font-family:var(--mono);font-size:9px;color:var(--muted)}
 .no-data{font-size:11px;color:var(--muted);font-style:italic}
+.sub-tabs{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0 10px}
+.sub-tab{font-size:10px;padding:3px 10px;border:1px solid var(--bd);border-radius:12px;cursor:pointer;color:var(--muted);user-select:none;transition:.12s}
+.sub-tab:hover{color:var(--text)}
+.sub-tab.active{background:var(--s2);color:var(--text);border-color:#5b9cf6}
+.sub-view[hidden]{display:none}
+.idx-note{font-size:9px;color:var(--muted);margin:-4px 0 6px}
 .ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}.rbc-row{display:flex;gap:6px;flex:1;min-width:0}.rbc-row .ratebar{margin:0;flex:1;min-width:0}.rbc-row .rb-track{max-width:none}.rbc-row .rb-lab{width:18px}.rbc-row .rb-val{width:40px}.rbc-col{display:flex;flex-direction:column;gap:1px;margin-top:3px}.rbc-col .ratebar{margin:0}</style>
 <script>function rateBar(pct,kind){var v=parseFloat(pct)||0;var max=kind==='win'?25:50;var w=Math.min(100,Math.round(v/max*100));var col=kind==='win'?(v>=15?'#56d08b':v>=10?'#f0c040':v>=6?'#f09050':'#3a3a55'):(v>=30?'#56d08b':v>=20?'#f0c040':v>=12?'#f09050':'#3a3a55');var lab=kind==='win'?'勝率':'複勝';return '<div class="ratebar"><span class="rb-lab">'+lab+'</span><div class="rb-track"><div class="rb-fill" style="width:'+w+'%;background:'+col+'"></div></div><span class="rb-val">'+pct+'</span></div>';}</script>
 </head>
@@ -125,6 +131,30 @@ function barsHTML(list){
     </div>`;
   }).join("");
 }
+const IDX = {"均衡戦_先行型_zen": [{"B": 0, "T": 22, "K": "0-0-0-22"}, {"B": 1, "T": 4, "K": "0-0-0-4"}, {"B": 2, "T": 6, "K": "0-0-0-6"}, {"B": 4, "T": 2, "K": "0-0-0-2"}, {"B": 6, "T": 1, "K": "1-0-0-0"}], "均衡戦_先行型_st": [{"B": 3, "T": 6, "K": "0-0-0-6"}, {"B": 4, "T": 25, "K": "0-0-0-25"}, {"B": 5, "T": 6, "K": "1-0-0-5"}], "均衡戦_先行型_ou": [{"B": 2, "T": 6, "K": "0-0-0-6"}, {"B": 3, "T": 9, "K": "0-0-0-9"}, {"B": 4, "T": 16, "K": "0-0-0-16"}, {"B": 5, "T": 3, "K": "0-0-0-3"}, {"B": 6, "T": 3, "K": "1-0-0-2"}], "均衡戦_先行型_ri": [{"B": 0, "T": 13, "K": "0-0-0-13"}, {"B": 1, "T": 12, "K": "0-0-0-12"}, {"B": 2, "T": 8, "K": "0-0-0-8"}, {"B": 3, "T": 3, "K": "0-0-0-3"}, {"B": 4, "T": 1, "K": "1-0-0-0"}], "均衡戦_持続型_zen": [{"B": 0, "T": 8, "K": "0-1-1-6"}, {"B": 1, "T": 6, "K": "0-0-0-6"}, {"B": 2, "T": 11, "K": "1-0-0-10"}, {"B": 3, "T": 20, "K": "2-4-4-10"}, {"B": 4, "T": 2, "K": "0-0-0-2"}, {"B": 5, "T": 3, "K": "0-0-0-3"}], "均衡戦_持続型_st": [{"B": 2, "T": 3, "K": "0-1-0-2"}, {"B": 3, "T": 27, "K": "2-2-3-20"}, {"B": 4, "T": 17, "K": "1-2-1-13"}, {"B": 5, "T": 3, "K": "0-0-1-2"}], "均衡戦_持続型_ou": [{"B": 0, "T": 1, "K": "0-0-0-1"}, {"B": 1, "T": 3, "K": "0-1-0-2"}, {"B": 2, "T": 13, "K": "1-1-1-10"}, {"B": 3, "T": 20, "K": "1-3-3-13"}, {"B": 4, "T": 10, "K": "1-0-1-8"}, {"B": 5, "T": 3, "K": "0-0-0-3"}], "均衡戦_持続型_ri": [{"B": 0, "T": 1, "K": "0-0-0-1"}, {"B": 1, "T": 1, "K": "0-0-0-1"}, {"B": 2, "T": 9, "K": "0-0-1-8"}, {"B": 3, "T": 16, "K": "0-1-1-14"}, {"B": 4, "T": 22, "K": "3-3-3-13"}, {"B": 5, "T": 1, "K": "0-1-0-0"}], "瞬発戦_終い伸び型_zen": [{"B": 0, "T": 15, "K": "1-1-1-12"}, {"B": 1, "T": 3, "K": "2-1-0-0"}, {"B": 2, "T": 7, "K": "0-1-0-6"}, {"B": 3, "T": 6, "K": "1-1-1-3"}, {"B": 4, "T": 1, "K": "1-0-0-0"}], "瞬発戦_終い伸び型_st": [{"B": 2, "T": 11, "K": "0-2-0-9"}, {"B": 3, "T": 11, "K": "3-1-2-5"}, {"B": 4, "T": 9, "K": "1-1-0-7"}, {"B": 5, "T": 1, "K": "1-0-0-0"}], "瞬発戦_終い伸び型_ou": [{"B": 0, "T": 16, "K": "2-2-1-11"}, {"B": 1, "T": 4, "K": "0-1-1-2"}, {"B": 2, "T": 11, "K": "2-1-0-8"}, {"B": 3, "T": 1, "K": "1-0-0-0"}], "瞬発戦_終い伸び型_ri": [{"B": 4, "T": 10, "K": "2-1-0-7"}, {"B": 5, "T": 19, "K": "2-2-1-14"}, {"B": 6, "T": 3, "K": "1-1-1-0"}]};
+const BINLAB=["〜59","60-69","70-79","80-89","90-99","100-109","110〜"];
+const IDXLAB={zen:"全体",st:"スタート",ou:"追走",ri:"上がり"};
+function barsIdxHTML(list){
+  if(!list || !list.length) return '<div class="no-data">データなし</div>';
+  const maxT = Math.max(...list.map(x=>x.T));
+  return list.map(row=>{
+    const k = row.K.split("-").map(Number);
+    const tot = k[0]+k[1]+k[2]+k[3];
+    const P = tot? (k[0]+k[1]+k[2])/tot*100 : 0;
+    const W = tot? k[0]/tot*100 : 0;
+    const D = tot? (k[0]+k[1])/tot*100 : 0;
+    const barW = Math.round((row.T / maxT) * 100);
+    return `<div class="bar-row">
+      <span class="bl" style="width:56px">${BINLAB[row.B]}</span>
+      <div class="bt"><div class="bf" style="width:${barW}%;background:${barColor(P)}"></div></div>
+      <span class="bm">
+        <span class="bw">${P.toFixed(1)}%</span>
+        <span class="bn">(${row.T})</span>
+      </span>
+      <span class="br">${row.K}｜勝 ${W.toFixed(1)}%／連 ${D.toFixed(1)}%</span>
+    </div>`;
+  }).join("");
+}
 function badge(pct){
   const v = parseFloat(pct);
   if(v>=20) return `<span class="dp-badge ok">${pct}</span>`;
@@ -147,13 +177,26 @@ function render(){
     const panels = dev.laps.map((lap, li)=>{
       const key = dev.name + "_" + lap.name;
       const data = CORNER[key] || [];
+      const idxTypes = ["zen","st","ou","ri"].filter(t=>IDX[key+"_"+t] && IDX[key+"_"+t].length);
+      const tabs = ['<span class="sub-tab active" data-v="corner">4角順位</span>']
+        .concat(idxTypes.map(t=>`<span class="sub-tab" data-v="${t}">${IDXLAB[t]}指数</span>`)).join("");
+      const views = [`<div class="sub-view" data-v="corner"><div class="bars">${barsHTML(data)}</div></div>`]
+        .concat(idxTypes.map(t=>{
+          const rows = IDX[key+"_"+t];
+          const n = rows.reduce((a,r)=>a+r.T,0);
+          return `<div class="sub-view" data-v="${t}" hidden>
+            <div class="idx-note">タイム指数マスター（${IDXLAB[t]}）別 ／ 指数取得済み n=${n}　※指数は当該レースでの記録値</div>
+            <div class="bars">${barsIdxHTML(rows)}</div>
+          </div>`;
+        })).join("");
       return `<div class="detail-panel" data-dev="${di}" data-lap="${li}">
         <div class="dp-title">
-          <span>${dev.name} × ${lap.name}　4コーナー順位別成績</span>
+          <span>${dev.name} × ${lap.name}</span>
           ${badge(lap.showRate)}
           <span style="color:var(--muted);font-family:var(--mono);font-size:10px">n=${lap.total}</span>
         </div>
-        <div class="bars">${barsHTML(data)}</div>
+        <div class="sub-tabs">${tabs}</div>
+        ${views}
       </div>`;
     }).join("");
     return `<div class="dev-section">
@@ -184,6 +227,17 @@ function render(){
         const panel = section.querySelector(`.detail-panel[data-dev="${di}"][data-lap="${li}"]`);
         panel.classList.add('open');
       }
+    });
+  });
+
+  // Sub-tab (4角 / 指数) switching
+  root.querySelectorAll('.sub-tab').forEach(st=>{
+    st.addEventListener('click', e=>{
+      e.stopPropagation();
+      const panel = st.closest('.detail-panel');
+      const v = st.dataset.v;
+      panel.querySelectorAll('.sub-tab').forEach(x=>x.classList.toggle('active', x===st));
+      panel.querySelectorAll('.sub-view').forEach(x=>{ x.hidden = (x.dataset.v !== v); });
     });
   });
 
