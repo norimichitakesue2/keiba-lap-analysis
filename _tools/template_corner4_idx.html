@@ -99,6 +99,8 @@ a{color:inherit}
 .pf-cv small{display:block;font-size:8px;font-weight:400;color:var(--muted)}
 .pf-tab .pf-cv{font-size:9px;font-weight:400}
 .pf-warn{font-size:9px;color:#e8b23a;margin-top:6px}
+.prof-inline .prof-sub{margin:0 0 2px}
+.pf-panel[hidden]{display:none}
 .pt.dim{opacity:.35;cursor:default}
 .pt.dim:hover{color:var(--muted)}
 .ratebar{display:flex;align-items:center;gap:4px;margin:2px 0}.rb-lab{font-size:9px;color:#8a8ab0;width:22px;flex-shrink:0;white-space:nowrap}.rb-track{flex:1;min-width:24px;max-width:130px;height:7px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.rb-fill{height:100%;border-radius:2px}.rb-val{font-family:monospace;font-size:10px;color:#cfcfe6;width:42px;text-align:right;flex-shrink:0}.rbc-row{display:flex;gap:6px;flex:1;min-width:0}.rbc-row .ratebar{margin:0;flex:1;min-width:0}.rbc-row .rb-track{max-width:none}.rbc-row .rb-lab{width:18px}.rbc-row .rb-val{width:40px}.rbc-col{display:flex;flex-direction:column;gap:1px;margin-top:3px}.rbc-col .ratebar{margin:0}</style>
@@ -116,10 +118,9 @@ a{color:inherit}
   <div class="hint-item"><span class="hdot" style="background:#5b9cf6"></span>均衡戦 326件(71.0%)</div>
   <div class="hint-item"><span class="hdot" style="background:#e05555"></span>ハイペース耐久戦 89件(19.4%)</div>
   <div class="hint-item"><span class="hdot" style="background:#a080f0"></span>ハイペース消耗戦 44件(9.6%)</div>
-  <div class="hint-item" style="margin-left:auto">ラップタイプをクリック → 4角順位別／勝ち馬の指数水準（4指数同時）を表示</div>
+  <div class="hint-item" style="margin-left:auto">ラップタイプをクリック → 4角順位別／指数水準／指数プロファイルを切替</div>
 </div>
 
-<div class="container"><div id="prof"></div></div>
 <div class="container" id="root"></div>
 
 <script>
@@ -224,52 +225,35 @@ function badge(pct){
 
 const PROF = {};
 const PROFD = {};
-function renderProf(){
-  const host=document.getElementById('prof');
-  const laps=Object.keys(PROF);
-  if(!host) return;
-  if(!laps.length && !Object.keys(PROFD).length){ host.innerHTML=''; return; }
-  const OTH={zen:["st","ou","ri"],st:["zen","ou","ri"],ou:["zen","st","ri"],ri:["zen","st","ou"]};
-  // 展開タイプ options: "" = 全展開
-  const devsOf=lap=>Object.keys(PROFD).filter(k=>k.split("|")[1]===lap).map(k=>k.split("|")[0]);
-  let curLap=laps[0]||Object.keys(PROFD)[0].split("|")[1], curBase="st", curDev="";
-  function cur(){
-    if(curDev) return PROFD[curDev+"|"+curLap];
-    return PROF[curLap];
-  }
-  function table(){
-    const d=cur();
-    if(!d) return '<div class="no-data">この組み合わせは集計対象外です（3着内 n&lt;20）</div>';
-    const rows=(d.byBase||{})[curBase]||[];
-    if(!rows.length) return '<div class="no-data">この基準指数では十分なサンプルがありません</div>';
-    const oth=OTH[curBase];
-    const head=`<div class="pf-row pf-tab"><span class="pf-c0">${IDXLAB[curBase]}指数</span><span class="pf-cn">n</span>`
-      + oth.map(o=>`<span class="pf-cv">${IDXLAB[o]}</span>`).join('') + '</div>';
-    const warn = d.n<30 ? `<div class="pf-warn">⚠ 母数 n=${d.n} と小さいため参考値です</div>` : "";
-    return head + rows.map(r=>`<div class="pf-row">
-      <span class="pf-c0">${BINLAB[r.b]}</span>
-      <span class="pf-cn">${r.n}頭</span>
-      ${r.m.map(v=>`<span class="pf-cv">${v===null||v==="-"?"–":v}</span>`).join('')}
-    </div>`).join('') + warn;
-  }
-  function paint(){
-    host.innerHTML=`<div class="prof">
-      <div class="prof-head">
-        <div class="prof-title">ラップタイプ別 指数プロファイル（3着内馬）</div>
-        <div class="prof-sub">基準にした指数のビンごとに、同じ馬たちの他3指数の中央値。対象はコースの3着内馬。展開タイプは「全展開」または個別に切替（全展開 n≧30／展開タイプ別 n≧20、各ビン n≧8 のみ表示）。<br>読み方の例：スタート100-109の行 → 「スタート指数が100台だった3着内馬は、全体○○・追走○○・上がり○○くらい」</div>
-      </div>
-      <div class="prof-ctl">
-        <span class="prof-grp"><em>ラップタイプ</em>${laps.map(l=>`<span class="pt ${l===curLap?'active':''}" data-l="${l}">${l} <span style="color:var(--muted)">${PROF[l].n}</span></span>`).join('')}</span>
-        <span class="prof-grp"><em>展開タイプ</em><span class="pt ${curDev===''?'active':''}" data-d="">全展開</span>${devsOf(curLap).map(dv=>`<span class="pt ${dv===curDev?'active':''}" data-d="${dv}">${dv} <span style="color:var(--muted)">${PROFD[dv+'|'+curLap].n}</span></span>`).join('')}</span>
-        <span class="prof-grp"><em>基準指数</em>${["zen","st","ou","ri"].map(t=>`<span class="pt ${t===curBase?'active':''}" data-b="${t}">${IDXLAB[t]}</span>`).join('')}</span>
-      </div>
-      <div class="prof-body">${table()}</div>
-    </div>`;
-    host.querySelectorAll('.pt[data-l]').forEach(e=>e.addEventListener('click',()=>{curLap=e.dataset.l;curDev="";paint();}));
-    host.querySelectorAll('.pt[data-d]').forEach(e=>e.addEventListener('click',()=>{curDev=e.dataset.d;paint();}));
-    host.querySelectorAll('.pt[data-b]').forEach(e=>e.addEventListener('click',()=>{curBase=e.dataset.b;paint();}));
-  }
-  paint();
+const OTH={zen:["st","ou","ri"],st:["zen","ou","ri"],ou:["zen","st","ri"],ri:["zen","st","ou"]};
+function profTable(d, base){
+  const rows=(d.byBase||{})[base]||[];
+  if(!rows.length) return '<div class="no-data">この基準指数では十分なサンプルがありません</div>';
+  const oth=OTH[base];
+  const head=`<div class="pf-row pf-tab"><span class="pf-c0">${IDXLAB[base]}指数</span><span class="pf-cn">n</span>`
+    + oth.map(o=>`<span class="pf-cv">${IDXLAB[o]}</span>`).join('') + '</div>';
+  const warn = d.n<30 ? `<div class="pf-warn">⚠ 母数 n=${d.n} と小さいため参考値です</div>` : "";
+  return head + rows.map(r=>`<div class="pf-row">
+    <span class="pf-c0">${BINLAB[r.b]}</span>
+    <span class="pf-cn">${r.n}頭</span>
+    ${r.m.map(v=>`<span class="pf-cv">${v===null||v==="-"?"–":v}</span>`).join('')}
+  </div>`).join('') + warn;
+}
+function profHTML(dev, lap){
+  let d=PROFD[dev+"|"+lap], src="dev";
+  if(!d){ d=PROF[lap]; src="all"; }
+  if(!d) return null;
+  const bases=["zen","st","ou","ri"].filter(b=>(d.byBase||{})[b] && d.byBase[b].length);
+  if(!bases.length) return null;
+  const first=bases[0];
+  const note = src==="dev"
+    ? `この展開タイプ（${dev}）× ${lap} で3着内に来た ${d.n}頭 が対象`
+    : `この展開タイプは母数不足のため、<b>全展開</b>の ${lap}（3着内 ${d.n}頭）で集計`;
+  return `<div class="prof-inline">
+    <div class="prof-sub">基準にした指数のビンごとに、同じ馬たちの他3指数の中央値。${note}。各ビン n≧8 のみ表示。<br>読み方：スタート100-109の行 →「スタート指数が100台だった馬は、全体○○・追走○○・上がり○○くらい」</div>
+    <div class="prof-grp" style="margin:8px 0 6px"><em>基準指数</em>${bases.map(b=>`<span class="pt ${b===first?'active':''}" data-pb="${b}">${IDXLAB[b]}</span>`).join('')}</div>
+    ${bases.map(b=>`<div class="pf-panel" data-pv="${b}" ${b===first?'':'hidden'}>${profTable(d,b)}</div>`).join('')}
+  </div>`;
 }
 function render(){
   const root = document.getElementById('root');
@@ -287,11 +271,14 @@ function render(){
       const key = dev.name + "_" + lap.name;
       const data = CORNER[key] || [];
       const idxTypes = ["zen","st","ou","ri"].filter(t=>IDX[key+"_"+t] && IDX[key+"_"+t].length);
+      const prof = profHTML(dev.name, lap.name);
       const tabs = ['<span class="sub-tab active" data-v="corner">4角順位</span>']
         .concat(idxTypes.length?['<span class="sub-tab" data-v="idxsum">指数水準（4指数同時）</span>']:[])
+        .concat(prof?['<span class="sub-tab" data-v="prof">指数プロファイル</span>']:[])
         .concat(idxTypes.map(t=>`<span class="sub-tab" data-v="${t}">${IDXLAB[t]}指数</span>`)).join("");
       const views = [`<div class="sub-view" data-v="corner"><div class="bars">${barsHTML(data)}</div></div>`]
         .concat(idxTypes.length?[`<div class="sub-view" data-v="idxsum" hidden>${idxSummaryHTML(key)}</div>`]:[])
+        .concat(prof?[`<div class="sub-view" data-v="prof" hidden>${prof}</div>`]:[])
         .concat(idxTypes.map(t=>{
           const rows = IDX[key+"_"+t];
           const n = rows.reduce((a,r)=>a+r.T,0);
@@ -341,6 +328,16 @@ function render(){
     });
   });
 
+  // 指数プロファイルの基準指数ピル
+  root.querySelectorAll('.pt[data-pb]').forEach(p=>{
+    p.addEventListener('click', e=>{
+      e.stopPropagation();
+      const box=p.closest('.prof-inline'); const b=p.dataset.pb;
+      box.querySelectorAll('.pt[data-pb]').forEach(x=>x.classList.toggle('active', x===p));
+      box.querySelectorAll('.pf-panel').forEach(x=>{ x.hidden = (x.dataset.pv !== b); });
+    });
+  });
+
   // Sub-tab (4角 / 指数) switching
   root.querySelectorAll('.sub-tab').forEach(st=>{
     st.addEventListener('click', e=>{
@@ -359,7 +356,6 @@ function render(){
   });
 }
 render();
-renderProf();
 </script>
 <script>/*rb-corner*/(function(){
 function K(el){var m=el&&el.textContent&&el.textContent.match(/(\d+)-(\d+)-(\d+)-(\d+)/);return m?[+m[1],+m[2],+m[3],+m[4]]:null;}
