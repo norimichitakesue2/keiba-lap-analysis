@@ -240,7 +240,7 @@ function badge(pct){
   return `<span class="dp-badge ng">${pct}</span>`;
 }
 
-const PROF = {};
+const PROF = {"加速型": {"n": 20, "byBase": {"zen": [{"b": 3, "n": 9, "m": [95, 87, 97]}], "st": [{"b": 4, "n": 15, "m": [82, 85, 97]}], "ou": [{"b": 3, "n": 10, "m": [83, 96, 98]}], "ri": [{"b": 4, "n": 13, "m": [80, 95, 81]}]}}, "持続型": {"n": 29, "byBase": {"zen": [{"b": 3, "n": 14, "m": [92, 85, 94]}], "st": [{"b": 3, "n": 12, "m": [82, 81, 95]}, {"b": 4, "n": 14, "m": [86, 89, 96]}], "ou": [{"b": 3, "n": 16, "m": [83, 91, 96]}], "ri": [{"b": 4, "n": 19, "m": [83, 92, 85]}]}}, "終い伸び型": {"n": 15, "byBase": {"ri": [{"b": 5, "n": 8, "m": [80, 93, 76]}]}}};
 const PROFD = {};
 const OTH={zen:["st","ou","ri"],st:["zen","ou","ri"],ou:["zen","st","ri"],ri:["zen","st","ou"]};
 function profTable(d, base){
