@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エニフステークス 前走パドック（静止画＋映像リンク）</title>
+<style>
+:root{--bg:#0e0e12;--s1:#16161e;--s2:#1e1e28;--s3:#252535;--bd:#2a2a3a;--bd2:#3a3a55;--gold:#f0c040;--blue:#5b9cf6;--green:#56d08b;--red:#e05555;--orange:#f09840;--text:#ddddef;--muted:#5a5a80;--font:'Hiragino Sans','Noto Sans JP',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;display:flex;flex-direction:column;}
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex-shrink:0;}
+.header h1{font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap;}
+.header a.back{font-size:11px;color:var(--muted);text-decoration:none;margin-right:4px;}
+.header a.back:hover{color:var(--gold);}
+.note{padding:6px 14px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:11px;color:var(--muted);flex-shrink:0;}
+.note b{color:var(--orange);}
+.grid-wrap{flex:1;overflow-y:auto;padding:8px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;transition:border-color .15s;}
+.card:hover{border-color:var(--bd2);}
+.card.no-video{opacity:.65;}
+.card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
+.num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.num-badge.prov{background:var(--muted);color:#000;}
+.horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prev-info{font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pad-link{position:relative;display:block;aspect-ratio:16/9;background:#000;overflow:hidden;text-decoration:none;}
+.pad-link img{width:100%;height:100%;object-fit:cover;display:block;}
+.pad-link .play-badge{position:absolute;left:0;right:0;bottom:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
+.pad-link .play-badge::before{content:'';display:inline-block;border-left:12px solid var(--gold);border-top:7px solid transparent;border-bottom:7px solid transparent;}
+.pad-link:hover .play-badge{color:var(--gold);}
+.no-video-bg{aspect-ratio:16/9;background:#1a1a26;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}
+.stat-bar{display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--s3);border-bottom:1px solid var(--bd);flex-wrap:wrap;}
+.rtype{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;white-space:nowrap;border:1px solid var(--bd2);}
+.rtype .sub{font-weight:400;opacity:.7;font-size:9px;}
+.rt-close{color:var(--green);border-color:#2e6b47;background:#0f2019;}
+.rt-front{color:var(--orange);border-color:#6b4a1e;background:#20180a;}
+.rt-sus{color:var(--blue);border-color:#2e4a6b;background:#0f1620;}
+.rt-end{color:var(--gold);border-color:#6b5a1e;background:#201c0a;}
+.rt-oth{color:var(--muted);}
+.idxs{display:flex;gap:3px;margin-left:auto;}
+.ic{font-family:monospace;font-size:10px;color:var(--text);background:var(--s1);border:1px solid var(--bd);border-radius:3px;padding:1px 4px;display:flex;align-items:center;gap:2px;}
+.ic i{font-style:normal;color:var(--muted);font-size:9px;}
+.ic.hi{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700;}
+.ic.na{color:var(--muted);opacity:.5;}
+.rec-bar{display:flex;gap:10px;padding:3px 8px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:10px;}
+.rec{display:flex;align-items:center;gap:3px;font-family:monospace;color:var(--text);}
+.rec i{font-style:normal;color:var(--muted);font-size:9px;}
+.rec.zero{opacity:.4;}
+.rec.win b{color:var(--gold);}
+.course-link{margin-left:auto;font-size:11px;color:var(--gold);text-decoration:none;border:1px solid var(--bd2);border-radius:4px;padding:4px 10px;white-space:nowrap;background:var(--s1);transition:background .12s,border-color .12s;}
+.course-link:hover{background:var(--s2);border-color:var(--gold);}
+.status-bar{background:var(--s1);border-top:1px solid var(--bd);padding:4px 14px;font-size:10px;color:var(--muted);flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="index.html">◀ 戻る</a>
+  <h1>🏇 エニフステークス 前走パドック</h1>
+  <span style="font-size:11px;color:var(--muted)">2026年9月5日 阪神11R ダ1400m ／ 前走パドック 12頭 (馬番順) (暫定・枠順未確定/五十音順)</span>
+</div>
+<div class="note">各カードの画像をクリックすると <b>netkeiba のパドック映像ページ</b>が新しいタブで開きます（プレミアム会員ログインが必要）。走行タイプ・タイム指数マスター・当該コース／距離成績は前走ベース。</div>
+<div class="grid-wrap"><div class="grid" id="grid"></div></div>
+<div class="status-bar" id="status"></div>
+<script>
+const VIDEOS=[{"num": "", "name": "エスカル", "prev": "ＮＳＴ賞 14 26年8月16日(日) 新潟ダ1200m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/90332_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202604020807&id=2021110069", "typ": "先行型", "zen": "64", "st": "85", "ch": "85", "ag": "79", "cr": "0-0-0-1", "dr": "0-0-0-3"}, {"num": "", "name": "グランキングオー", "prev": "宮崎Ｓ 1 26年7月19日(日) 小倉ダ1700m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/86311_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202610020810&id=2022100664", "typ": "先行型", "zen": "85", "st": "97", "ch": "94", "ag": "91", "cr": "0-0-0-1", "dr": "0-1-3-2"}, {"num": "", "name": "ゴッドブルービー", "prev": "阿蘇Ｓ 5 26年7月12日(日) 小倉ダ1700m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/85247_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202610020611&id=2020106063", "typ": "先行型", "zen": "85", "st": "94", "ch": "94", "ag": "90", "cr": "0-0-0-0", "dr": "1-0-0-4"}, {"num": "", "name": "タイセイブレイズ", "prev": "天保山Ｓ 9 26年6月20日(土) 阪神ダ1400m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/81508_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609030511&id=2018102969", "typ": "耐久型", "zen": "83", "st": "86", "ch": "80", "ag": "103", "cr": "0-0-0-2", "dr": "2-0-3-6"}, {"num": "", "name": "トリリオンボーイ", "prev": "東海Ｓ GIII 6 26年7月26日(日) 中京ダ1400m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/87306_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202607020207&id=2022102493", "typ": "耐久型", "zen": "95", "st": "82", "ch": "89", "ag": "106", "cr": "1-0-0-3", "dr": "2-1-1-9"}, {"num": "", "name": "ノーブルロジャー", "prev": "東海Ｓ GIII 7 26年7月26日(日) 中京ダ1400m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/87305_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202607020207&id=2021110148", "typ": "耐久型", "zen": "95", "st": "83", "ch": "85", "ag": "110", "cr": "1-0-0-4", "dr": "1-0-2-7"}, {"num": "", "name": "フェルヴェンテ", "prev": "阿蘇Ｓ 7 26年7月12日(日) 小倉ダ1700m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/85208_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202610020611&id=2020102045", "typ": "先行型", "zen": "83", "st": "97", "ch": "97", "ag": "86", "cr": "1-2-1-3", "dr": "3-4-3-10"}, {"num": "", "name": "ペイシャケイプ", "prev": "欅ステークス 2 26年5月23日(土) 東京ダ1400m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/77516_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202605020911&id=2022104219", "typ": "終い伸び型", "zen": "102", "st": "78", "ch": "86", "ag": "116", "cr": "0-0-1-1", "dr": "2-1-2-3"}, {"num": "", "name": "マニバドラ", "prev": "福島テレビ賞 16 26年7月19日(日) 福島ダ1150m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/86159_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202603020811&id=2020110105", "typ": "先行型", "zen": "63", "st": "97", "ch": "97", "ag": "66", "cr": "0-0-1-1", "dr": "1-0-2-2"}, {"num": "", "name": "ムイ", "prev": "安土城Ｓ L 15 26年5月31日(日) 京都芝1400m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/79007_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202608031210&id=2022102408", "typ": "終い伸び型", "zen": "81", "st": "78", "ch": "74", "ag": "107", "cr": "0-0-0-0", "dr": "1-0-0-4"}, {"num": "", "name": "リジル", "prev": "水無月Ｓ 9 26年6月7日(日) 阪神ダ1200m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/79463_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609030211&id=2021101457", "typ": "先行型", "zen": "91", "st": "95", "ch": "96", "ag": "95", "cr": "2-0-0-1", "dr": "4-3-2-5"}, {"num": "", "name": "ルークススペイ", "prev": "天保山Ｓ 6 26年6月20日(土) 阪神ダ1400m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/81509_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609030511&id=2022101543", "typ": "持続型", "zen": "85", "st": "93", "ch": "87", "ag": "98", "cr": "2-1-0-1", "dr": "4-1-1-6"}];
+function build(){
+  const grid=document.getElementById('grid');
+  const runClass=t=>!t?'oth':/終い伸び|加速/.test(t)?'close':/先行/.test(t)?'front':/持続/.test(t)?'sus':/耐久/.test(t)?'end':'oth';
+  const runFmt=t=>{if(!t)return'';const m=t.match(/^(.+?型)(（.+）|\(.+\))?$/);return m?`${m[1]}${m[2]?'<span class="sub">'+m[2]+'</span>':''}`:t;};
+  const ic=(lb,val)=>{const s=String(val==null?'':val);const has=/^\d+$/.test(s);const hi=has&&parseInt(s,10)>=105;return `<span class="ic${has?(hi?' hi':''):' na'}"><i>${lb}</i>${has?s:'—'}</span>`;};
+  const rc=(lb,r)=>{if(!r)return'';const zero=/^0-0-0-0$/.test(r);const win=/^[1-9]/.test(r);return `<span class="rec${zero?' zero':''}${win?' win':''}"><i>${lb}</i><b>${r}</b></span>`;};
+  VIDEOS.forEach(v=>{
+    const noVideo=!v.img && !v.movie;
+    const prov=(v.num==='' || v.num==null);
+    const statBar=(v.typ||v.zen||v.st||v.ch||v.ag)?`<div class="stat-bar">${v.typ?`<span class="rtype rt-${runClass(v.typ)}" title="前走の走行タイプ">${runFmt(v.typ)}</span>`:''}<span class="idxs" title="タイム指数マスター（前走）">${ic('全',v.zen)}${ic('S',v.st)}${ic('追',v.ch)}${ic('上',v.ag)}</span></div>`:'';
+    const recBar=(v.cr||v.dr)?`<div class="rec-bar" title="当該コース／当該距離 成績 (1-2-3-着外)">${rc('コース',v.cr)}${rc('距離',v.dr)}</div>`:'';
+    const media = noVideo
+      ? `<div class="no-video-bg">前走パドック映像なし</div>`
+      : `<a class="pad-link" href="${v.movie}" target="_blank" rel="noopener"${v.img?'':' style="background:#1a1a26"'}>${v.img?`<img loading="lazy" src="${v.img}" alt="${v.name} 前走パドック">`:''}<span class="play-badge">netkeibaで再生</span></a>`;
+    grid.innerHTML+=`<div class="card${noVideo?' no-video':''}" id="card-${v.num||v.name}">
+      <div class="card-header">
+        <div class="num-badge${prov?' prov':''}">${prov?'—':v.num}</div>
+        <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
+      </div>
+      ${statBar}
+      ${recBar}
+      ${media}
+    </div>`;
+  });
+  document.getElementById('status').textContent=VIDEOS.length+'頭表示中';
+}
+build();
+</script>
+</body>
+</html>
