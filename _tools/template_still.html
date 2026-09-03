@@ -46,6 +46,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .ic i{font-style:normal;color:var(--muted);font-size:9px;}
 .ic.hi{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700;}
 .ic.na{color:var(--muted);opacity:.5;}
+.ana-bar{display:flex;align-items:center;gap:5px;padding:3px 8px;background:var(--s2);border-bottom:1px solid var(--bd);flex-wrap:wrap;}
+.ana-bar .idxs{margin-left:auto;}
+.ana-bar .ic{background:var(--s3);}
+.ana-n{font-family:monospace;font-size:9px;color:var(--muted);white-space:nowrap;}
 .rec-bar{display:flex;gap:10px;padding:3px 8px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:10px;}
 .rec{display:flex;align-items:center;gap:3px;font-family:monospace;color:var(--text);}
 .rec i{font-style:normal;color:var(--muted);font-size:9px;}
@@ -79,6 +83,7 @@ function build(){
     const prov=(v.num==='' || v.num==null);
     const statBar=(v.typ||v.zen||v.st||v.ch||v.ag)?`<div class="stat-bar">${v.typ?`<span class="rtype rt-${runClass(v.typ)}" title="前走の走行タイプ">${runFmt(v.typ)}</span>`:''}<span class="idxs" title="タイム指数マスター（前走）">${ic('全',v.zen)}${ic('S',v.st)}${ic('追',v.ch)}${ic('上',v.ag)}</span></div>`:'';
     const recBar=(v.cr||v.dr)?`<div class="rec-bar" title="当該コース／当該距離 成績 (1-2-3-着外)">${rc('コース',v.cr)}${rc('距離',v.dr)}</div>`:'';
+    const anaBar=(v.zmax||v.arun)?`<div class="ana-bar" title="走行解析：過去走ベース（同距離優先）。最高=自己最高の全体指数、中=中央値">${v.arun?`<span class="rtype rt-${runClass(v.arun)}" style="opacity:.85" title="過去走の主な走行タイプ">${runFmt(v.arun)}</span>`:''}<span class="idxs">${ic('最高',v.zmax)}${ic('中',v.azmed)}${ic('S',v.asmed)}${ic('追',v.aomed)}${ic('上',v.armed)}</span><span class="ana-n" title="集計に使った過去走数（うち同距離）">${v.an||0}走${(v.asame&&v.asame!=='0')?`(同${v.asame})`:''}</span></div>`:'';
     const media = noVideo
       ? `<div class="no-video-bg">前走パドック映像なし</div>`
       : `<a class="pad-link" href="${v.movie}" target="_blank" rel="noopener"${v.img?'':' style="background:#1a1a26"'}>${v.img?`<img loading="lazy" src="${v.img}" alt="${v.name} 前走パドック">`:''}<span class="play-badge">netkeibaで再生</span></a>`;
@@ -88,6 +93,7 @@ function build(){
         <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
       </div>
       ${statBar}
+      ${anaBar}
       ${recBar}
       ${media}
     </div>`;

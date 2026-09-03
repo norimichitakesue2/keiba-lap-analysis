@@ -45,9 +45,87 @@ def load_records(path):
     return recs
 
 
-def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, course_href=None):
+def load_raceana(path, race_id):
+    """走行解析(newspaper_master)由来: レース要約 + 各馬の過去走ベース指数プロフィール"""
+    if not path or not os.path.exists(path) or not race_id:
+        return None, {}
+    summary, per, cur = None, {}, False
+    for line in open(path, encoding="utf-8"):
+        line = line.rstrip("\n")
+        if not line.strip():
+            continue
+        p = line.split("\t")
+        if p[0] == "#R":
+            cur = (len(p) > 1 and p[1] == str(race_id))
+            if cur:
+                summary = {
+                    "dist": p[2] if len(p) > 2 else "", "n": p[3] if len(p) > 3 else "",
+                    "top3": p[4] if len(p) > 4 else "", "line": p[5] if len(p) > 5 else "",
+                    "zmed": p[6] if len(p) > 6 else "", "run": p[7] if len(p) > 7 else "",
+                    "dev": p[8] if len(p) > 8 else "",
+                }
+            continue
+        if cur and len(p) >= 8:
+            per[p[0]] = {"arun": p[1], "zmax": p[2], "azmed": p[3],
+                         "asmed": p[4], "aomed": p[5], "armed": p[6],
+                         "an": p[7], "asame": p[8] if len(p) > 8 else "0"}
+    return summary, per
+
+
+def race_ana_html(summary):
+    if not summary:
+        return ""
+    def chips(s, cls):
+        out = []
+        for it in (s or "").split(","):
+            it = it.strip()
+            if not it or ":" not in it:
+                continue
+            k, v = it.rsplit(":", 1)
+            out.append(f'<span class="ra-chip {cls}">{k}<b>{v}</b></span>')
+        return "".join(out)
+    top3 = (summary.get("top3") or "").split("/")
+    t1 = top3[0] if top3 else "-"
+    return (
+        '<div class="race-ana">'
+        '<div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走）より</span></div>'
+        '<div class="ra-row">'
+        f'<div class="ra-box"><div class="ra-lab">要求指数ライン</div>'
+        f'<div class="ra-big">{summary.get("line","-")}</div>'
+        f'<div class="ra-note">上位3頭 {summary.get("top3","-")} ／ 最高 {t1}</div></div>'
+        f'<div class="ra-box"><div class="ra-lab">メンバー水準（中央値）</div>'
+        f'<div class="ra-big">{summary.get("zmed","-")}</div>'
+        f'<div class="ra-note">出走 {summary.get("n","-")}頭 ／ {summary.get("dist","")}</div></div>'
+        '</div>'
+        f'<div class="ra-lab2">脚質構成</div><div class="ra-chips">{chips(summary.get("run"),"rt")}</div>'
+        f'<div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips">{chips(summary.get("dev"),"dv")}</div>'
+        '</div>'
+    )
+
+
+RA_CSS = """
+.race-ana{padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;}
+.ra-title{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.05em;margin-bottom:8px;}
+.ra-sub{font-size:10px;color:var(--muted);font-weight:400;margin-left:8px;}
+.ra-row{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.ra-box{background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:7px 12px;min-width:150px;}
+.ra-lab{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.ra-big{font-size:20px;font-weight:600;font-family:monospace;color:var(--text);line-height:1.1;}
+.ra-note{font-size:10px;color:var(--muted);margin-top:2px;font-family:monospace;}
+.ra-lab2{font-size:10px;color:var(--muted);margin:6px 0 3px;}
+.ra-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.ra-chip{font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid var(--bd2);background:var(--s2);color:var(--muted);}
+.ra-chip b{font-family:monospace;color:var(--text);margin-left:4px;font-weight:600;}
+.ra-chip.rt{border-color:#3a5a8a;}
+.ra-chip.dv{border-color:#5a4a3a;}
+"""
+
+
+def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, course_href=None,
+          raceana_path=None, race_id=None):
     stats = load_stats(stats_path)
     recs = load_records(rec_path)
+    ana_sum, ana_per = load_raceana(raceana_path, race_id)
     videos = []
     for line in open(tsv, encoding="utf-8"):
         line = line.rstrip("\n")
@@ -62,6 +140,7 @@ def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, cour
         rec = {"num": num, "name": name, "prev": prev, "img": img, "movie": movie}
         rec.update(stats.get(name, {}))
         rec.update(recs.get(name, {}))
+        rec.update(ana_per.get(name, {}))
         videos.append(rec)
     n = len(videos)
     vjson = json.dumps(videos, ensure_ascii=False)
@@ -71,6 +150,13 @@ def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, cour
     html = re.sub(r'(<span style="font-size:11px;color:var\(--muted\)">)2026年[^<]*(</span>)',
                   rf'\g<1>{header_span}\g<2>', html, count=1)
     html = re.sub(r"const VIDEOS=\[\];", "const VIDEOS=" + vjson + ";", html, count=1)
+    # レース分析セクション + CSS を挿入
+    ra = race_ana_html(ana_sum)
+    if ra:
+        html = html.replace("</style>", RA_CSS + "</style>", 1)
+        m = re.search(r'(<div class="note">.*?</div>)', html, flags=re.S)
+        if m:
+            html = html.replace(m.group(1), m.group(1) + "\n" + ra, 1)
     if course_href:
         html = html.replace("__COURSE_HREF__", course_href)
     else:
@@ -85,4 +171,7 @@ if __name__ == "__main__":
     stats_path = sys.argv[6] if len(sys.argv) > 6 else None
     rec_path = sys.argv[7] if len(sys.argv) > 7 else None
     course_href = sys.argv[8] if len(sys.argv) > 8 else None
-    build(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], stats_path, rec_path, course_href)
+    raceana_path = sys.argv[9] if len(sys.argv) > 9 else None
+    race_id = sys.argv[10] if len(sys.argv) > 10 else None
+    build(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], stats_path, rec_path, course_href,
+          raceana_path, race_id)
