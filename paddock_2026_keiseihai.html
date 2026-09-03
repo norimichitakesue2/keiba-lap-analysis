@@ -73,11 +73,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .ra-chip b{font-family:monospace;color:var(--text);margin-left:4px;font-weight:600;}
 .ra-chip.rt{border-color:#3a5a8a;}
 .ra-chip.dv{border-color:#5a4a3a;}
-.mx-grid{display:flex;gap:6px;flex-wrap:wrap;}
-.mx-col{flex:1;min-width:78px;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:6px 8px;text-align:center;}
-.mx-lab{font-size:10px;color:var(--muted);margin-bottom:2px;}
-.mx-line{font-family:monospace;font-size:19px;font-weight:600;color:var(--gold);line-height:1.1;}
-.mx-sub{font-family:monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.ra-hint{font-size:9px;color:var(--muted);font-weight:400;margin-left:6px;}
+.pf-tbl{width:100%;border-collapse:collapse;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;}
+.pf-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:4px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap;}
+.pf-tbl th:first-child,.pf-tbl th:nth-child(2){text-align:left;}
+.pf-tbl td{padding:4px 6px;border-bottom:1px solid var(--bd);font-size:11px;}
+.pf-tbl tr:last-child td{border-bottom:none;}
+.pf-t{white-space:nowrap;}
+.pf-n{font-family:monospace;font-size:9px;color:var(--muted);margin-left:5px;}
+.pf-tag{font-size:10px;color:var(--muted);white-space:nowrap;}
+.pf-v{font-family:monospace;font-size:14px;font-weight:600;text-align:center;color:var(--text);width:44px;}
+.pf-v.hl{color:var(--gold);}
+.pf-ex{font-size:10px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ra-cav{font-size:9px;color:var(--muted);margin-top:6px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -88,7 +96,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
   <a class="course-link" href="nakayama_1600_corner4.html" title="当該コースの展開×ラップ×4角成績">📊 コース成績（展開×ラップ）</a>
 </div>
 <div class="note">各カードの画像をクリックすると <b>netkeiba のパドック映像ページ</b>が新しいタブで開きます（プレミアム会員ログインが必要）。走行タイプ・タイム指数マスター・当該コース／距離成績は前走ベース。</div>
-<div class="race-ana"><div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走・同距離優先）より</span></div><div class="ra-lab2">タイム指数マスター 要求水準（上位3頭目 / 最高・中央値）</div><div class="mx-grid"><div class="mx-col"><div class="mx-lab">全体</div><div class="mx-line">101</div><div class="mx-sub">最高108 / 中93</div></div><div class="mx-col"><div class="mx-lab">スタート</div><div class="mx-line">99</div><div class="mx-sub">最高102 / 中96</div></div><div class="mx-col"><div class="mx-lab">追走</div><div class="mx-line">102</div><div class="mx-sub">最高106 / 中94</div></div><div class="mx-col"><div class="mx-lab">上がり</div><div class="mx-line">107</div><div class="mx-sub">最高112 / 中102</div></div></div><div class="ra-row" style="margin-top:8px"><div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div><div class="ra-big">110</div><div class="ra-note">自己最高の上位3頭 112/110/110</div></div><div class="ra-box"><div class="ra-lab">出走メンバー</div><div class="ra-big">16<span style="font-size:12px">頭</span></div><div class="ra-note">芝1600 ／ 中央値 93</div></div></div><div class="ra-lab2">脚質構成</div><div class="ra-chips"><span class="ra-chip rt">持続型<b>7</b></span><span class="ra-chip rt">加速型<b>3</b></span><span class="ra-chip rt">先行型<b>2</b></span><span class="ra-chip rt">終い伸び型<b>2</b></span><span class="ra-chip rt">耐久型<b>2</b></span></div><div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips"><span class="ra-chip dv">均衡戦<b>45</b></span><span class="ra-chip dv">前残り戦<b>12</b></span><span class="ra-chip dv">瞬発戦<b>8</b></span><span class="ra-chip dv">加速戦<b>2</b></span></div></div>
+<div class="race-ana"><div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走・同距離優先）より</span></div><div class="ra-lab2">走行タイプ別の要求プロフィール<span class="ra-hint">（各タイプ上位半数の中央値＝勝ち筋ごとに実在する組み合わせ）</span></div><table class="pf-tbl"><thead><tr><th>走行タイプ</th><th>勝ち筋</th><th>全体</th><th>S</th><th>追走</th><th>上がり</th><th>該当上位</th></tr></thead><tbody><tr><td class="pf-t"><span class="rtype rt-front">先行型</span><span class="pf-n">2頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">95</td><td class="pf-v">99</td><td class="pf-v hl">104</td><td class="pf-v hl">100</td><td class="pf-ex">クランフォード</td></tr><tr><td class="pf-t"><span class="rtype rt-sus">持続型</span><span class="pf-n">7頭</span></td><td class="pf-tag">差して勝つ</td><td class="pf-v">101</td><td class="pf-v">97</td><td class="pf-v hl">95</td><td class="pf-v hl">105</td><td class="pf-ex">ミナデオロ</td></tr><tr><td class="pf-t"><span class="rtype rt-end">耐久型</span><span class="pf-n">2頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">98</td><td class="pf-v">99</td><td class="pf-v hl">95</td><td class="pf-v hl">93</td><td class="pf-ex">テレサ</td></tr><tr><td class="pf-t"><span class="rtype rt-close">加速型</span><span class="pf-n">3頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">95</td><td class="pf-v">96</td><td class="pf-v hl">92</td><td class="pf-v hl">100</td><td class="pf-ex">ファンダム</td></tr><tr><td class="pf-t"><span class="rtype rt-close">終い伸び型</span><span class="pf-n">2頭</span></td><td class="pf-tag">差して勝つ</td><td class="pf-v">101</td><td class="pf-v">93</td><td class="pf-v hl">91</td><td class="pf-v hl">111</td><td class="pf-ex">フォルテアンジェロ</td></tr></tbody></table><div class="ra-row" style="margin-top:8px"><div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div><div class="ra-big">110</div><div class="ra-note">自己最高の上位3頭 112/110/110</div></div><div class="ra-box"><div class="ra-lab">出走メンバー</div><div class="ra-big">16<span style="font-size:12px">頭</span></div><div class="ra-note">芝1600 ／ 中央値 93</div></div></div><div class="ra-cav">※ 上表は各走行タイプ内で実際に上位の馬から算出しているため、4指標の組み合わせが現実的。全体指数のラインはメンバーの相対水準であり、コース実績に基づく絶対基準ではありません。</div><div class="ra-lab2">脚質構成</div><div class="ra-chips"><span class="ra-chip rt">持続型<b>7</b></span><span class="ra-chip rt">加速型<b>3</b></span><span class="ra-chip rt">先行型<b>2</b></span><span class="ra-chip rt">終い伸び型<b>2</b></span><span class="ra-chip rt">耐久型<b>2</b></span></div><div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips"><span class="ra-chip dv">均衡戦<b>45</b></span><span class="ra-chip dv">前残り戦<b>12</b></span><span class="ra-chip dv">瞬発戦<b>8</b></span><span class="ra-chip dv">加速戦<b>2</b></span></div></div>
 <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 <div class="status-bar" id="status"></div>
 <script>

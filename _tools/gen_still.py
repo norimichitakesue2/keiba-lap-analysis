@@ -86,28 +86,43 @@ def _stat(vals):
 def race_ana_html(summary, per=None):
     if not summary:
         return ""
-    # タイム指数マスター4指標の要求水準（各馬の代表値=同距離優先の中央値）
+    # 走行タイプ別の要求プロフィール（勝ち筋ごとに整合した4値セット）
     per = per or {}
-    def col(key):
-        out = []
-        for d in per.values():
-            x = d.get(key, "")
-            if str(x).isdigit():
-                out.append(int(x))
-        return _stat(out)
-    MASTER = [("全体", "azmed"), ("スタート", "asmed"), ("追走", "aomed"), ("上がり", "armed")]
-    cells = []
-    for lab, k in MASTER:
-        st = col(k)
-        if not st:
-            cells.append(f'<div class="mx-col"><div class="mx-lab">{lab}</div><div class="mx-line">—</div></div>')
+    def med(a):
+        a = sorted(a)
+        return a[len(a)//2] if len(a) % 2 else round((a[len(a)//2-1]+a[len(a)//2])/2)
+    horses = []
+    for nm, d in per.items():
+        try:
+            horses.append({"n": nm, "run": d.get("arun", ""),
+                           "z": int(d["azmed"]), "s": int(d["asmed"]),
+                           "o": int(d["aomed"]), "r": int(d["armed"])})
+        except (ValueError, KeyError, TypeError):
             continue
-        cells.append(
-            f'<div class="mx-col"><div class="mx-lab">{lab}</div>'
-            f'<div class="mx-line">{st["line"]}</div>'
-            f'<div class="mx-sub">最高{st["max"]} / 中{st["med"]}</div></div>')
-    master_html = ('<div class="ra-lab2">タイム指数マスター 要求水準（上位3頭目 / 最高・中央値）</div>'
-                   '<div class="mx-grid">' + "".join(cells) + '</div>')
+    ORDER = ["先行型", "持続型", "耐久型", "加速型", "終い伸び型"]
+    RCLS = {"先行型": "front", "持続型": "sus", "耐久型": "end", "加速型": "close", "終い伸び型": "close"}
+    rowsh = []
+    for t in ORDER:
+        m = sorted([h for h in horses if h["run"] == t], key=lambda h: -h["z"])
+        if not m:
+            continue
+        top = m[:max(1, round(len(m)/2))]
+        z, s, o, r = (med([h[k] for h in top]) for k in ("z", "s", "o", "r"))
+        bal = o - r
+        tag = "前で押し切る" if bal >= 5 else ("差して勝つ" if bal <= -10 else "中間・立ち回り")
+        rowsh.append(
+            f'<tr><td class="pf-t"><span class="rtype rt-{RCLS.get(t,"oth")}">{t}</span>'
+            f'<span class="pf-n">{len(m)}頭</span></td>'
+            f'<td class="pf-tag">{tag}</td>'
+            f'<td class="pf-v">{z}</td><td class="pf-v">{s}</td>'
+            f'<td class="pf-v hl">{o}</td><td class="pf-v hl">{r}</td>'
+            f'<td class="pf-ex">{top[0]["n"]}</td></tr>')
+    master_html = (
+        '<div class="ra-lab2">走行タイプ別の要求プロフィール'
+        '<span class="ra-hint">（各タイプ上位半数の中央値＝勝ち筋ごとに実在する組み合わせ）</span></div>'
+        '<table class="pf-tbl"><thead><tr><th>走行タイプ</th><th>勝ち筋</th>'
+        '<th>全体</th><th>S</th><th>追走</th><th>上がり</th><th>該当上位</th></tr></thead>'
+        '<tbody>' + "".join(rowsh) + '</tbody></table>') if rowsh else ""
 
     def chips(s, cls):
         out = []
@@ -132,6 +147,8 @@ def race_ana_html(summary, per=None):
         f'<div class="ra-big">{summary.get("n","-")}<span style="font-size:12px">頭</span></div>'
         f'<div class="ra-note">{summary.get("dist","")} ／ 中央値 {summary.get("zmed","-")}</div></div>'
         '</div>'
+        '<div class="ra-cav">※ 上表は各走行タイプ内で実際に上位の馬から算出しているため、4指標の組み合わせが現実的。'
+        '全体指数のラインはメンバーの相対水準であり、コース実績に基づく絶対基準ではありません。</div>'
         f'<div class="ra-lab2">脚質構成</div><div class="ra-chips">{chips(summary.get("run"),"rt")}</div>'
         f'<div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips">{chips(summary.get("dev"),"dv")}</div>'
         '</div>'
@@ -153,11 +170,19 @@ RA_CSS = """
 .ra-chip b{font-family:monospace;color:var(--text);margin-left:4px;font-weight:600;}
 .ra-chip.rt{border-color:#3a5a8a;}
 .ra-chip.dv{border-color:#5a4a3a;}
-.mx-grid{display:flex;gap:6px;flex-wrap:wrap;}
-.mx-col{flex:1;min-width:78px;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:6px 8px;text-align:center;}
-.mx-lab{font-size:10px;color:var(--muted);margin-bottom:2px;}
-.mx-line{font-family:monospace;font-size:19px;font-weight:600;color:var(--gold);line-height:1.1;}
-.mx-sub{font-family:monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.ra-hint{font-size:9px;color:var(--muted);font-weight:400;margin-left:6px;}
+.pf-tbl{width:100%;border-collapse:collapse;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;}
+.pf-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:4px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap;}
+.pf-tbl th:first-child,.pf-tbl th:nth-child(2){text-align:left;}
+.pf-tbl td{padding:4px 6px;border-bottom:1px solid var(--bd);font-size:11px;}
+.pf-tbl tr:last-child td{border-bottom:none;}
+.pf-t{white-space:nowrap;}
+.pf-n{font-family:monospace;font-size:9px;color:var(--muted);margin-left:5px;}
+.pf-tag{font-size:10px;color:var(--muted);white-space:nowrap;}
+.pf-v{font-family:monospace;font-size:14px;font-weight:600;text-align:center;color:var(--text);width:44px;}
+.pf-v.hl{color:var(--gold);}
+.pf-ex{font-size:10px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ra-cav{font-size:9px;color:var(--muted);margin-top:6px;line-height:1.5;}
 """
 
 
