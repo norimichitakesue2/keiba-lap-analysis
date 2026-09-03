@@ -73,6 +73,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .ra-chip b{font-family:monospace;color:var(--text);margin-left:4px;font-weight:600;}
 .ra-chip.rt{border-color:#3a5a8a;}
 .ra-chip.dv{border-color:#5a4a3a;}
+.mx-grid{display:flex;gap:6px;flex-wrap:wrap;}
+.mx-col{flex:1;min-width:78px;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:6px 8px;text-align:center;}
+.mx-lab{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.mx-line{font-family:monospace;font-size:19px;font-weight:600;color:var(--gold);line-height:1.1;}
+.mx-sub{font-family:monospace;font-size:9px;color:var(--muted);margin-top:2px;}
 </style>
 </head>
 <body>
@@ -83,7 +88,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
   <a class="course-link" href="nakayama_1600_corner4.html" title="当該コースの展開×ラップ×4角成績">📊 コース成績（展開×ラップ）</a>
 </div>
 <div class="note">各カードの画像をクリックすると <b>netkeiba のパドック映像ページ</b>が新しいタブで開きます（プレミアム会員ログインが必要）。走行タイプ・タイム指数マスター・当該コース／距離成績は前走ベース。</div>
-<div class="race-ana"><div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走）より</span></div><div class="ra-row"><div class="ra-box"><div class="ra-lab">要求指数ライン</div><div class="ra-big">110</div><div class="ra-note">上位3頭 112/110/110 ／ 最高 112</div></div><div class="ra-box"><div class="ra-lab">メンバー水準（中央値）</div><div class="ra-big">93</div><div class="ra-note">出走 16頭 ／ 芝1600</div></div></div><div class="ra-lab2">脚質構成</div><div class="ra-chips"><span class="ra-chip rt">持続型<b>7</b></span><span class="ra-chip rt">加速型<b>3</b></span><span class="ra-chip rt">先行型<b>2</b></span><span class="ra-chip rt">終い伸び型<b>2</b></span><span class="ra-chip rt">耐久型<b>2</b></span></div><div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips"><span class="ra-chip dv">均衡戦<b>45</b></span><span class="ra-chip dv">前残り戦<b>12</b></span><span class="ra-chip dv">瞬発戦<b>8</b></span><span class="ra-chip dv">加速戦<b>2</b></span></div></div>
+<div class="race-ana"><div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走・同距離優先）より</span></div><div class="ra-lab2">タイム指数マスター 要求水準（上位3頭目 / 最高・中央値）</div><div class="mx-grid"><div class="mx-col"><div class="mx-lab">全体</div><div class="mx-line">101</div><div class="mx-sub">最高108 / 中93</div></div><div class="mx-col"><div class="mx-lab">スタート</div><div class="mx-line">99</div><div class="mx-sub">最高102 / 中96</div></div><div class="mx-col"><div class="mx-lab">追走</div><div class="mx-line">102</div><div class="mx-sub">最高106 / 中94</div></div><div class="mx-col"><div class="mx-lab">上がり</div><div class="mx-line">107</div><div class="mx-sub">最高112 / 中102</div></div></div><div class="ra-row" style="margin-top:8px"><div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div><div class="ra-big">110</div><div class="ra-note">自己最高の上位3頭 112/110/110</div></div><div class="ra-box"><div class="ra-lab">出走メンバー</div><div class="ra-big">16<span style="font-size:12px">頭</span></div><div class="ra-note">芝1600 ／ 中央値 93</div></div></div><div class="ra-lab2">脚質構成</div><div class="ra-chips"><span class="ra-chip rt">持続型<b>7</b></span><span class="ra-chip rt">加速型<b>3</b></span><span class="ra-chip rt">先行型<b>2</b></span><span class="ra-chip rt">終い伸び型<b>2</b></span><span class="ra-chip rt">耐久型<b>2</b></span></div><div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips"><span class="ra-chip dv">均衡戦<b>45</b></span><span class="ra-chip dv">前残り戦<b>12</b></span><span class="ra-chip dv">瞬発戦<b>8</b></span><span class="ra-chip dv">加速戦<b>2</b></span></div></div>
 <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 <div class="status-bar" id="status"></div>
 <script>

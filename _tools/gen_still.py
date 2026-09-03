@@ -72,9 +72,43 @@ def load_raceana(path, race_id):
     return summary, per
 
 
-def race_ana_html(summary):
+def _stat(vals):
+    """[max, 上位3の3番目(=要求ライン), 中央値]"""
+    v = sorted([x for x in vals if x is not None], reverse=True)
+    if not v:
+        return None
+    line = v[2] if len(v) >= 3 else v[-1]
+    s = sorted(v)
+    med = s[len(s)//2] if len(s) % 2 else round((s[len(s)//2-1]+s[len(s)//2])/2)
+    return {"max": v[0], "line": line, "med": med}
+
+
+def race_ana_html(summary, per=None):
     if not summary:
         return ""
+    # タイム指数マスター4指標の要求水準（各馬の代表値=同距離優先の中央値）
+    per = per or {}
+    def col(key):
+        out = []
+        for d in per.values():
+            x = d.get(key, "")
+            if str(x).isdigit():
+                out.append(int(x))
+        return _stat(out)
+    MASTER = [("全体", "azmed"), ("スタート", "asmed"), ("追走", "aomed"), ("上がり", "armed")]
+    cells = []
+    for lab, k in MASTER:
+        st = col(k)
+        if not st:
+            cells.append(f'<div class="mx-col"><div class="mx-lab">{lab}</div><div class="mx-line">—</div></div>')
+            continue
+        cells.append(
+            f'<div class="mx-col"><div class="mx-lab">{lab}</div>'
+            f'<div class="mx-line">{st["line"]}</div>'
+            f'<div class="mx-sub">最高{st["max"]} / 中{st["med"]}</div></div>')
+    master_html = ('<div class="ra-lab2">タイム指数マスター 要求水準（上位3頭目 / 最高・中央値）</div>'
+                   '<div class="mx-grid">' + "".join(cells) + '</div>')
+
     def chips(s, cls):
         out = []
         for it in (s or "").split(","):
@@ -88,14 +122,15 @@ def race_ana_html(summary):
     t1 = top3[0] if top3 else "-"
     return (
         '<div class="race-ana">'
-        '<div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走）より</span></div>'
-        '<div class="ra-row">'
-        f'<div class="ra-box"><div class="ra-lab">要求指数ライン</div>'
+        '<div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走・同距離優先）より</span></div>'
+        + master_html +
+        '<div class="ra-row" style="margin-top:8px">'
+        f'<div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div>'
         f'<div class="ra-big">{summary.get("line","-")}</div>'
-        f'<div class="ra-note">上位3頭 {summary.get("top3","-")} ／ 最高 {t1}</div></div>'
-        f'<div class="ra-box"><div class="ra-lab">メンバー水準（中央値）</div>'
-        f'<div class="ra-big">{summary.get("zmed","-")}</div>'
-        f'<div class="ra-note">出走 {summary.get("n","-")}頭 ／ {summary.get("dist","")}</div></div>'
+        f'<div class="ra-note">自己最高の上位3頭 {summary.get("top3","-")}</div></div>'
+        f'<div class="ra-box"><div class="ra-lab">出走メンバー</div>'
+        f'<div class="ra-big">{summary.get("n","-")}<span style="font-size:12px">頭</span></div>'
+        f'<div class="ra-note">{summary.get("dist","")} ／ 中央値 {summary.get("zmed","-")}</div></div>'
         '</div>'
         f'<div class="ra-lab2">脚質構成</div><div class="ra-chips">{chips(summary.get("run"),"rt")}</div>'
         f'<div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips">{chips(summary.get("dev"),"dv")}</div>'
@@ -118,6 +153,11 @@ RA_CSS = """
 .ra-chip b{font-family:monospace;color:var(--text);margin-left:4px;font-weight:600;}
 .ra-chip.rt{border-color:#3a5a8a;}
 .ra-chip.dv{border-color:#5a4a3a;}
+.mx-grid{display:flex;gap:6px;flex-wrap:wrap;}
+.mx-col{flex:1;min-width:78px;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:6px 8px;text-align:center;}
+.mx-lab{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.mx-line{font-family:monospace;font-size:19px;font-weight:600;color:var(--gold);line-height:1.1;}
+.mx-sub{font-family:monospace;font-size:9px;color:var(--muted);margin-top:2px;}
 """
 
 
@@ -151,7 +191,7 @@ def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, cour
                   rf'\g<1>{header_span}\g<2>', html, count=1)
     html = re.sub(r"const VIDEOS=\[\];", "const VIDEOS=" + vjson + ";", html, count=1)
     # レース分析セクション + CSS を挿入
-    ra = race_ana_html(ana_sum)
+    ra = race_ana_html(ana_sum, ana_per)
     if ra:
         html = html.replace("</style>", RA_CSS + "</style>", 1)
         m = re.search(r'(<div class="note">.*?</div>)', html, flags=re.S)
