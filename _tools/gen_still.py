@@ -239,6 +239,47 @@ def hist_html(h, proxy=""):
         return f"{m:g}"
     fast = [int(x) for x in h["fast"].split(",") if x]
     in3 = round(sum(1 for x in fast if x <= 3)/len(fast)*100) if fast else 0
+    # 勝ち馬の4角位置を起点にした前後半3Fセット表
+    wp = [x for x in h["winpos"].split(",") if x]
+    f3l = [x for x in h["f3"].split(",") if x]
+    b3l = [x for x in h["b3"].split(",") if x]
+    eds = []
+    for i, y in enumerate(yrs):
+        if i >= len(wp) or i >= len(f3l) or i >= len(b3l):
+            continue
+        eds.append({"y": y, "p": int(wp[i]), "f": float(f3l[i]), "b": float(b3l[i])})
+    eds.sort(key=lambda e: e["p"])
+    prow = []
+    for e in eds:
+        d = e["f"] - e["b"]
+        dc = "up" if d >= 0.5 else ("dn" if d <= -0.5 else "")
+        pos = "front" if e["p"] <= 3 else ("mid" if e["p"] <= 6 else "back")
+        prow.append(f'<tr><td class="pt-y">{e["y"]}</td>'
+                    f'<td class="pt-p {pos}">{e["p"]}番手</td>'
+                    f'<td class="pt-v">{e["f"]:.1f}</td><td class="pt-v">{e["b"]:.1f}</td>'
+                    f'<td class="pt-d {dc}">{d:+.1f}</td></tr>')
+    BANDS = [("1-3番手", 1, 3), ("4-6番手", 4, 6), ("7番手～", 7, 99)]
+    brow = []
+    for lab, lo, hi in BANDS:
+        g = [e for e in eds if lo <= e["p"] <= hi]
+        if not g:
+            continue
+        af = sum(e["f"] for e in g) / len(g)
+        ab = sum(e["b"] for e in g) / len(g)
+        d = af - ab
+        dc = "up" if d >= 0.5 else ("dn" if d <= -0.5 else "")
+        brow.append(f'<tr><td class="pt-y">{len(g)}回</td>'
+                    f'<td class="pt-p">{lab}で決着</td>'
+                    f'<td class="pt-v">{af:.1f}</td><td class="pt-v">{ab:.1f}</td>'
+                    f'<td class="pt-d {dc}">{d:+.1f}</td></tr>')
+    pace_tbl = ('<div class="ra-lab2">勝ち馬の4角位置 × 前後半3F'
+                '<span class="ra-hint">（4角位置の昇順。差＝前半3F−後半3F、＋はハイペース／−はスロー）</span></div>'
+                '<table class="pt-tbl"><thead><tr><th>年</th><th>勝ち馬の4角</th>'
+                '<th>前半3F</th><th>後半3F</th><th>差</th></tr></thead>'
+                '<tbody>' + "".join(prow) + '</tbody>'
+                + ('<tfoot>' + "".join(brow) + '</tfoot>' if brow else '')
+                + '</table>') if prow else ""
+
     mrows = []
     for it in (h["master"] or "").split(","):
         q = it.split(":")
@@ -260,15 +301,10 @@ def hist_html(h, proxy=""):
         f'<span class="ra-sub">{h["note"]}</span>{px}</div>'
         f'<div class="ra-lab2">4角位置帯別 3着内率<span class="ra-hint">（{h["years"]} 全出走馬）</span></div>'
         f'<div class="hb-wrap">{"".join(cells)}</div>'
-        f'<div class="ra-lab2">勝ち馬の4角位置<span class="ra-hint">（中央値 {med(h["winpos"])}番手）</span></div>'
-        f'<div class="ra-chips">{zipchips(h["winpos"], "wp", lambda v: v + "番手")}</div>'
+        + pace_tbl +
         f'<div class="ra-lab2">上がり3F最速馬の着順'
         f'<span class="ra-hint">（3着内率 {in3}%）</span></div>'
         f'<div class="ra-chips">{zipchips(h["fast"], "fq", lambda v: v + "着")}</div>'
-        f'<div class="ra-lab2">前半3F<span class="ra-hint">（中央値 {med(h["f3"])}秒）</span></div>'
-        f'<div class="ra-chips">{zipchips(h["f3"], "pc")}</div>'
-        f'<div class="ra-lab2">後半3F<span class="ra-hint">（中央値 {med(h["b3"])}秒）</span></div>'
-        f'<div class="ra-chips">{zipchips(h["b3"], "pc")}</div>'
         + mtbl +
         '<div class="ra-cav">※ 今年と同一競馬場・同一コース・同一距離で行われた回のみを集計。'
         '条件が異なる年は除外しているため、年数が10に満たない場合があります。</div>'
@@ -299,6 +335,21 @@ HIST_CSS = """
 .hm-h{font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .hm-v{font-family:monospace;font-size:12px;text-align:center;color:var(--text);width:40px;}
 .hm-v.hl{color:var(--gold);}
+.pt-tbl{width:100%;max-width:470px;border-collapse:collapse;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;margin-bottom:2px;}
+.pt-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:3px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap;}
+.pt-tbl td{padding:3px 6px;border-bottom:1px solid var(--bd);font-size:11px;font-family:monospace;text-align:center;}
+.pt-tbl tbody tr:last-child td{border-bottom:2px solid var(--bd2);}
+.pt-tbl tfoot td{background:var(--s3);font-weight:600;border-bottom:1px solid var(--bd);}
+.pt-tbl tfoot tr:last-child td{border-bottom:none;}
+.pt-y{color:var(--muted);font-size:10px;width:44px;}
+.pt-p{font-size:11px;color:var(--text);white-space:nowrap;width:92px;}
+.pt-p.front{color:var(--orange);}
+.pt-p.mid{color:var(--text);}
+.pt-p.back{color:var(--blue);}
+.pt-v{font-size:12px;color:var(--text);width:52px;}
+.pt-d{font-size:12px;color:var(--muted);width:46px;}
+.pt-d.up{color:var(--red);}
+.pt-d.dn{color:var(--green);}
 """
 
 
