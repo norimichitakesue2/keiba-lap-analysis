@@ -333,23 +333,22 @@ def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, cour
                   rf'\g<1>{header_span}\g<2>', html, count=1)
     html = re.sub(r"const VIDEOS=\[\];", "const VIDEOS=" + vjson + ";", html, count=1)
     # レース分析セクション + CSS を挿入
+    panes = []
     ra = race_ana_html(ana_sum, ana_per)
     if ra:
         html = html.replace("</style>", RA_CSS + "</style>", 1)
-        m = re.search(r'(<div class="note">.*?</div>)', html, flags=re.S)
-        if m:
-            html = html.replace(m.group(1), m.group(1) + "\n" + ra, 1)
+        panes.append(('<div class="pane" data-pane="ana" data-pane-label="レース分析" hidden>'
+                      + ra + '</div>'))
     hh = hist_html(hist, hist_proxy)
     if hh:
         if HIST_CSS not in html:
             html = html.replace("</style>", HIST_CSS + "</style>", 1)
-        anchor = ra if ra and ra in html else None
-        if anchor:
-            html = html.replace(anchor, anchor + "\n" + hh, 1)
-        else:
-            m2 = re.search(r'(<div class="note">.*?</div>)', html, flags=re.S)
-            if m2:
-                html = html.replace(m2.group(1), m2.group(1) + "\n" + hh, 1)
+        panes.append((f'<div class="pane" data-pane="hist" data-pane-label="過去{hist["n"]}年" hidden>'
+                      + hh + '</div>'))
+    if panes:
+        m = re.search(r'<div class="grid-wrap pane"[^>]*>.*?</div></div>', html, flags=re.S)
+        if m:
+            html = html.replace(m.group(0), m.group(0) + "\n" + "\n".join(panes), 1)
     if course_href:
         html = html.replace("__COURSE_HREF__", course_href)
     else:
