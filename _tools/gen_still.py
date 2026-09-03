@@ -137,7 +137,7 @@ def race_ana_html(summary, per=None):
     t1 = top3[0] if top3 else "-"
     return (
         '<div class="race-ana">'
-        '<div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去走・同距離優先）より</span></div>'
+        '<div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去最大20走・同距離優先）より</span></div>'
         + master_html +
         '<div class="ra-row" style="margin-top:8px">'
         f'<div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div>'
