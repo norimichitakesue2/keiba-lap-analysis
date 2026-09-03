@@ -186,11 +186,128 @@ RA_CSS = """
 """
 
 
+
+def load_hist(path, key):
+    """過去10年傾向 (hist10_*.tsv)"""
+    if not path or not key or not os.path.exists(path):
+        return None
+    for line in open(path, encoding="utf-8"):
+        if line.startswith("#") or not line.strip():
+            continue
+        p = line.rstrip("\n").split("\t")
+        if p[0] != key:
+            continue
+        try:
+            n = int(p[1])
+        except ValueError:
+            n = 0
+        return {"key": p[0], "n": n, "years": p[2], "band": p[3], "winpos": p[4],
+                "fast": p[5], "f3": p[6], "b3": p[7], "time": p[8],
+                "master": p[9] if len(p) > 9 else "", "note": p[10] if len(p) > 10 else ""}
+    return None
+
+
+def hist_html(h, proxy=""):
+    if not h or h["n"] == 0:
+        return ""
+    BAND = ["1-3番手", "4-6番手", "7-9番手", "10番手～"]
+    cells = []
+    for lab, sp in zip(BAND, h["band"].split(",")):
+        try:
+            hit, tot = (int(x) for x in sp.split("/"))
+        except ValueError:
+            continue
+        r = round(hit / tot * 100) if tot else 0
+        w = max(2, r)
+        cells.append(f'<div class="hb-row"><span class="hb-lab">{lab}</span>'
+                     f'<span class="hb-bar"><i style="width:{w}%"></i></span>'
+                     f'<span class="hb-val">{r}%</span>'
+                     f'<span class="hb-n">{hit}/{tot}</span></div>')
+    yrs = h["years"].split(",")
+
+    def zipchips(vals, cls, fmt=lambda v: v):
+        out = []
+        for y, v in zip(yrs, vals.split(",")):
+            out.append(f'<span class="hs-chip {cls}"><i>{y[2:]}</i>{fmt(v)}</span>')
+        return "".join(out)
+
+    def med(vals):
+        a = sorted(float(x) for x in vals.split(",") if x)
+        if not a:
+            return "-"
+        m = a[len(a)//2] if len(a) % 2 else (a[len(a)//2-1]+a[len(a)//2])/2
+        return f"{m:g}"
+    fast = [int(x) for x in h["fast"].split(",") if x]
+    in3 = round(sum(1 for x in fast if x <= 3)/len(fast)*100) if fast else 0
+    mrows = []
+    for it in (h["master"] or "").split(","):
+        q = it.split(":")
+        if len(q) < 7:
+            continue
+        mrows.append(f'<tr><td class="hm-y">{q[0]}</td><td class="hm-r">{q[1]}着</td>'
+                     f'<td class="hm-h">{q[2]}</td><td class="hm-v">{q[3]}</td>'
+                     f'<td class="hm-v">{q[4]}</td><td class="hm-v hl">{q[5]}</td>'
+                     f'<td class="hm-v hl">{q[6]}</td></tr>')
+    mtbl = ('<div class="ra-lab2">タイム指数マスターの実測値（1〜3着）'
+            '<span class="ra-hint">※マスター4値はnetkeibaで2024年以降（重賞は2023年〜）のみ算出</span></div>'
+            '<table class="hm-tbl"><thead><tr><th>年</th><th>着</th><th>馬名</th>'
+            '<th>全体</th><th>S</th><th>追走</th><th>上がり</th></tr></thead>'
+            '<tbody>' + "".join(mrows) + '</tbody></table>') if mrows else ""
+    px = f'<span class="hs-proxy">{proxy}</span>' if proxy else ""
+    return (
+        '<div class="race-ana hist10">'
+        f'<div class="ra-title">過去{h["n"]}年の傾向'
+        f'<span class="ra-sub">{h["note"]}</span>{px}</div>'
+        f'<div class="ra-lab2">4角位置帯別 3着内率<span class="ra-hint">（{h["years"]} 全出走馬）</span></div>'
+        f'<div class="hb-wrap">{"".join(cells)}</div>'
+        f'<div class="ra-lab2">勝ち馬の4角位置<span class="ra-hint">（中央値 {med(h["winpos"])}番手）</span></div>'
+        f'<div class="ra-chips">{zipchips(h["winpos"], "wp", lambda v: v + "番手")}</div>'
+        f'<div class="ra-lab2">上がり3F最速馬の着順'
+        f'<span class="ra-hint">（3着内率 {in3}%）</span></div>'
+        f'<div class="ra-chips">{zipchips(h["fast"], "fq", lambda v: v + "着")}</div>'
+        f'<div class="ra-lab2">前半3F<span class="ra-hint">（中央値 {med(h["f3"])}秒）</span></div>'
+        f'<div class="ra-chips">{zipchips(h["f3"], "pc")}</div>'
+        f'<div class="ra-lab2">後半3F<span class="ra-hint">（中央値 {med(h["b3"])}秒）</span></div>'
+        f'<div class="ra-chips">{zipchips(h["b3"], "pc")}</div>'
+        + mtbl +
+        '<div class="ra-cav">※ 今年と同一競馬場・同一コース・同一距離で行われた回のみを集計。'
+        '条件が異なる年は除外しているため、年数が10に満たない場合があります。</div>'
+        '</div>'
+    )
+
+
+HIST_CSS = """
+.hist10{background:var(--s2);}
+.hb-wrap{display:flex;flex-direction:column;gap:3px;max-width:520px;}
+.hb-row{display:flex;align-items:center;gap:7px;font-size:10px;}
+.hb-lab{width:60px;color:var(--muted);white-space:nowrap;}
+.hb-bar{flex:1;height:9px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.hb-bar i{display:block;height:100%;background:linear-gradient(90deg,#6b5a1e,var(--gold));}
+.hb-val{width:32px;text-align:right;font-family:monospace;font-size:11px;color:var(--text);font-weight:600;}
+.hb-n{width:48px;text-align:right;font-family:monospace;font-size:9px;color:var(--muted);}
+.hs-chip{font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--bd2);background:var(--s1);font-family:monospace;color:var(--text);}
+.hs-chip i{font-style:normal;color:var(--muted);font-size:9px;margin-right:4px;}
+.hs-chip.wp{border-color:#3a5a8a;}
+.hs-chip.fq{border-color:#6b5a1e;}
+.hs-chip.pc{border-color:#2a2a3a;}
+.hs-proxy{font-size:10px;color:var(--orange);margin-left:8px;}
+.hm-tbl{width:100%;max-width:560px;border-collapse:collapse;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;}
+.hm-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:3px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;}
+.hm-tbl td{padding:3px 6px;border-bottom:1px solid var(--bd);font-size:11px;}
+.hm-tbl tr:last-child td{border-bottom:none;}
+.hm-y,.hm-r{font-family:monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.hm-h{font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hm-v{font-family:monospace;font-size:12px;text-align:center;color:var(--text);width:40px;}
+.hm-v.hl{color:var(--gold);}
+"""
+
+
 def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, course_href=None,
-          raceana_path=None, race_id=None):
+          raceana_path=None, race_id=None, hist_path=None, hist_key=None, hist_proxy=""):
     stats = load_stats(stats_path)
     recs = load_records(rec_path)
     ana_sum, ana_per = load_raceana(raceana_path, race_id)
+    hist = load_hist(hist_path, hist_key)
     videos = []
     for line in open(tsv, encoding="utf-8"):
         line = line.rstrip("\n")
@@ -222,6 +339,17 @@ def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, cour
         m = re.search(r'(<div class="note">.*?</div>)', html, flags=re.S)
         if m:
             html = html.replace(m.group(1), m.group(1) + "\n" + ra, 1)
+    hh = hist_html(hist, hist_proxy)
+    if hh:
+        if HIST_CSS not in html:
+            html = html.replace("</style>", HIST_CSS + "</style>", 1)
+        anchor = ra if ra and ra in html else None
+        if anchor:
+            html = html.replace(anchor, anchor + "\n" + hh, 1)
+        else:
+            m2 = re.search(r'(<div class="note">.*?</div>)', html, flags=re.S)
+            if m2:
+                html = html.replace(m2.group(1), m2.group(1) + "\n" + hh, 1)
     if course_href:
         html = html.replace("__COURSE_HREF__", course_href)
     else:
@@ -238,5 +366,8 @@ if __name__ == "__main__":
     course_href = sys.argv[8] if len(sys.argv) > 8 else None
     raceana_path = sys.argv[9] if len(sys.argv) > 9 else None
     race_id = sys.argv[10] if len(sys.argv) > 10 else None
+    hist_path = sys.argv[11] if len(sys.argv) > 11 else None
+    hist_key = sys.argv[12] if len(sys.argv) > 12 else None
+    hist_proxy = sys.argv[13] if len(sys.argv) > 13 else ""
     build(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], stats_path, rec_path, course_href,
-          raceana_path, race_id)
+          raceana_path, race_id, hist_path, hist_key, hist_proxy)

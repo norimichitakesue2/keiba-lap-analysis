@@ -86,6 +86,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .pf-v.hl{color:var(--gold);}
 .pf-ex{font-size:10px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .ra-cav{font-size:9px;color:var(--muted);margin-top:6px;line-height:1.5;}
+
+.hist10{background:var(--s2);}
+.hb-wrap{display:flex;flex-direction:column;gap:3px;max-width:520px;}
+.hb-row{display:flex;align-items:center;gap:7px;font-size:10px;}
+.hb-lab{width:60px;color:var(--muted);white-space:nowrap;}
+.hb-bar{flex:1;height:9px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.hb-bar i{display:block;height:100%;background:linear-gradient(90deg,#6b5a1e,var(--gold));}
+.hb-val{width:32px;text-align:right;font-family:monospace;font-size:11px;color:var(--text);font-weight:600;}
+.hb-n{width:48px;text-align:right;font-family:monospace;font-size:9px;color:var(--muted);}
+.hs-chip{font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--bd2);background:var(--s1);font-family:monospace;color:var(--text);}
+.hs-chip i{font-style:normal;color:var(--muted);font-size:9px;margin-right:4px;}
+.hs-chip.wp{border-color:#3a5a8a;}
+.hs-chip.fq{border-color:#6b5a1e;}
+.hs-chip.pc{border-color:#2a2a3a;}
+.hs-proxy{font-size:10px;color:var(--orange);margin-left:8px;}
+.hm-tbl{width:100%;max-width:560px;border-collapse:collapse;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;}
+.hm-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:3px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;}
+.hm-tbl td{padding:3px 6px;border-bottom:1px solid var(--bd);font-size:11px;}
+.hm-tbl tr:last-child td{border-bottom:none;}
+.hm-y,.hm-r{font-family:monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.hm-h{font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hm-v{font-family:monospace;font-size:12px;text-align:center;color:var(--text);width:40px;}
+.hm-v.hl{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -97,6 +120,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 </div>
 <div class="note">各カードの画像をクリックすると <b>netkeiba のパドック映像ページ</b>が新しいタブで開きます（プレミアム会員ログインが必要）。走行タイプ・タイム指数マスター・当該コース／距離成績は前走ベース。</div>
 <div class="race-ana"><div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去最大20走・同距離優先）より</span></div><div class="ra-lab2">走行タイプ別の要求プロフィール<span class="ra-hint">（各タイプ上位半数の中央値＝勝ち筋ごとに実在する組み合わせ）</span></div><table class="pf-tbl"><thead><tr><th>走行タイプ</th><th>勝ち筋</th><th>全体</th><th>S</th><th>追走</th><th>上がり</th><th>該当上位</th></tr></thead><tbody><tr><td class="pf-t"><span class="rtype rt-front">先行型</span><span class="pf-n">11頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">90</td><td class="pf-v">92</td><td class="pf-v hl">92</td><td class="pf-v hl">98</td><td class="pf-ex">エムズマインド</td></tr><tr><td class="pf-t"><span class="rtype rt-sus">持続型</span><span class="pf-n">2頭</span></td><td class="pf-tag">差して勝つ</td><td class="pf-v">91</td><td class="pf-v">87</td><td class="pf-v hl">83</td><td class="pf-v hl">105</td><td class="pf-ex">スペシャルナンバー</td></tr></tbody></table><div class="ra-row" style="margin-top:8px"><div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div><div class="ra-big">104</div><div class="ra-note">自己最高の上位3頭 104/104/104</div></div><div class="ra-box"><div class="ra-lab">出走メンバー</div><div class="ra-big">13<span style="font-size:12px">頭</span></div><div class="ra-note">ダ1200 ／ 中央値 87</div></div></div><div class="ra-cav">※ 上表は各走行タイプ内で実際に上位の馬から算出しているため、4指標の組み合わせが現実的。全体指数のラインはメンバーの相対水準であり、コース実績に基づく絶対基準ではありません。</div><div class="ra-lab2">脚質構成</div><div class="ra-chips"><span class="ra-chip rt">先行型<b>11</b></span><span class="ra-chip rt">持続型<b>2</b></span></div><div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips"><span class="ra-chip dv">ハイペース耐久戦<b>107</b></span><span class="ra-chip dv">均衡戦<b>53</b></span><span class="ra-chip dv">ハイペース消耗戦<b>33</b></span><span class="ra-chip dv">ロングスパート戦<b>2</b></span></div></div>
+<div class="race-ana hist10"><div class="ra-title">過去2年の傾向<span class="ra-sub">阪神ダ1200は2023/2025のみ(他年はダ1800/2000/芝1400)。サンプル僅少</span></div><div class="ra-lab2">4角位置帯別 3着内率<span class="ra-hint">（2023,2025 全出走馬）</span></div><div class="hb-wrap"><div class="hb-row"><span class="hb-lab">1-3番手</span><span class="hb-bar"><i style="width:33%"></i></span><span class="hb-val">33%</span><span class="hb-n">2/6</span></div><div class="hb-row"><span class="hb-lab">4-6番手</span><span class="hb-bar"><i style="width:43%"></i></span><span class="hb-val">43%</span><span class="hb-n">3/7</span></div><div class="hb-row"><span class="hb-lab">7-9番手</span><span class="hb-bar"><i style="width:17%"></i></span><span class="hb-val">17%</span><span class="hb-n">1/6</span></div><div class="hb-row"><span class="hb-lab">10番手～</span><span class="hb-bar"><i style="width:2%"></i></span><span class="hb-val">0%</span><span class="hb-n">0/4</span></div></div><div class="ra-lab2">勝ち馬の4角位置<span class="ra-hint">（中央値 5.5番手）</span></div><div class="ra-chips"><span class="hs-chip wp"><i>23</i>7番手</span><span class="hs-chip wp"><i>25</i>4番手</span></div><div class="ra-lab2">上がり3F最速馬の着順<span class="ra-hint">（3着内率 100%）</span></div><div class="ra-chips"><span class="hs-chip fq"><i>23</i>1着</span><span class="hs-chip fq"><i>25</i>1着</span></div><div class="ra-lab2">前半3F<span class="ra-hint">（中央値 35秒）</span></div><div class="ra-chips"><span class="hs-chip pc"><i>23</i>35.0</span><span class="hs-chip pc"><i>25</i>35.0</span></div><div class="ra-lab2">後半3F<span class="ra-hint">（中央値 36.15秒）</span></div><div class="ra-chips"><span class="hs-chip pc"><i>23</i>36.8</span><span class="hs-chip pc"><i>25</i>35.5</span></div><div class="ra-lab2">タイム指数マスターの実測値（1〜3着）<span class="ra-hint">※マスター4値はnetkeibaで2024年以降（重賞は2023年〜）のみ算出</span></div><table class="hm-tbl"><thead><tr><th>年</th><th>着</th><th>馬名</th><th>全体</th><th>S</th><th>追走</th><th>上がり</th></tr></thead><tbody><tr><td class="hm-y">2025</td><td class="hm-r">1着</td><td class="hm-h">テーオーエルビス</td><td class="hm-v">116</td><td class="hm-v">100</td><td class="hm-v hl">100</td><td class="hm-v hl">117</td></tr><tr><td class="hm-y">2025</td><td class="hm-r">2着</td><td class="hm-h">ストレングス</td><td class="hm-v">107</td><td class="hm-v">108</td><td class="hm-v hl">107</td><td class="hm-v hl">100</td></tr><tr><td class="hm-y">2025</td><td class="hm-r">3着</td><td class="hm-h">ノボリショウリュウ</td><td class="hm-v">103</td><td class="hm-v">101</td><td class="hm-v hl">101</td><td class="hm-v hl">101</td></tr></tbody></table><div class="ra-cav">※ 今年と同一競馬場・同一コース・同一距離で行われた回のみを集計。条件が異なる年は除外しているため、年数が10に満たない場合があります。</div></div>
 <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 <div class="status-bar" id="status"></div>
 <script>

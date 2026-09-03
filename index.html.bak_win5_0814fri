@@ -1,0 +1,3360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>展開×ラップ×4角分析 コース一覧</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0c10; --s1:#14141c; --s2:#1a1a26; --s3:#20202e;
+  --bd:#28283c; --bd2:#34344a;
+  --gold:#f0c040; --blue:#5b9cf6; --green:#56d08b; --orange:#f09050;
+  --text:#ddddef; --muted:#6060a0;
+  --font:'Noto Sans JP',sans-serif; --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5;min-height:100vh;}
+
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:18px 28px;}
+.header h1{font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px;}
+.header p{font-size:12px;color:var(--muted);}
+
+.container{max-width:900px;margin:0 auto;padding:32px 20px;}
+
+.section-title{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--bd);}
+.group-title{font-size:12px;font-weight:600;color:var(--text);letter-spacing:.05em;margin:18px 0 10px;padding-left:8px;border-left:3px solid var(--gold);}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:40px;}
+.group-title{cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;}
+.group-title::before{content:'▾';font-size:10px;color:var(--muted);flex-shrink:0;}
+.group-title.collapsed::before{content:'▸';}
+.group-title:hover{color:var(--gold);}
+.group-title .cnt{font-size:10px;color:var(--muted);font-weight:400;}
+.group-title.collapsed + .grid{display:none;}
+.acc-tools{display:flex;gap:8px;margin:-4px 0 10px;}
+.acc-tools button{background:var(--s1);border:1px solid var(--bd);color:var(--muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;}
+.acc-tools button:hover{border-color:var(--gold);color:var(--text);}
+
+.course-card{
+  display:block;text-decoration:none;
+  background:var(--s1);border:1px solid var(--bd);border-radius:8px;
+  padding:18px 20px;transition:border-color .15s,background .15s;
+  position:relative;overflow:hidden;
+}
+.course-card:hover{border-color:var(--gold);background:var(--s2);}
+.course-card::before{
+  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+}
+.course-card.turf::before{background:var(--green);}
+.course-card.dirt::before{background:var(--orange);}
+
+.course-label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.badge{
+  display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px;font-family:var(--mono);
+}
+.badge.turf{background:rgba(86,208,139,.15);color:var(--green);border:1px solid rgba(86,208,139,.3);}
+.badge.dirt{background:rgba(240,144,80,.15);color:var(--orange);border:1px solid rgba(240,144,80,.3);}
+
+.course-name{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.course-meta{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;}
+.meta-item{display:flex;align-items:center;gap:4px;}
+.meta-item::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+
+.dev-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;}
+.dev-tag{font-size:9px;padding:2px 7px;border-radius:3px;background:var(--s3);color:var(--muted);border:1px solid var(--bd);font-family:var(--mono);}
+.dev-tag.main{color:var(--gold);border-color:rgba(240,192,64,.3);background:rgba(240,192,64,.06);}
+
+.arrow{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;transition:color .15s,right .15s;}
+.course-card:hover .arrow{color:var(--gold);right:12px;}
+
+.coming-soon{opacity:.4;pointer-events:none;cursor:default;}
+.coming-soon .arrow{display:none;}
+.cs-badge{position:absolute;top:10px;right:10px;font-size:9px;background:var(--s3);color:var(--muted);padding:2px 8px;border-radius:3px;border:1px solid var(--bd);}
+
+.note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7;}
+.note a{color:var(--blue);text-decoration:none;}
+.note a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 展開×ラップ×4コーナー分析</h1>
+  <p>展開タイプ × 個別ラップタイプ × 4コーナー順位の3段クロス集計 — netkeibaデータより作成</p>
+</div>
+
+<div class="container">
+
+    <div class="section-title">コース分析（展開×ラップ×4角）</div>
+  <div class="group-title">東京</div>
+  <div class="grid">
+    <a href="tokyo_1400_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・東京</div>
+      <div class="course-name">東京 芝1400m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">4,802件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_1600_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・東京</div>
+      <div class="course-name">東京 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">6,027件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_1800_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・東京</div>
+      <div class="course-name">東京 芝1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">4,659件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・東京</div>
+      <div class="course-name">東京 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">2,985件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_2400_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・東京</div>
+      <div class="course-name">東京 芝2400m</div>
+      <div class="course-meta">
+        <span class="meta-item">左外回り</span>
+        <span class="meta-item">13,692件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">均衡戦</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_2500_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・東京</div>
+      <div class="course-name">東京 芝2500m <span style="font-size:11px;color:var(--muted);font-weight:400;">目黒記念</span></div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">36件</span>
+        <span class="meta-item" style="color:var(--orange)">サンプル少</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag main">持続戦</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_dart1600_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・東京</div>
+      <div class="course-name">東京 ダ1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">10,372件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_dart2100_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・東京</div>
+      <div class="course-name">東京 ダ2100m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">3,429件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">他3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="tokyo_dart1400_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・東京</div>
+      <div class="course-name">東京 ダ1400m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">1,436件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag">他1展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">京都</div>
+  <div class="grid">
+    <a href="kyoto_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">1,424件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">ロングスパート戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_1400_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝1400m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">2,133件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_1600_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">3,166件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_1800_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">2,067件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">2,120件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_2200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝2200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">755件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他2展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_3200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・京都</div>
+      <div class="course-name">京都 芝3200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外</span>
+        <span class="meta-item">63件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag main">加速戦</span>
+        <span class="dev-tag main">ロングスパート戦</span>
+        <span class="dev-tag">天皇賞春コース</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="niigata_1000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・新潟</div>
+      <div class="course-name">新潟 芝1000m</div>
+      <div class="course-meta">
+        <span class="meta-item">直線</span>
+        <span class="meta-item">2,210件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">ロングスパート戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag">他2展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="niigata_1400_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・新潟</div>
+      <div class="course-name">新潟 芝1400m</div>
+      <div class="course-meta">
+        <span class="meta-item">左内回り</span>
+        <span class="meta-item">2,200件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">他3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_dart1200_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・京都</div>
+      <div class="course-name">京都 ダ1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">3,587件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_dart1800_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・京都</div>
+      <div class="course-name">京都 ダ1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">6,227件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kyoto_dart1900_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・京都</div>
+      <div class="course-name">京都 ダ1900m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外</span>
+        <span class="meta-item">1,545件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">他3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">中山</div>
+  <div class="grid">
+    <a href="nakayama_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中山</div>
+      <div class="course-name">中山 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">3,133件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="nakayama_1600_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中山</div>
+      <div class="course-name">中山 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">5,871件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="nakayama_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中山</div>
+      <div class="course-name">中山 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">4,550件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">他5展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="nakayama_dart1200_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・中山</div>
+      <div class="course-name">中山 ダ1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">左外回り</span>
+        <span class="meta-item">12,688件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">阪神</div>
+  <div class="grid">
+    <a href="corner4_full.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・阪神</div>
+      <div class="course-name">阪神 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">5,871件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="hanshin_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・阪神</div>
+      <div class="course-name">阪神 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="hanshin_2200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・阪神</div>
+      <div class="course-name">阪神 芝2200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右内回り</span>
+        <span class="meta-item">87件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">他2展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="hanshin_dart1800_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・阪神</div>
+      <div class="course-name">阪神 ダ1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">1,491件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">他3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">福島</div>
+  <div class="grid">
+    <a href="fukushima_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・福島</div>
+      <div class="course-name">福島 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">4,555件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">他2展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="fukushima_1800_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・福島</div>
+      <div class="course-name">福島 芝1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">右外回り</span>
+        <span class="meta-item">2,195件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="fukushima_dart1700_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・福島</div>
+      <div class="course-name">福島 ダ1700m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">4,954件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">上位3型</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="fukushima_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・福島</div>
+      <div class="course-name">福島 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">2,243件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">上位3型</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">新潟</div>
+  <div class="grid">
+    <a href="niigata_1800_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・新潟</div>
+      <div class="course-name">新潟 芝1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">左 外</span>
+        <span class="meta-item">2,045件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">他展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="niigata_1600_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・新潟</div>
+      <div class="course-name">新潟 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">左外</span>
+        <span class="meta-item">1,971件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="niigata_dart1200_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・新潟</div>
+      <div class="course-name">新潟 ダ1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">5,375件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="niigata_dart1800_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・新潟</div>
+      <div class="course-name">新潟 ダ1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">左外</span>
+        <span class="meta-item">6,324件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">他4展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+
+  <div class="group-title">函館</div>
+  <div class="grid">
+    <a href="hakodate_dart1700_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・函館</div>
+      <div class="course-name">函館 ダ1700m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">2,414件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">上位3型</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="hakodate_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・函館</div>
+      <div class="course-name">函館 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">48件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag">他1展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="hakodate_1800_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・函館</div>
+      <div class="course-name">函館 芝1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">133件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">他1展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="hakodate_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・函館</div>
+      <div class="course-name">函館 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">1,096件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">上位3型</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">小倉</div>
+  <div class="grid">
+    <a href="kokura_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・小倉</div>
+      <div class="course-name">小倉 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">2,680件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">上位3型</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kokura_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・小倉</div>
+      <div class="course-name">小倉 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">7,447件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">上位3型</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="kokura_dart1700_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・小倉</div>
+      <div class="course-name">小倉 ダ1700m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">6,409件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag">上位3型</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">中京</div>
+  <div class="grid">
+    <a href="chukyo_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中京</div>
+      <div class="course-name">中京 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">1,496件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">ハイペース耐久戦</span>
+        <span class="dev-tag main">ハイペース消耗戦</span>
+        <span class="dev-tag">他展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="chukyo_1600_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中京</div>
+      <div class="course-name">中京 芝1600m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">2,802件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">他展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="chukyo_1400_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中京</div>
+      <div class="course-name">中京 芝1400m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">2,209件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">ハイペース耐久戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag">他展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="chukyo_dart1800_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・中京</div>
+      <div class="course-name">中京 ダ1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">5,207件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">ハイペース消耗戦</span>
+        <span class="dev-tag main">ハイペース耐久戦</span>
+        <span class="dev-tag">他展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="chukyo_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中京</div>
+      <div class="course-name">中京 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">3,163件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="chukyo_2200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・中京</div>
+      <div class="course-name">中京 芝2200m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">1,215件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="chukyo_dart1400_corner4.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・中京</div>
+      <div class="course-name">中京 ダ1400m</div>
+      <div class="course-meta">
+        <span class="meta-item">左</span>
+        <span class="meta-item">4,138件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">札幌</div>
+  <div class="grid">
+    <a href="sapporo_2000_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・札幌</div>
+      <div class="course-name">札幌 芝2000m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">1,425件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">前残り戦</span>
+        <span class="dev-tag">他展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="sapporo_1800_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・札幌</div>
+      <div class="course-name">札幌 芝1800m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">1,072件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">他展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="sapporo_1200_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・札幌</div>
+      <div class="course-name">札幌 芝1200m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">1,535件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">HP耐久戦</span>
+        <span class="dev-tag main">HP消耗戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="sapporo_2600_corner4.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>JRA・札幌</div>
+      <div class="course-name">札幌 芝2600m</div>
+      <div class="course-meta">
+        <span class="meta-item">右</span>
+        <span class="meta-item">522件</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">均衡戦</span>
+        <span class="dev-tag main">持続戦</span>
+        <span class="dev-tag main">瞬発戦</span>
+        <span class="dev-tag">計3展開</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="section-title">パドック映像比較</div>
+  <div class="group-title">2026/8/16 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span> <span class="cnt">暫定・枠順未確定/五十音順</span></div>
+  <div class="grid">
+    <a href="paddock_2026_nagakute.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京6R・8/16(日)</div>
+      <div class="course-name">長久手特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">7頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_odoripark.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>札幌10R・8/16(日)</div>
+      <div class="course-name">大通公園特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1000m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_nst.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟7R・8/16(日)</div>
+      <div class="course-name">NST賞</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">19頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_chukyokinen.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京7R・8/16(日)</div>
+      <div class="course-name">中京記念 <span style="font-size:11px;color:var(--muted);font-weight:400;">GⅢ</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">17頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sapporokinen.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>札幌11R・8/16(日)</div>
+      <div class="course-name">札幌記念 <span style="font-size:11px;color:var(--muted);font-weight:400;">GⅡ</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/8/15 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span> <span class="cnt">暫定・枠順未確定/五十音順</span></div>
+  <div class="grid">
+    <a href="paddock_2026_chishiro.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>札幌10R・8/15(土)</div>
+      <div class="course-name">知床特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/15 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_chita.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京6R・8/15(土)</div>
+      <div class="course-name">知多特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/15 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_joetsu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟7R・8/15(土)</div>
+      <div class="course-name">上越ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">25頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/15 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_taisetsu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>札幌11R・8/15(土)</div>
+      <div class="course-name">大雪ハンデキャップ <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/15 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_takayama.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京7R・8/15(土)</div>
+      <div class="course-name">高山ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">8頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/15 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック</span>
+        <span class="dev-tag main">静止画+映像リンク</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/8/9 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_sado.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟6R・8/9(日)</div>
+      <div class="course-name">佐渡ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hamanako.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京6R・8/9(日)</div>
+      <div class="course-name">浜名湖特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_uhbsho.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>札幌11R・8/9(日)</div>
+      <div class="course-name">UHB賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">21頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_leopard.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟7R・8/9(日)</div>
+      <div class="course-name">レパードステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">GⅢ</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_cbc.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京7R・8/9(日)</div>
+      <div class="course-name">CBC賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">GⅢ</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">20頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/8/8 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_miomote.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟6R・8/8(土)</div>
+      <div class="course-name">三面川特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/8 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_nayabashi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京6R・8/8(土)</div>
+      <div class="course-name">納屋橋特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">10頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/8 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_elm.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>札幌11R・8/8(土)</div>
+      <div class="course-name">エルムステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">GⅢ</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/8 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_kanetsu.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟7R・8/8(土)</div>
+      <div class="course-name">関越ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/8 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_mikawa.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>中京7R・8/8(土)</div>
+      <div class="course-name">三河ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">8頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/8 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/8/2 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_chukyosponichi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京6R・8/2(日)</div>
+      <div class="course-name">中京スポニチ賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">9頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_naeba.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟6R・8/2(日)</div>
+      <div class="course-name">苗場特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_queens.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>札幌11R・8/2(日)</div>
+      <div class="course-name">クイーンステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_meitetsu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>中京7R・8/2(日)</div>
+      <div class="course-name">名鉄杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">L</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">9頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_ibissd.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟7R・8/2(日)</div>
+      <div class="course-name">アイビスサマーダッシュ <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1000m</span>
+        <span class="meta-item">17頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/8/1 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_okehazama.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>中京6R・8/1(土)</div>
+      <div class="course-name">桶狭間ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1400m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/1 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tsukioka.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟6R・8/1(土)</div>
+      <div class="course-name">月岡温泉特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/1 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_stv.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>札幌11R・8/1(土)</div>
+      <div class="course-name">STV賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/1 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_toyohashi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京7R・8/1(土)</div>
+      <div class="course-name">豊橋ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/1 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_ryuto.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟7R・8/1(土)</div>
+      <div class="course-name">柳都ステークス <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">8/1 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/7/26 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_kisogawa.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京6R・7/26(日)</div>
+      <div class="course-name">木曽川特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">10頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/26 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_izumozaki.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟6R・7/26(日)</div>
+      <div class="course-name">出雲崎特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/26 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sapporonikkei.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>札幌11R・7/26(日)</div>
+      <div class="course-name">札幌日経賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2600m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/26 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tokai.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>中京7R・7/26(日)</div>
+      <div class="course-name">東海S <span style="font-size:11px;color:var(--muted);font-weight:400;">GII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1400m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/26 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sekiya.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟7R・7/26(日)</div>
+      <div class="course-name">関屋記念 <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/26 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/7/25 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_yokkaichi.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>中京6R・7/25(土)</div>
+      <div class="course-name">四日市特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1400m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/25 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_toyosaka.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟6R・7/25(土)</div>
+      <div class="course-name">豊栄特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/25 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tvh.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>札幌11R・7/25(土)</div>
+      <div class="course-name">ＴＶｈ賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/25 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sekigahara.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中京7R・7/25(土)</div>
+      <div class="course-name">関ケ原S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2200m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/25 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_niigatanippo.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟7R・7/25(土)</div>
+      <div class="course-name">新潟日報賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/25 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/7/19 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_inawashiro.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島10R・7/19(日)</div>
+      <div class="course-name">猪苗代特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/19 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_miyazaki.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>小倉10R・7/19(日)</div>
+      <div class="course-name">宮崎S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/19 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hakodate2sai.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・7/19(日)</div>
+      <div class="course-name">函館2歳S <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/19 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_fukushimatv.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>福島11R・7/19(日)</div>
+      <div class="course-name">福島テレビ賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1150m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/19 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_kokurakinen.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>小倉11R・7/19(日)</div>
+      <div class="course-name">小倉記念 <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/19 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/7/18 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_kumamotojo.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>小倉10R・7/18(土)</div>
+      <div class="course-name">熊本城特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/18 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_yonezawa.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>福島10R・7/18(土)</div>
+      <div class="course-name">米沢特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/18 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_marine.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>函館11R・7/18(土)</div>
+      <div class="course-name">マリーンS <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/18 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_teleq.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>小倉11R・7/18(土)</div>
+      <div class="course-name">テレQ杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/18 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_abukuma.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R・7/18(土)</div>
+      <div class="course-name">阿武隈S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/18 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/7/12 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_seibusponichi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>小倉10R・7/12(日)</div>
+      <div class="course-name">西部スポニチ賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/12 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_amanogawa.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>福島10R・7/12(日)</div>
+      <div class="course-name">天の川S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/12 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tomoe.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・7/12(日)</div>
+      <div class="course-name">巴賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/12 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_aso.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>小倉11R・7/12(日)</div>
+      <div class="course-name">阿蘇S <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/12 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tanabata.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R・7/12(日)</div>
+      <div class="course-name">七夕賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/12 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/7/11 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_yabakei.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>小倉10R・7/11(土)</div>
+      <div class="course-name">耶馬渓特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">20頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/11 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_aizu.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島10R・7/11(土)</div>
+      <div class="course-name">会津S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/11 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_goryokaku.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・7/11(土)</div>
+      <div class="course-name">五稜郭S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/11 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_pusan.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>小倉11R・7/11(土)</div>
+      <div class="course-name">釜山S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1000m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/11 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_adatara.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R・7/11(土)</div>
+      <div class="course-name">安達太良S <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/11 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/7/5 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_unzen.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>小倉10R・7/5(日)</div>
+      <div class="course-name">雲仙特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1000m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/5 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_yokote.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>福島10R・7/5(日)</div>
+      <div class="course-name">横手特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">10頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/5 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tvh.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・7/5(日)</div>
+      <div class="course-name">TVh杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/5 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hakata.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>小倉11R・7/5(日)</div>
+      <div class="course-name">博多S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/5 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tuf.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>福島11R・7/5(日)</div>
+      <div class="course-name">TUF杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1150m</span>
+        <span class="meta-item">10頭</span>
+        <span class="meta-item" style="color:var(--gold)">7/5 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/6/28 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_seibu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>小倉10R・6/28(日)</div>
+      <div class="course-name">西部日刊スポーツ杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/28 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tsurugajo.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>福島10R・6/28(日)</div>
+      <div class="course-name">鶴ケ城S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/28 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hakodatekinen.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・6/28(日)</div>
+      <div class="course-name">函館記念 <span style="font-size:11px;color:var(--muted);font-weight:400;">G3</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/28 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_murasakigawa.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>小倉11R・6/28(日)</div>
+      <div class="course-name">紫川S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">8頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/28 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_radionikkei.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R・6/28(日)</div>
+      <div class="course-name">ラジオNIKKEI賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">G3</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/28 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/6/27 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_munakata.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>小倉10R・6/27(土)</div>
+      <div class="course-name">宗像特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/27 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_iwaki.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>福島10R・6/27(土)</div>
+      <div class="course-name">いわき特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">19頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/27 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_seikan.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・6/27(土)</div>
+      <div class="course-name">青函S <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/27 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_satsuma.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>小倉11R・6/27(土)</div>
+      <div class="course-name">薩摩S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1700m</span>
+        <span class="meta-item">19頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/27 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_badenbaden.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R・6/27(土)</div>
+      <div class="course-name">バーデンバーデンC <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">9頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/27 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/6/21 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_himeji.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>阪神10R・6/21(日)</div>
+      <div class="course-name">姫路S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/21 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tamagawa.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・6/21(日)</div>
+      <div class="course-name">多摩川S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/21 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_uhb.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・6/21(日)</div>
+      <div class="course-name">UHB杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/21 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_shirasagi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神11R・6/21(日)</div>
+      <div class="course-name">しらさぎS <span style="font-size:11px;color:var(--muted);font-weight:400;">G3</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/21 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_fuchuhimba.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・6/21(日)</div>
+      <div class="course-name">府中牝馬S <span style="font-size:11px;color:var(--muted);font-weight:400;">G3</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/21 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+  <div class="group-title">2026/6/14 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_enoshima.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・6/14(日)</div>
+      <div class="course-name">江の島S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2400m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/14 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hananomichi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神10R・6/14(日)</div>
+      <div class="course-name">花のみちS <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/14 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hakodatenikkan.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・6/14(日)</div>
+      <div class="course-name">函館日刊スポーツ杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/14 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_paradise.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・6/14(日)</div>
+      <div class="course-name">パラダイスS <span style="font-size:11px;color:var(--muted);font-weight:400;">L</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/14 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_takarazuka.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神11R・6/14(日)</div>
+      <div class="course-name">宝塚記念 <span style="font-size:11px;color:var(--muted);font-weight:400;">GI</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2200m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/14 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/6/13 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_geshi.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京10R・6/13(土)</div>
+      <div class="course-name">夏至S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1600m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/13 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_matsumae.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館10R・6/13(土)</div>
+      <div class="course-name">松前特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/13 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sannomiya.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>阪神11R・6/13(土)</div>
+      <div class="course-name">三宮S <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/13 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_june.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・6/13(土)</div>
+      <div class="course-name">ジューンS <span style="font-size:11px;color:var(--muted);font-weight:400;">OP</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/13 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hakodatesprint.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>函館11R・6/13(土)</div>
+      <div class="course-name">函館スプリントS <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/13 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/6/7 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_inagi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京9R・6/7(日)</div>
+      <div class="course-name">稲城特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">1勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2400m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/7 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_kakogawa.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>阪神10R・6/7(日)</div>
+      <div class="course-name">加古川特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/7 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_yamanashi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・6/7(日)</div>
+      <div class="course-name">テレビ山梨杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">17頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/7 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tarumi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神11R・6/7(日)</div>
+      <div class="course-name">垂水S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">6/7 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_bakushu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京11R・6/7(日)</div>
+      <div class="course-name">麦秋S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1400m</span>
+        <span class="meta-item">16頭(1取消)</span>
+        <span class="meta-item" style="color:var(--gold)">6/7 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/31 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_kunpu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京9R・5/31(日)</div>
+      <div class="course-name">薫風S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1600m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/31 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_yodo.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都9R・5/31(日)</div>
+      <div class="course-name">與杼特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/31 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_murasaki.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・5/31(日)</div>
+      <div class="course-name">むらさき賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/31 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_azuchi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都10R・5/31(日)</div>
+      <div class="course-name">安土城S(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">17頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/31 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_derby.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/31(日)</div>
+      <div class="course-name">日本ダービー(G1) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2400m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/31 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_meguro.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京12R・5/31(日)</div>
+      <div class="course-name">目黒記念(G2) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2500m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--muted)">WIN5外</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/30 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_housu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都9R・5/30(土)</div>
+      <div class="course-name">鳳雛S(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">9頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/30 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_hayama.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・5/30(土)</div>
+      <div class="course-name">葉山特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/30 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_momoyama.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都10R・5/30(土)</div>
+      <div class="course-name">桃山S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/30 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_akhalteke.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京11R・5/30(土)</div>
+      <div class="course-name">アハルテケS(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1600m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/30 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_aoi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都11R・5/30(土)</div>
+      <div class="course-name">葵S(G3) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/30 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/24 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_takasegawa.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都10R・5/24(日)</div>
+      <div class="course-name">高瀬川S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/24 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_freeway.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・5/24(日)</div>
+      <div class="course-name">フリーウェイS <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/24 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_idaten.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟11R・5/24(日)</div>
+      <div class="course-name">韋駄天S(OP) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1000m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/24 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_miyakooji.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都11R・5/24(日)</div>
+      <div class="course-name">都大路S(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/24 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_oaks.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/24(日)</div>
+      <div class="course-name">オークス(G1) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2400m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/24 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/23 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_takao.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・5/23(土)</div>
+      <div class="course-name">高尾特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/23 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sydney.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都10R・5/23(土)</div>
+      <div class="course-name">シドニーT <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/23 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_dainichi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟11R・5/23(土)</div>
+      <div class="course-name">大日岳特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/23 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_keyaki.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京11R・5/23(土)</div>
+      <div class="course-name">欅S(OP) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1400m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/23 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_heian.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都11R・5/23(土)</div>
+      <div class="course-name">平安S(G3) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1900m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/23 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/17 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_nishiki.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都10R・5/17(日)</div>
+      <div class="course-name">錦S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">13頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/17 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_ome.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京10R・5/17(日)</div>
+      <div class="course-name">青梅特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1600m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/17 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_yahiko.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟11R・5/17(日)</div>
+      <div class="course-name">弥彦S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/17 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_ritto.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都11R・5/17(日)</div>
+      <div class="course-name">栗東S(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1400m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/17 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_victoriamile.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/17(日)</div>
+      <div class="course-name">ヴィクトリアマイル(G1) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/17 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/16 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_tachikawa.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京10R・5/16(土)</div>
+      <div class="course-name">立川特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1400m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_nakanodake.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟10R・5/16(土)</div>
+      <div class="course-name">中ノ岳特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">9頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_kurama.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都11R・5/16(土)</div>
+      <div class="course-name">鞍馬S(OP) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_rokusha.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/16(土)</div>
+      <div class="course-name">六社S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2400m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_niigatadaishoten.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟11R・5/16(土)</div>
+      <div class="course-name">新潟大賞典(G3) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/16 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/10 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_nhkmile.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/10(日)</div>
+      <div class="course-name">NHKマイルC(G1) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/10 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_heijokyo.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都11R・5/10(日)</div>
+      <div class="course-name">平城京S(OP) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/10 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tanigawa.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟11R・5/10(日)</div>
+      <div class="course-name">谷川岳S(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">14頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/10 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_tachibana.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都10R・5/10(日)</div>
+      <div class="course-name">橘S(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/10 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_metropolitan.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・5/10(日)</div>
+      <div class="course-name">メトロポリタンS(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2400m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/10 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/9 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_keishin.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都11R・5/9(土)</div>
+      <div class="course-name">京都新聞杯(G2) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2200m</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_epsom.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/9(土)</div>
+      <div class="course-name">エプソムC(G3) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">17頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_shunpu.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>新潟11R・5/9(土)</div>
+      <div class="course-name">駿風S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1000m直線</span>
+        <span class="meta-item">16頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_kamogawa.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都10R・5/9(土)</div>
+      <div class="course-name">鴨川特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">8頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_seiryu.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京10R・5/9(土)</div>
+      <div class="course-name">青竜S(OP) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1600m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/9 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/3 (日) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_tenno_haru.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都11R・5/3(日)</div>
+      <div class="course-name">天皇賞(春)(G1) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝3200m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/3 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_principal.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/3(日)</div>
+      <div class="course-name">プリンシパルS(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/3 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_echigo.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟11R・5/3(日)</div>
+      <div class="course-name">越後S(OP) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/3 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_suzaku.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都10R・5/3(日)</div>
+      <div class="course-name">朱雀S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">20頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/3 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_brilliant.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京10R・5/3(日)</div>
+      <div class="course-name">ブリリアントS(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ2100m</span>
+        <span class="meta-item">20頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/3 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/5/2 (土) <span style="color:var(--gold);font-size:11px;font-weight:700;margin-left:8px">WIN5</span></div>
+  <div class="grid">
+    <a href="paddock_2026_keiosc.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・5/2(土)</div>
+      <div class="course-name">京王杯SC(G2) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1400m</span>
+        <span class="meta-item">18頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_unicorn.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都11R・5/2(土)</div>
+      <div class="course-name">ユニコーンS(G3) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1900m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sanjo.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>新潟11R・5/2(土)</div>
+      <div class="course-name">三条S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1800m</span>
+        <span class="meta-item">15頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_sweetpea.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京10R・5/2(土)</div>
+      <div class="course-name">スイートピーS(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">11頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_kyogoku.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>京都10R・5/2(土)</div>
+      <div class="course-name">京極特別 <span style="font-size:11px;color:var(--muted);font-weight:400;">2勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">12頭</span>
+        <span class="meta-item" style="color:var(--gold)">5/2 WIN5</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/4/26 (日)</div>
+  <div class="grid">
+    <a href="paddock_2026_milers.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都11R・4/26</div>
+      <div class="course-name">マイラーズC(G2) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">18頭</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_flora.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・4/26</div>
+      <div class="course-name">フローラS(G2) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">13頭</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_morganite.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R・4/26</div>
+      <div class="course-name">モルガナイトS(OP) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_centennial.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>京都10R・4/26</div>
+      <div class="course-name">センテニアルパークS <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1800m</span>
+        <span class="meta-item">18頭</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_oasis.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>東京10R・4/26</div>
+      <div class="course-name">オアシスS(L) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1600m</span>
+        <span class="meta-item">15頭</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/4/25 (土)</div>
+  <div class="grid">
+    <a href="paddock_2026_aoyoba.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>東京11R・4/25</div>
+      <div class="course-name">青葉賞(G2) 2026</div>
+      <div class="course-meta">
+        <span class="meta-item">芝2400m</span>
+        <span class="meta-item">22頭</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走映像</span>
+        <span class="dev-tag main">パドック比較</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/4/19 (日)</div>
+  <div class="grid">
+    <a href="paddock_2026_satsuki.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山11R · 2026/4/19</div>
+      <div class="course-name" style="font-size:15px;">皐月賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">GI</span></div>
+      <div class="course-detail">芝2000m ／ 21頭 ／ 前走パドック映像</div>
+    </a>
+    <a href="paddock_2026_fukushima_himba.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R · 2026/4/19</div>
+      <div class="course-name" style="font-size:15px;">福島牝馬Ｓ <span style="font-size:11px;color:var(--muted);font-weight:400;">GIII</span></div>
+      <div class="course-detail">芝1800m ／ 20頭 ／ 前走パドック映像</div>
+    </a>
+    <a href="paddock_2026_tatsukyo.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神11R · 2026/4/19</div>
+      <div class="course-name" style="font-size:15px;">立雲峡Ｓ <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝クラス</span></div>
+      <div class="course-detail">芝1600m ／ 13頭 ／ 前走パドック映像</div>
+    </a>
+    <a href="paddock_2026_keiyou.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・中山</div>
+      <div class="course-name">京葉S(L) 4/19</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">15頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_yosyun.html" class="course-card dirt">
+      <div class="course-label"><span class="badge dirt">ダ</span>JRA・阪神</div>
+      <div class="course-name">陽春S(3勝) 4/19</div>
+      <div class="course-meta">
+        <span class="meta-item">ダ1200m</span>
+        <span class="meta-item">13頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/4/12 (日)</div>
+  <div class="grid">
+    <a href="paddock_2026_sakurakai.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神11R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">桜花賞 <span style="font-size:11px;color:var(--muted);font-weight:400;">GI</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">18頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_akebono.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山10R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">あけぼのS <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝クラス</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">11頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_shunrai.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山11R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">春雷S <span style="font-size:11px;color:var(--muted);font-weight:400;">L</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1200m</span>
+        <span class="meta-item">16頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_kyobashi.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>阪神10R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">京橋S <span style="font-size:11px;color:var(--muted);font-weight:400;">3勝クラス</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">15頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="paddock_2026_fukushima.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>福島11R · 2026/4/12</div>
+      <div class="course-name" style="font-size:15px;">福島民報杯 <span style="font-size:11px;color:var(--muted);font-weight:400;">L</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝2000m</span>
+        <span class="meta-item">15頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="group-title">2026/4/11 (土)</div>
+  <div class="grid">
+    <a href="paddock_2026_nzt.html" class="course-card turf">
+      <div class="course-label"><span class="badge turf">芝</span>中山11R · 2026/4/11</div>
+      <div class="course-name" style="font-size:15px;">ニュージーランドT <span style="font-size:11px;color:var(--muted);font-weight:400;">GII</span></div>
+      <div class="course-meta">
+        <span class="meta-item">芝1600m</span>
+        <span class="meta-item">14頭分</span>
+      </div>
+      <div class="dev-tags">
+        <span class="dev-tag main">前走パドック映像</span>
+        <span class="dev-tag main">全頭同時再生</span>
+      </div>
+  2   <span class="arrow">→</span>
+    </a>
+  </div>
+
+
+  <div class="section-title">使い方</div>
+  <p class="note">
+    各コースページでは <strong style="color:var(--text)">展開タイプ</strong> → <strong style="color:var(--text)">個別ラップタイプ</strong> をクリックすると、その条件での <strong style="color:var(--text)">4コーナー順位別 勝率・連対率・複勝率</strong> が表示されます。<br>
+    例）「均衡戦 × 持続型」で逃げ馬（1番手）の連対率を確認 → 前受けが有利かどうかの判断材料に。<br><br>
+    データはnetkeibaの勝ち馬サーチより取得。8割を占める上位3展開タイプのみ掲載しています。
+  </p>
+
+</div>
+<script>
+(function(){
+  var groups={course:[],paddock:[]};
+  function mkTools(sectionTitle,key){
+    var d=document.createElement('div');d.className='acc-tools';
+    d.innerHTML='<button data-a="open">すべて展開</button><button data-a="close">すべて折りたたむ</button>';
+    sectionTitle.insertAdjacentElement('afterend',d);
+    d.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var open=b.getAttribute('data-a')==='open';groups[key].forEach(function(t){t.classList.toggle('collapsed',!open);});});
+  }
+  var nodes=[].slice.call(document.querySelectorAll('.section-title,.group-title'));
+  var cur='';
+  nodes.forEach(function(n){
+    if(n.classList.contains('section-title')){
+      cur=n.textContent||'';
+      if(cur.indexOf('コース分析')>=0) mkTools(n,'course');
+      else if(cur.indexOf('パドック')>=0) mkTools(n,'paddock');
+    } else {
+      (cur.indexOf('パドック')>=0?groups.paddock:groups.course).push(n);
+    }
+  });
+  function wire(t){
+    var g=t.nextElementSibling;
+    if(g&&g.classList.contains('grid')){
+      var n=g.querySelectorAll('.course-card').length;
+      var c=document.createElement('span');c.className='cnt';c.textContent='('+n+')';
+      t.appendChild(c);
+    }
+    t.addEventListener('click',function(){t.classList.toggle('collapsed');});
+  }
+  groups.course.forEach(function(t){wire(t);t.classList.add('collapsed');});
+  groups.paddock.forEach(function(t,i){wire(t);if(i>0)t.classList.add('collapsed');});
+})();
+</script>
+</body>
+</html>
