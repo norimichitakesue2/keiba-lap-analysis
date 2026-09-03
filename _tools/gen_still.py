@@ -252,7 +252,7 @@ def hist_html(h, proxy=""):
     prow = []
     for e in eds:
         d = e["f"] - e["b"]
-        dc = "up" if d >= 0.5 else ("dn" if d <= -0.5 else "")
+        dc = "fast" if d <= -0.5 else ("slow" if d >= 0.5 else "")
         pos = "front" if e["p"] <= 3 else ("mid" if e["p"] <= 6 else "back")
         prow.append(f'<tr><td class="pt-y">{e["y"]}</td>'
                     f'<td class="pt-p {pos}">{e["p"]}番手</td>'
@@ -267,13 +267,13 @@ def hist_html(h, proxy=""):
         af = sum(e["f"] for e in g) / len(g)
         ab = sum(e["b"] for e in g) / len(g)
         d = af - ab
-        dc = "up" if d >= 0.5 else ("dn" if d <= -0.5 else "")
+        dc = "fast" if d <= -0.5 else ("slow" if d >= 0.5 else "")
         brow.append(f'<tr><td class="pt-y">{len(g)}回</td>'
                     f'<td class="pt-p">{lab}で決着</td>'
                     f'<td class="pt-v">{af:.1f}</td><td class="pt-v">{ab:.1f}</td>'
                     f'<td class="pt-d {dc}">{d:+.1f}</td></tr>')
     pace_tbl = ('<div class="ra-lab2">勝ち馬の4角位置 × 前後半3F'
-                '<span class="ra-hint">（4角位置の昇順。差＝前半3F−後半3F、＋はハイペース／−はスロー）</span></div>'
+                '<span class="ra-hint">（4角位置の昇順。差＝前半3F−後半3F。マイナスほど前傾＝ハイペース、プラスは後傾＝上がり勝負）</span></div>'
                 '<table class="pt-tbl"><thead><tr><th>年</th><th>勝ち馬の4角</th>'
                 '<th>前半3F</th><th>後半3F</th><th>差</th></tr></thead>'
                 '<tbody>' + "".join(prow) + '</tbody>'
@@ -348,8 +348,8 @@ HIST_CSS = """
 .pt-p.back{color:var(--blue);}
 .pt-v{font-size:12px;color:var(--text);width:52px;}
 .pt-d{font-size:12px;color:var(--muted);width:46px;}
-.pt-d.up{color:var(--red);}
-.pt-d.dn{color:var(--green);}
+.pt-d.fast{color:var(--red);}
+.pt-d.slow{color:var(--blue);}
 """
 
 
