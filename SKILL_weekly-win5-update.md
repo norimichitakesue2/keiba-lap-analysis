@@ -50,8 +50,10 @@ bashで次の日曜=`date -v +Sun -j +%Y%m%d`、前日の土曜も。
 - **各年の収集(race.netkeiba result.html, UTF-8)**: 結果表 `tbody tr` 各馬から 着順(先頭td整数)・4角通過(通過列の末尾数字)・上がり3F・タイム。ラップ集計から前半3F(first3F)/後半3F(last3F)。`#lap_summary` の1〜3着馬 `.IndexMasterCell`×4 で master(**指数マスターは2024年以降のみ有効**、それ以前は空)。
 - **集計(1行)**: band=4角位置帯別(1-3/4-6/7-9/10-)の3着内数/母数(全年通算)、winPos=各年勝ち馬の4角位置(年順カンマ)、fastRank=各年の上がり最速馬の着順、first3F/last3F=各年の前後半3F、winTime=各年勝ち時計、master=直近2年ほどの3着内馬 `年:着:馬:全:S:追:上`、note=補足。
 - 収集不能/母数不足なら N=0 で行を置く(過去N年タブは非表示に degrade)。gen_still.py が hist_key=short で読み「過去N年」タブ(4角位置帯別3着内率/勝ち馬4角位置/上がり最速の着順/前後半3F/指数マスター実測)を出力。
-### 5. 当該コース/距離成績(db.netkeiba) ※検証済み
-別タブを `https://db.netkeiba.com/horse/<任意hid>/` にnavigateして同一オリジン化 → 各馬 `/horse/result/<hid>/` fetch。**EUC-JP**: `new TextDecoder('euc-jp').decode(await res.arrayBuffer())`。`table.db_h_race_results` の `tbody tr` 各行(td数<15はスキップ): 開催=td[1](例"1函館9"→数字除去で場漢字)、距離=td[14](`(芝|ダ|障)(\d+)`)、着順=td[11]。同距離=芝ダ+距離一致、同コース=同距離かつ場一致。1/2/3/着外で `w-p-s-o` 集計。`records/<short>.tsv`: `名\t同コース\t同距離`。※重い場合は省略可(空欄で縮退)。
+### 5. 当該コース/距離成績(db.netkeiba) ※検証済み ★必須(省略しない)
+別タブを `https://db.netkeiba.com/horse/<任意hid>/` にnavigateして同一オリジン化 → 各馬 `/horse/result/<hid>/` fetch。**EUC-JP**: `new TextDecoder('euc-jp').decode(await res.arrayBuffer())`。`table.db_h_race_results` の `tbody tr` 各行(td数<15はスキップ): 開催=td[1](例"1函館9"→数字除去で場漢字)、距離=td[14](`(芝|ダ|障)(\d+)`)、着順=td[11]。同距離=芝ダ+距離一致、同コース=同距離かつ場一致。1/2/3/着外で `w-p-s-o` 集計。`records/<short>.tsv`: `名\t同コース\t同距離`。
+- **⚠️ recordsは毎回必須。月曜暫定回でも省略しない(先週の確定ページと同構成を保つため)**。gen_still.py はrecords欠落を静かに空欄で通すのでミスに気づけない → 必ず全馬ぶん収集する。
+- **重さ対策**: hidはページ間で重複するのでhidキャッシュ、db.netkeibaは連続アクセスで500するので各fetch間に~2秒スペース+リトライ、JS実行45秒上限を避けるため **fire-and-forgetで一括起動→window配列に貯め、`__RECS.length`をポーリングして完了待ち→行境界チャンクで受領**。156頭で~10分。取得後はレース別チェックサム(w-p-s-o総和+頭数)で照合。個々の馬で本当に成績が無い場合のみ 0-0-0-0(それは正常)。
 ### 6. ページ生成
 `data/<short>.tsv`(`num\t名\t前走\t静止画URL\t映像URL`。num=馬番or空、静止画=`https://cdnv2.netkeiba.com/img/paddock/2026/<imgid>.jpg`、映像=`https://race.netkeiba.com/race/paddock_movie.html?race_id=<pr>&id=<hid>`)を書き、
 `python3 _tools/gen_still.py data/<short>.tsv "<title>" "<h1>" "<header_span>" paddock_2026_<short>.html stats/<short>.tsv records/<short>.tsv <course_href|""> <raceana.tsvのパス> <race_id> hist/hist10_<年>.tsv <short> ""`
@@ -83,4 +85,4 @@ bashで次の日曜=`date -v +Sun -j +%Y%m%d`、前日の土曜も。
 取得レース(土/日別: race_id+レース名+場/距離/登録頭数)、馬番確定状況、生成/上書きファイル、コースリンク無しレース、走行/指数/成績の取得率、**走行解析の収集走数(合計)と各レースの要求プロフィール要点**、過去N年(hist10)の新規収集/流用/代用したレース、PROF/IDX補完したコース(あれば)、index差分、`cd ~/keiba-lap-analysis && git push` を促す。
 
 ## 約束
-push禁止／既存コース再生成しない(**例外: PROFが空のコースはPROF(可能ならIDXも)補完可。DEV/CORNERは触らない**)／戻り値にクエリURL・生HTML・base64を混ぜない／index既存カード非破壊。カードは馬番確定時は実馬番順、未確定時は五十音順＋header明記。走行タイプ/指数/成績は取れた馬のみ(空欄で縮退)。映像は静止画＋netkeibaリンク。**走行解析は必ず `view_limit=20`。要求指数は4指標を独立集計せず走行タイプ別に算出。過去N年(hist10)は同一レースなら再収集せずキャッシュ流用、新規/条件変更のみ収集(条件変更は同コース同距離を代用しnote明記)。gen_still.py にはhist引数(hist_path/short/"")を必ず渡す。** レース列挙は getSearchRaces API(旧 race_list は廃止)、db-searchは連続アクセスで500するのでペース配分。将来 m3u8 が再取得可能になれば旧方式復帰を検討(本ファイルも更新)。
+push禁止／既存コース再生成しない(**例外: PROFが空のコースはPROF(可能ならIDXも)補完可。DEV/CORNERは触らない**)／戻り値にクエリURL・生HTML・base64を混ぜない／index既存カード非破壊。カードは馬番確定時は実馬番順、未確定時は五十音順＋header明記。走行タイプ/指数は取れた馬のみ(空欄で縮退)。**成績(records)は毎回必須で全馬収集(月曜暫定回も省略しない)—実際に成績が無い馬だけ0-0-0-0**。映像は静止画＋netkeibaリンク。**走行解析は必ず `view_limit=20`。要求指数は4指標を独立集計せず走行タイプ別に算出。過去N年(hist10)は同一レースなら再収集せずキャッシュ流用、新規/条件変更のみ収集(条件変更は同コース同距離を代用しnote明記)。gen_still.py にはhist引数(hist_path/short/"")を必ず渡す。** レース列挙は getSearchRaces API(旧 race_list は廃止)、db-searchは連続アクセスで500するのでペース配分。将来 m3u8 が再取得可能になれば旧方式復帰を検討(本ファイルも更新)。
