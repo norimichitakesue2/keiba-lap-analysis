@@ -16,7 +16,7 @@ JS実行ツールの戻り値にクエリ付きフルURL・生HTML・base64を�
 ## 環境
 - 対象: /Users/takesue/keiba-lap-analysis／公開: https://norimichitakesue2.github.io/keiba-lap-analysis/
 - 必須: Chrome起動＋「Claude in Chrome」拡張＋netkeibaプレミアムでログイン済み。
-- git(mountは削除不可): 操作前に必ず `find .git -name '*.lock' -type f | while read f; do mv "$f" "$f.old$RANDOM"; done`。**tmp_indexは書ける場所に**(例 `cp .git/index /sessions/.../mnt/outputs/gitidx; GIT_INDEX_FILE=<それ> git add ...`)。commit後 `git reset --mixed HEAD`。"unable to unlink"警告は無害。最後にlock再退避。
+- git(mountは削除不可): 操作前に必ず `mkdir -p .git/locktrash; find .git -path .git/locktrash -prune -o -type f \( -name '*.lock' -o -name 'main.lock.*' \) -print 2>/dev/null | while read f; do mv "$f" ".git/locktrash/$(printf %s "${f#.git/}" | tr / _).$RANDOM"; done`。(ロックは必ず`.git/locktrash/`へ退避＝refs/heads配下に残すと壊れたrefになり以後の`git fetch`/`push`が`bad object refs/heads/main.lock...`で失敗する。既存の`main.lock.*`残骸も同時回収。)**tmp_indexは書ける場所に**(例 `cp .git/index /sessions/.../mnt/outputs/gitidx; GIT_INDEX_FILE=<それ> git add ...`)。commit後 `git reset --mixed HEAD`。"unable to unlink"警告は無害。最後にlock再退避。
 
 ## ステップ
 ### 1. 日付
