@@ -8,6 +8,20 @@ import re, json, sys, os
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 TPL = open(os.path.join(BASE, "template_still.html"), encoding="utf-8").read()
+MIKATA_CSS = """
+.mikata{margin:0 14px 10px;background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;}
+.mikata>summary{cursor:pointer;list-style:none;padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;user-select:none;}
+.mikata>summary::-webkit-details-marker{display:none;}
+.mikata>summary::before{content:"\25B6";font-size:10px;color:var(--muted);transition:transform .15s;}
+.mikata[open]>summary::before{transform:rotate(90deg);}
+.mk-hint{font-size:10px;font-weight:400;color:var(--muted);margin-left:auto;}
+.mk-body{padding:2px 14px 8px;}
+.mk-sec{margin:9px 0;}
+.mk-sec h4{font-size:12px;color:var(--gold);margin:0 0 3px;border-left:3px solid var(--gold);padding-left:7px;font-weight:700;}
+.mk-sec p{font-size:12.5px;line-height:1.7;color:var(--text);margin:0;}
+.mk-sec b{color:var(--text);}
+.mk-cav{font-size:10px;color:var(--muted);padding:0 14px 10px;line-height:1.5;}
+"""
 
 
 def load_stats(path):
@@ -400,6 +414,24 @@ def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, cour
         m = re.search(r'<div class="grid-wrap pane"[^>]*>.*?</div></div>', html, flags=re.S)
         if m:
             html = html.replace(m.group(0), m.group(0) + "\n" + "\n".join(panes), 1)
+    # 見立て(mikata)アコーディオン: mikata/<short>.html があれば上部に任意開閉で注入
+    mk=""
+    msrc=None
+    mm=re.search(r'paddock_2026_([A-Za-z0-9_]+)\.html', os.path.basename(out))
+    if mm:
+        cand=os.path.join(os.path.dirname(os.path.abspath(out)) or ".", "mikata", mm.group(1)+".html")
+        if os.path.exists(cand):
+            msrc=cand
+    if msrc:
+        frag=open(msrc, encoding="utf-8").read().strip()
+        if MIKATA_CSS not in html:
+            html = html.replace("</style>", MIKATA_CSS + "</style>", 1)
+        mk=('<details class="mikata"><summary>\U0001F9E0 \u898b\u7acb\u3066\uff08\u30c7\u30fc\u30bf\u5206\u6790\uff09'
+            '<span class="mk-hint">\u30bf\u30c3\u30d7\u3067\u958b\u9589</span></summary>'
+            '<div class="mk-body">'+frag+'</div>'
+            '<div class="mk-cav">\u203b\u30b5\u30a4\u30c8\u306e\u8d70\u884c\u89e3\u6790\u30d9\u30fc\u30b9\u306e\u76f8\u5bfe\u6307\u6a19\u306b\u3088\u308b\u6574\u7406\u3067\u3001\u7684\u4e2d\u3092\u4fdd\u8a3c\u3059\u308b\u3082\u306e\u3067\u306f\u3042\u308a\u307e\u305b\u3093\u3002</div>'
+            '</details>')
+    html = html.replace("<!--MIKATA-->", mk, 1)
     if course_href:
         html = html.replace("__COURSE_HREF__", course_href)
     else:

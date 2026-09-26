@@ -66,6 +66,11 @@ bashで次の日曜=`date -v +Sun -j +%Y%m%d`、前日の土曜も。
 - **⚠️ 引数順: … stats records course_href raceana race_id hist_path hist_key hist_proxy。hist_path/hist_key(=short)/hist_proxy("") を必ず末尾に渡すこと**(省略すると「過去N年」タブが付かない)。course_href が無い場合も空文字 `""` を渡して位置をずらさない。hist10にキーが無い/N=0なら過去N年タブは自動で非表示に degrade。
 - header_span=`<実日付> <場R> <芝ダ距離> ／ 前走パドック <n>頭 (馬番順)`、未確定週は末尾 `(暫定・枠順未確定/五十音順)`。course_hrefはコース分析ページ既存時のみ(命名: 芝`<英名>_<距離>_corner4.html`、ダ`<英名>_dart<距離>_corner4.html`、例外 阪神芝1600=corner4_full.html)。
 - gen_still.py は raceana から **ヘッダに「レース分析」タブ**(走行タイプ別の要求プロフィール表＋全体指数ライン＋脚質構成＋経験展開)を、hist10 から **「過去N年」タブ**を、各カードに過去走ベースの指数バーを出力する。
+### 6.5 見立て(mikata) ★毎回執筆（各レースの分析コメント）
+各レースについて、収集済みデータ(hist10 / 走行解析raceana / コース傾向corner4 / stats / records)を根拠に **5観点** の見立てを執筆し `mikata/<short>.html`(HTML断片)に保存する。gen_still.py は出力ファイル名から short を判定し、同ファイルがあればページ上部に **任意開閉のアコーディオン「見立て」** として自動注入する(無ければ縮退。免責文はgen側が自動付記)。**新規arg不要**。
+- 5観点: **過去成績**(hist10の4角位置帯別3着内率/勝ち馬位置/上がり最速の着順/前後半3F) ／ **コース傾向**(corner4のCORNER・DEV=4角位置別着度数・展開分布。無ければ距離帯の一般傾向) ／ **予測される展開**(raceanaの脚質構成・展開分布、逃げ/先行馬とペース) ／ **要求される力**(raceanaの走行タイプ別要求指数プロフィール＝全体/S/追走/上がり、メンバー全体zの水準) ／ **有力馬**(上位zと走行タイプ・当該コース/距離成績が要求プロフィールに合致する馬を3〜5頭)。
+- 書式: 各観点を `<div class="mk-sec"><h4>観点名</h4><p>本文（馬名は<b>で強調）</p></div>` の連結(HTML断片)。馬番確定時は「馬番+名」、未確定時は「名のみ＋枠順確定後に更新」の旨。**mikata/<short>.html は毎回最新データで上書き**。データが薄いレース(新条件でhist10=0等)はその旨を明記して簡潔に。
+
 ### 7. index.html(折りたたみUI既存・壊さない)
 `<div class="section-title">パドック映像比較</div>` 直後の**先頭**に、日付グループを**日→土順**で追加。各グループ=`group-title`(日付+WIN5バッジ、未確定は`<span class="cnt">暫定・枠順未確定/五十音順</span>`、確定は`枠順確定・馬番順`) + `grid` に5枚の `<a class="course-card turf|dirt" href="paddock_2026_<short>.html">`(既存カード同形式)。同レースのカードが既にあれば重複追加せず差し替え。**再実行で確定した場合は該当グループの cnt を「枠順確定・馬番順」に更新**。既存の他カードは非破壊。
 
@@ -86,7 +91,7 @@ bashで次の日曜=`date -v +Sun -j +%Y%m%d`、前日の土曜も。
 - **IDX算出(任意)**: キー`展開_脚質_<base>`、各馬をビン `B=clamp(floor(指数/10)-5,0,6)` に振り、ビンごとに件数T・着別K(w-p-s-o)。
 - **注入**: `const PROF = {};` を `const PROF = <JSON.dumps(ensure_ascii=False)>;` に1行置換(IDXも同様)。node等で JSON.parse できること・プロファイルタブ表示パネル数>0を検算。commit対象に含める。
 ### 8. git(commitまで・pushしない)
-ロック退避→ 書ける場所のindexで `git add <生成/更新した個別ファイルのみ>`(hist10を更新したらそれも含む)→ `git commit -m "Update WIN5 (土日) paddock(静止画+映像リンク+走行/指数/成績+レース分析+過去N年) for <週> (<馬番状況>)"`→ reset→ lock再退避。**pushしない**。
+ロック退避→ 書ける場所のindexで `git add <生成/更新した個別ファイルのみ>`(hist10・mikata/<short>.html を更新したらそれも含む)→ `git commit -m "Update WIN5 (土日) paddock(静止画+映像リンク+走行/指数/成績+レース分析+過去N年) for <週> (<馬番状況>)"`→ reset→ lock再退避。**pushしない**。
 ### 9. 完了レポート
 取得レース(土/日別: race_id+レース名+場/距離/登録頭数)、馬番確定状況、生成/上書きファイル、コースリンク無しレース、走行/指数/成績の取得率、**走行解析の収集走数(合計)と各レースの要求プロフィール要点**、過去N年(hist10)の新規収集/流用/代用したレース、PROF/IDX補完したコース(あれば)、index差分、`cd ~/keiba-lap-analysis && git push` を促す。
 
