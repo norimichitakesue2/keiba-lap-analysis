@@ -1,6 +1,6 @@
 ---
 name: weekly-win5-update
-description: 月/金/土17時にWIN5土日各5レースのパドックページ(静止画+netkeiba映像リンク方式/レース分析つき)を生成・更新。馬番未確定時は五十音順(暫定)、金(土曜分確定)・土(日曜分確定)の再実行で確定馬番順に上書き。走行解析(最大20走)から走行タイプ別の要求指数プロフィールを算出・掲載。同レース過去N年傾向(hist10・勝ち馬サーチ由来/N=0は月曜も収集・条件変更は代用proxy明記)を各ページに掲載。コース分析リンク(既存のみ)・指数プロファイルPROFが空のコースのみ自動補完・index更新・commitまで(pushなし)
+description: 月/金/土17時にWIN5土日各5レースのパドックページ(静止画+netkeiba映像リンク方式/レース分析つき)を生成・更新。馬番未確定時は五十音順(暫定)、金(土曜分確定)・土(日曜分確定)の再実行で確定馬番順に上書き。走行解析(最大20走)から走行タイプ別の要求指数プロフィールを算出・掲載。同レース過去N年傾向(hist10・勝ち馬サーチ由来/N=0は月曜も収集・条件変更は代用proxy明記)を各ページに掲載。コース分析リンク(既存のみ)・指数プロファイルPROFが空のコースのみ自動補完・index更新・commit→push(認証は.git/configのPAT)
 ---
 
 ＜実行タイミング＞ 月・金・土の17時。狙い: 月曜は枠順(馬番)未確定でも暫定でページを用意し、金曜午後(=土曜レースの馬番確定後)・土曜午後(=日曜レースの馬番確定後)の再実行で確定馬番順に上書きする。馬番が取れなければ五十音順(パドック参照の並び)で暫定生成、取れれば確定馬番順で上書き。各実行で土日両方を最新データで作り直す(既存の該当パドックページ・stats・records・raceanaは上書き)。
@@ -90,10 +90,12 @@ bashで次の日曜=`date -v +Sun -j +%Y%m%d`、前日の土曜も。
 - **PROF算出**(3着内=着順≤3 かつ走行タイプと4指数が揃う馬): ビン `b=clamp(floor(指数/10)-5,0,6)`(BINLAB=〜59/60-69/…/110〜)。走行タイプ別に、基準指数 base∈{zen,st,ou,ri} のビンごとに、そのビンの馬の**他3指数の中央値**。OTH= zen:[st,ou,ri]/st:[zen,ou,ri]/ou:[zen,st,ri]/ri:[zen,st,ou]。**各ビン n≥8 のみ採用**。`PROF[走行タイプ]={n:3着内総数, byBase:{base:[{b,n,m:[3中央値]}]}}`。全走行タイプで空なら注入しない。
 - **IDX算出(任意)**: キー`展開_脚質_<base>`、各馬をビン `B=clamp(floor(指数/10)-5,0,6)` に振り、ビンごとに件数T・着別K(w-p-s-o)。
 - **注入**: `const PROF = {};` を `const PROF = <JSON.dumps(ensure_ascii=False)>;` に1行置換(IDXも同様)。node等で JSON.parse できること・プロファイルタブ表示パネル数>0を検算。commit対象に含める。
-### 8. git(commitまで・pushしない)
-ロック退避→ 書ける場所のindexで `git add <生成/更新した個別ファイルのみ>`(hist10・mikata/<short>.html を更新したらそれも含む)→ `git commit -m "Update WIN5 (土日) paddock(静止画+映像リンク+走行/指数/成績+レース分析+過去N年) for <週> (<馬番状況>)"`→ reset→ lock再退避。**pushしない**。
+### 8. git(commit→push)
+ロック退避→ 書ける場所のindexで `git add <生成/更新した個別ファイルのみ>`(hist10・mikata/<short>.html を更新したらそれも含む)→ `git commit -m "Update WIN5 (土日) paddock(静止画+映像リンク+走行/指数/成績+レース分析+過去N年) for <週> (<馬番状況>)"`→ reset→ lock再退避→ **`git push origin main`**。
+- **認証**: push は `.git/config` のリモートURLに埋め込んだ **fine-grained PAT**(Contents:Read/Write、当該repoのみ)を使う。VM(スケジュール実行環境)は macOS keychain も SSH も使えず、`.git/config`(mount上・永続)のURLトークンだけが確実に効く。未設定だと `could not read Username` で失敗する。
+- push が失敗(認証未設定/ネットワーク等)しても **commit はローカルに保持**し、完了レポートに push 可否と原因・手動push手順を明記(勝手にリトライで固まらない)。
 ### 9. 完了レポート
-取得レース(土/日別: race_id+レース名+場/距離/登録頭数)、馬番確定状況、生成/上書きファイル、コースリンク無しレース、走行/指数/成績の取得率、**走行解析の収集走数(合計)と各レースの要求プロフィール要点**、過去N年(hist10)の新規収集/流用/代用したレース、PROF/IDX補完したコース(あれば)、index差分、`cd ~/keiba-lap-analysis && git push` を促す。
+取得レース(土/日別: race_id+レース名+場/距離/登録頭数)、馬番確定状況、生成/上書きファイル、コースリンク無しレース、走行/指数/成績の取得率、**走行解析の収集走数(合計)と各レースの要求プロフィール要点**、過去N年(hist10)の新規収集/流用/代用したレース、PROF/IDX補完したコース(あれば)、index差分、**push結果(成功/失敗と原因。失敗時は手動push手順)**。
 
 ## 約束
-push禁止／既存コース再生成しない(**例外: PROFが空のコースはPROF(可能ならIDXも)補完可。DEV/CORNERは触らない**)／戻り値にクエリURL・生HTML・base64を混ぜない／index既存カード非破壊。カードは馬番確定時は実馬番順、未確定時は五十音順＋header明記。走行タイプ/指数は取れた馬のみ(空欄で縮退)。**成績(records)は毎回必須で全馬収集(月曜暫定回も省略しない)—実際に成績が無い馬だけ0-0-0-0**。映像は静止画＋netkeibaリンク。**走行解析は必ず `view_limit=20`。要求指数は4指標を独立集計せず走行タイプ別に算出。過去N年(hist10)は N≥1 の既存キーのみ流用し、**未登録・N=0のレースは月曜(暫定)回でも必ず収集(枠順非依存なので見送り禁止)**。収集は**勝ち馬サーチ(winner_search)のRaceName検索＋localStorage.formData+navigate方式**(旧race_list廃止/result.html年次巡回は不要、全出走馬1枚でband/winPos/fastRank/winTime可)。**条件変更(距離・馬場・場が今年と不一致)は同コース同距離の代表レースで代用し hist_proxy 引数＋noteに明記**。gen_still.py にはhist引数(hist_path/short/hist_proxy)を必ず渡す。** レース列挙は getSearchRaces API(旧 race_list は廃止)、db-searchは連続アクセスで500するのでペース配分。将来 m3u8 が再取得可能になれば旧方式復帰を検討(本ファイルも更新)。
+commit後に`git push origin main`(認証未設定時はcommit保持しレポート)／既存コース再生成しない(**例外: PROFが空のコースはPROF(可能ならIDXも)補完可。DEV/CORNERは触らない**)／戻り値にクエリURL・生HTML・base64を混ぜない／index既存カード非破壊。カードは馬番確定時は実馬番順、未確定時は五十音順＋header明記。走行タイプ/指数は取れた馬のみ(空欄で縮退)。**成績(records)は毎回必須で全馬収集(月曜暫定回も省略しない)—実際に成績が無い馬だけ0-0-0-0**。映像は静止画＋netkeibaリンク。**走行解析は必ず `view_limit=20`。要求指数は4指標を独立集計せず走行タイプ別に算出。過去N年(hist10)は N≥1 の既存キーのみ流用し、**未登録・N=0のレースは月曜(暫定)回でも必ず収集(枠順非依存なので見送り禁止)**。収集は**勝ち馬サーチ(winner_search)のRaceName検索＋localStorage.formData+navigate方式**(旧race_list廃止/result.html年次巡回は不要、全出走馬1枚でband/winPos/fastRank/winTime可)。**条件変更(距離・馬場・場が今年と不一致)は同コース同距離の代表レースで代用し hist_proxy 引数＋noteに明記**。gen_still.py にはhist引数(hist_path/short/hist_proxy)を必ず渡す。** レース列挙は getSearchRaces API(旧 race_list は廃止)、db-searchは連続アクセスで500するのでペース配分。将来 m3u8 が再取得可能になれば旧方式復帰を検討(本ファイルも更新)。
