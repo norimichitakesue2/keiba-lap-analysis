@@ -15,7 +15,7 @@ MIKATA_CSS = """
 .mikata>summary::before{content:"\25B6";font-size:10px;color:var(--muted);transition:transform .15s;}
 .mikata[open]>summary::before{transform:rotate(90deg);}
 .mk-hint{font-size:10px;font-weight:400;color:var(--muted);margin-left:auto;}
-.mk-body{padding:2px 14px 8px;max-height:56vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.mk-body{padding:2px 14px 30px;max-height:74vh;overflow-y:auto;overscroll-behavior:contain;overflow-anchor:none;}
 .mk-sec{margin:9px 0;}
 .mk-sec h4{font-size:12px;color:var(--gold);margin:0 0 3px;border-left:3px solid var(--gold);padding-left:7px;font-weight:700;}
 .mk-sec p{font-size:12.5px;line-height:1.7;color:var(--text);margin:0;}
