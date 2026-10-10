@@ -4,7 +4,7 @@
 #   (num may be empty when 枠順 is not confirmed -> provisional/五十音 order)
 # stats TSV: name \t 走行タイプ \t 全体 \t S \t 追 \t 上
 # records TSV: name \t 同コース(x-x-x-x) \t 同距離(x-x-x-x)
-import re, json, sys, os
+import re, json, sys, os, statistics
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 TPL = open(os.path.join(BASE, "template_still.html"), encoding="utf-8").read()
@@ -97,7 +97,7 @@ def _stat(vals):
     return {"max": v[0], "line": line, "med": med}
 
 
-def race_ana_html(summary, per=None):
+def race_ana_html(summary, per=None, field=None):
     if not summary:
         return ""
     # 走行タイプ別の要求プロフィール（勝ち筋ごとに整合した4値セット）
@@ -147,12 +147,40 @@ def race_ana_html(summary, per=None):
             k, v = it.rsplit(":", 1)
             out.append(f'<span class="ra-chip {cls}">{k}<b>{v}</b></span>')
         return "".join(out)
+    # 決着軸: 出走馬のS中/追走中/上がり中のばらつき(SD)を比べ、最大分散の軸=勝敗が割れる軸
+    def _axis_html(field):
+        if not field:
+            return ""
+        def col(k):
+            return [int(p[k]) for p in field if str(p.get(k, "")).strip().lstrip("-").isdigit()]
+        S, O, R = col("s"), col("o"), col("r")
+        if min(len(S), len(O), len(R)) < 5:
+            return ""
+        sd = lambda a: round(statistics.pstdev(a), 1)
+        sdS, sdO, sdR = sd(S), sd(O), sd(R)
+        axes = [("S", sdS, "前半の速さで割れる＝先行争いが絡みペースが上がりやすい"),
+                ("追走", sdO, "位置取りで割れる＝縦長になりやすく好位勢が有利"),
+                ("上がり", sdR, "末脚で割れる＝団子になりやすく差し・上がり上位が有利")]
+        axes_sorted = sorted(axes, key=lambda x: -x[1])
+        topa = axes_sorted[0]
+        gap = topa[1] - axes_sorted[1][1]
+        if gap < 1.0:
+            label = "各軸が拮抗"
+            desc = "型の優劣が出にくく、紛れやすい混戦"
+        else:
+            label = topa[0]
+            desc = topa[2]
+        return ('<div class="ra-axis">決着軸：<b>' + label + '</b>'
+                '<span class="ra-axv">（' + desc + '）</span>'
+                '<span class="ra-hint">ばらつき SD ＝ S ' + str(sdS) + ' ／ 追走 ' + str(sdO)
+                + ' ／ 上がり ' + str(sdR) + '（最大の軸で勝敗が割れやすい）</span></div>')
+    axis_html = _axis_html(field)
     top3 = (summary.get("top3") or "").split("/")
     t1 = top3[0] if top3 else "-"
     return (
         '<div class="race-ana">'
         '<div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去最大20走・同距離優先）より</span></div>'
-        + master_html +
+        + axis_html + master_html +
         '<div class="ra-row" style="margin-top:8px">'
         f'<div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div>'
         f'<div class="ra-big">{summary.get("line","-")}</div>'
@@ -173,6 +201,10 @@ RA_CSS = """
 .race-ana{padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;}
 .ra-title{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.05em;margin-bottom:8px;}
 .ra-sub{font-size:10px;color:var(--muted);font-weight:400;margin-left:8px;}
+.ra-axis{font-size:12px;color:var(--text);background:var(--s2,rgba(255,255,255,.03));border-left:3px solid var(--gold);padding:7px 10px;margin:0 0 10px;border-radius:4px;line-height:1.6;}
+.ra-axis>b{color:var(--gold);font-size:13px;}
+.ra-axv{color:var(--text);}
+.ra-axis .ra-hint{display:block;font-size:10px;color:var(--muted);margin-top:2px;}
 .ra-row{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
 .ra-box{background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:7px 12px;min-width:150px;}
 .ra-lab{font-size:10px;color:var(--muted);margin-bottom:2px;}
@@ -399,7 +431,11 @@ def build(tsv, title, h1, header_span, out, stats_path=None, rec_path=None, cour
     html = re.sub(r"const VIDEOS=\[\];", "const VIDEOS=" + vjson + ";", html, count=1)
     # レース分析セクション + CSS を挿入
     panes = []
-    ra = race_ana_html(ana_sum, ana_per)
+    field_prof = []
+    for _v in videos:
+        if "asmed" in _v or "aomed" in _v or "armed" in _v:
+            field_prof.append({"s": _v.get("asmed", ""), "o": _v.get("aomed", ""), "r": _v.get("armed", "")})
+    ra = race_ana_html(ana_sum, ana_per, field_prof)
     if ra:
         html = html.replace("</style>", RA_CSS + "</style>", 1)
         panes.append(('<div class="pane" data-pane="ana" data-pane-label="レース分析" hidden>'
