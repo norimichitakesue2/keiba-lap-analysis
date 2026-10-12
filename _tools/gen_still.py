@@ -20,6 +20,10 @@ MIKATA_CSS = """
 .mk-sec h4{font-size:12px;color:var(--gold);margin:0 0 3px;border-left:3px solid var(--gold);padding-left:7px;font-weight:700;}
 .mk-sec p{font-size:12.5px;line-height:1.7;color:var(--text);margin:0;}
 .mk-sec b{color:var(--text);}
+.mk-tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px;display:block;overflow-x:auto;}
+.mk-tbl th,.mk-tbl td{padding:3px 6px;border-bottom:1px solid var(--border,#333);text-align:right;white-space:nowrap;}
+.mk-tbl th{color:var(--muted);font-weight:600;}
+.mk-tbl td:nth-child(2),.mk-tbl th:nth-child(2){text-align:left;}
 .mk-cav{font-size:10px;color:var(--muted);padding:0 14px 10px;line-height:1.5;}
 """
 
