@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブラジルカップ パドック</title>
+<style>
+:root{--bg:#0e0e12;--s1:#16161e;--s2:#1e1e28;--s3:#252535;--bd:#2a2a3a;--bd2:#3a3a55;--gold:#f0c040;--blue:#5b9cf6;--green:#56d08b;--red:#e05555;--orange:#f09840;--text:#ddddef;--muted:#5a5a80;--font:'Hiragino Sans','Noto Sans JP',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;display:flex;flex-direction:column;}
+.header{background:var(--s1);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex-shrink:0;}
+.header h1{font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap;}
+.header a.back{font-size:11px;color:var(--muted);text-decoration:none;margin-right:4px;}
+.header a.back:hover{color:var(--gold);}
+.note{padding:6px 14px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:11px;color:var(--muted);flex-shrink:0;}
+.note b{color:var(--orange);}
+.grid-wrap{flex:1;overflow-y:auto;padding:8px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;transition:border-color .15s;}
+.card:hover{border-color:var(--bd2);}
+.card.no-video{opacity:.65;}
+.card-header{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--s2);border-bottom:1px solid var(--bd);}
+.num-badge{width:20px;height:20px;min-width:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.num-badge.prov{background:var(--muted);color:#000;}
+.horse-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prev-info{font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pad-link{position:relative;display:block;aspect-ratio:16/9;background:#000;overflow:hidden;text-decoration:none;}
+.pad-link img{width:100%;height:100%;object-fit:cover;display:block;}
+.pad-link .play-badge{position:absolute;left:0;right:0;bottom:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
+.pad-link .play-badge::before{content:'';display:inline-block;border-left:12px solid var(--gold);border-top:7px solid transparent;border-bottom:7px solid transparent;}
+.pad-link:hover .play-badge{color:var(--gold);}
+.no-video-bg{aspect-ratio:16/9;background:#1a1a26;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}
+.stat-bar{display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--s3);border-bottom:1px solid var(--bd);flex-wrap:wrap;}
+.rtype{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;white-space:nowrap;border:1px solid var(--bd2);}
+.rtype .sub{font-weight:400;opacity:.7;font-size:9px;}
+.rt-close{color:var(--green);border-color:#2e6b47;background:#0f2019;}
+.rt-front{color:var(--orange);border-color:#6b4a1e;background:#20180a;}
+.rt-sus{color:var(--blue);border-color:#2e4a6b;background:#0f1620;}
+.rt-end{color:var(--gold);border-color:#6b5a1e;background:#201c0a;}
+.rt-oth{color:var(--muted);}
+.idxs{display:flex;gap:3px;margin-left:auto;}
+.ic{font-family:monospace;font-size:10px;color:var(--text);background:var(--s1);border:1px solid var(--bd);border-radius:3px;padding:1px 4px;display:flex;align-items:center;gap:2px;}
+.ic i{font-style:normal;color:var(--muted);font-size:9px;}
+.ic.hi{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700;}
+.ic.na{color:var(--muted);opacity:.5;}
+.ana-bar{display:flex;align-items:center;gap:5px;padding:3px 8px;background:var(--s2);border-bottom:1px solid var(--bd);flex-wrap:wrap;}
+.ana-bar .idxs{margin-left:auto;}
+.ana-bar .ic{background:var(--s3);}
+.ana-n{font-family:monospace;font-size:9px;color:var(--muted);white-space:nowrap;}
+.rec-bar{display:flex;gap:10px;padding:3px 8px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:10px;}
+.rec{display:flex;align-items:center;gap:3px;font-family:monospace;color:var(--text);}
+.rec i{font-style:normal;color:var(--muted);font-size:9px;}
+.rec.zero{opacity:.4;}
+.rec.win b{color:var(--gold);}
+.course-link{margin-left:auto;font-size:11px;color:var(--gold);text-decoration:none;border:1px solid var(--bd2);border-radius:4px;padding:4px 10px;white-space:nowrap;background:var(--s1);transition:background .12s,border-color .12s;}
+.course-link:hover{background:var(--s2);border-color:var(--gold);}
+.status-bar{background:var(--s1);border-top:1px solid var(--bd);padding:4px 14px;font-size:10px;color:var(--muted);flex-shrink:0;}
+.tabbar{display:flex;gap:2px;padding:0 10px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;}
+.tab{font-family:inherit;font-size:11px;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;padding:7px 14px;cursor:pointer;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--gold);border-bottom-color:var(--gold);font-weight:700;}
+.pane{flex:1;overflow-y:auto;min-height:0;}
+.pane[hidden]{display:none;}
+.pane>.race-ana{border-bottom:none;}
+
+.race-ana{padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;}
+.ra-title{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.05em;margin-bottom:8px;}
+.ra-sub{font-size:10px;color:var(--muted);font-weight:400;margin-left:8px;}
+.ra-axis{font-size:12px;color:var(--text);background:var(--s2,rgba(255,255,255,.03));border-left:3px solid var(--gold);padding:7px 10px;margin:0 0 10px;border-radius:4px;line-height:1.6;}
+.ra-axis>b{color:var(--gold);font-size:13px;}
+.ra-axv{color:var(--text);}
+.ra-axis .ra-hint{display:block;font-size:10px;color:var(--muted);margin-top:2px;}
+.ra-row{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.ra-box{background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:7px 12px;min-width:150px;}
+.ra-lab{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.ra-big{font-size:20px;font-weight:600;font-family:monospace;color:var(--text);line-height:1.1;}
+.ra-note{font-size:10px;color:var(--muted);margin-top:2px;font-family:monospace;}
+.ra-lab2{font-size:10px;color:var(--muted);margin:6px 0 3px;}
+.ra-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.ra-chip{font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid var(--bd2);background:var(--s2);color:var(--muted);}
+.ra-chip b{font-family:monospace;color:var(--text);margin-left:4px;font-weight:600;}
+.ra-chip.rt{border-color:#3a5a8a;}
+.ra-chip.dv{border-color:#5a4a3a;}
+.ra-hint{font-size:9px;color:var(--muted);font-weight:400;margin-left:6px;}
+.pf-tbl{width:100%;border-collapse:collapse;background:var(--s2);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;}
+.pf-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:4px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap;}
+.pf-tbl th:first-child,.pf-tbl th:nth-child(2){text-align:left;}
+.pf-tbl td{padding:4px 6px;border-bottom:1px solid var(--bd);font-size:11px;}
+.pf-tbl tr:last-child td{border-bottom:none;}
+.pf-t{white-space:nowrap;}
+.pf-n{font-family:monospace;font-size:9px;color:var(--muted);margin-left:5px;}
+.pf-tag{font-size:10px;color:var(--muted);white-space:nowrap;}
+.pf-v{font-family:monospace;font-size:14px;font-weight:600;text-align:center;color:var(--text);width:44px;}
+.pf-v.hl{color:var(--gold);}
+.pf-ex{font-size:10px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ra-cav{font-size:9px;color:var(--muted);margin-top:6px;line-height:1.5;}
+
+.hist10{background:var(--s2);}
+.hb-wrap{display:flex;flex-direction:column;gap:3px;max-width:520px;}
+.hb-row{display:flex;align-items:center;gap:7px;font-size:10px;}
+.hb-lab{width:60px;color:var(--muted);white-space:nowrap;}
+.hb-bar{flex:1;height:9px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.hb-bar i{display:block;height:100%;background:linear-gradient(90deg,#6b5a1e,var(--gold));}
+.hb-val{width:32px;text-align:right;font-family:monospace;font-size:11px;color:var(--text);font-weight:600;}
+.hb-n{width:48px;text-align:right;font-family:monospace;font-size:9px;color:var(--muted);}
+.hs-chip{font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--bd2);background:var(--s1);font-family:monospace;color:var(--text);}
+.hs-chip i{font-style:normal;color:var(--muted);font-size:9px;margin-right:4px;}
+.hs-chip.wp{border-color:#3a5a8a;}
+.hs-chip.fq{border-color:#6b5a1e;}
+.hs-chip.pc{border-color:#2a2a3a;}
+.hs-proxy{font-size:10px;color:var(--orange);margin-left:8px;}
+.hm-tbl{width:100%;max-width:560px;border-collapse:collapse;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;}
+.hm-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:3px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;}
+.hm-tbl td{padding:3px 6px;border-bottom:1px solid var(--bd);font-size:11px;}
+.hm-tbl tr:last-child td{border-bottom:none;}
+.hm-y,.hm-r{font-family:monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.hm-h{font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hm-v{font-family:monospace;font-size:12px;text-align:center;color:var(--text);width:40px;}
+.hm-v.hl{color:var(--gold);}
+.pt-tbl{width:100%;max-width:470px;border-collapse:collapse;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;margin-bottom:2px;}
+.pt-tbl th{font-size:9px;color:var(--muted);font-weight:400;padding:3px 6px;background:var(--s3);border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap;}
+.pt-tbl td{padding:3px 6px;border-bottom:1px solid var(--bd);font-size:11px;font-family:monospace;text-align:center;}
+.pt-tbl tbody tr:last-child td{border-bottom:2px solid var(--bd2);}
+.pt-tbl tfoot td{background:var(--s3);font-weight:600;border-bottom:1px solid var(--bd);}
+.pt-tbl tfoot tr:last-child td{border-bottom:none;}
+.pt-y{color:var(--muted);font-size:10px;width:44px;}
+.pt-p{font-size:11px;color:var(--text);white-space:nowrap;width:92px;}
+.pt-p.front{color:var(--orange);}
+.pt-p.mid{color:var(--text);}
+.pt-p.back{color:var(--blue);}
+.pt-v{font-size:12px;color:var(--text);width:52px;}
+.pt-d{font-size:12px;color:var(--muted);width:46px;}
+.pt-d.fast{color:var(--red);}
+.pt-d.slow{color:var(--blue);}
+
+.mikata{margin:0 14px 10px;background:var(--s1);border:1px solid var(--bd);border-radius:6px;overflow:hidden;}
+.mikata>summary{cursor:pointer;list-style:none;padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;user-select:none;}
+.mikata>summary::-webkit-details-marker{display:none;}
+.mikata>summary::before{content:"B6";font-size:10px;color:var(--muted);transition:transform .15s;}
+.mikata[open]>summary::before{transform:rotate(90deg);}
+.mk-hint{font-size:10px;font-weight:400;color:var(--muted);margin-left:auto;}
+.mk-body{padding:2px 14px 30px;max-height:74vh;overflow-y:auto;overscroll-behavior:contain;overflow-anchor:none;}
+.mk-sec{margin:9px 0;}
+.mk-sec h4{font-size:12px;color:var(--gold);margin:0 0 3px;border-left:3px solid var(--gold);padding-left:7px;font-weight:700;}
+.mk-sec p{font-size:12.5px;line-height:1.7;color:var(--text);margin:0;}
+.mk-sec b{color:var(--text);}
+.mk-tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px;display:block;overflow-x:auto;}
+.mk-tbl th,.mk-tbl td{padding:3px 6px;border-bottom:1px solid var(--border,#333);text-align:right;white-space:nowrap;}
+.mk-tbl th{color:var(--muted);font-weight:600;}
+.mk-tbl td:nth-child(2),.mk-tbl th:nth-child(2){text-align:left;}
+.mk-cav{font-size:10px;color:var(--muted);padding:0 14px 10px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="index.html">◀ 戻る</a>
+  <h1>🏇 ブラジルカップ（東京ダ2100m）</h1>
+  <span style="font-size:11px;color:var(--muted)">10月18日(日) 東京11R ダ2100m ／ 前走パドック 15頭 (暫定・枠順未確定/五十音順)</span>
+  <a class="course-link" href="tokyo_dart2100_corner4.html" title="当該コースの展開×ラップ×4角成績">📊 コース成績（展開×ラップ）</a>
+</div>
+<div class="note">各カードの画像をクリックすると <b>netkeiba のパドック映像ページ</b>が新しいタブで開きます（プレミアム会員ログインが必要）。走行タイプ・タイム指数マスター・当該コース／距離成績は前走ベース。</div>
+<details class="mikata"><summary>🧠 見立て（データ分析）<span class="mk-hint">タップで開閉</span></summary><div class="mk-body"><div class="mk-sec"><h4>過去成績</h4><p>ブラジルC（東京ダ2100）過去10年の集計。4角位置帯別の3着内率は1-3番手14%・<b>4-6番手35%</b>・7-9番手23%・10番手以降11%で、<b>中団勢</b>が中心。勝ち馬の4角位置は1〜10番手で、10年中6年が5〜9番手。上がり最速馬は3勝・2着3回で、<b>中団から上がりを使える馬</b>が勝つレース。勝ち時計は2:08.0〜2:10.5。</p></div><div class="mk-sec"><h4>コース傾向</h4><p>東京ダ2100は<b>均衡戦</b>66%で、そこでの複勝率は耐久型36%・加速型40%・持続型29%に対し、先行型は13%。4角順位別の複勝率は1-3番手36%・4-6番手28%（コース全体）。オープンの本レースは中団寄りで決まりやすい。今回の耐久・加速型は <b>カズタンジャー</b>・<b>メイプルリッジ</b>・<b>リアレスト</b>・<b>レッドプロフェシー</b>・<b>ロードプレジール</b>・<b>ピカピカサンダー</b>・<b>メイショウズイウン</b>で、層が厚い。</p></div><div class="mk-sec"><h4>予測される展開</h4><p>スタート指数の上位（先行集団）は <b>サトノボヤージュ</b>（S104）・<b>ピュアキアン</b>（S102）・<b>ハグ</b>（S101）・<b>ピカピカサンダー</b>（S101）・<b>リチュアル</b>（S101）。抜けた先手候補はおらず、<b>先手争いは横並び</b>。先行集団の追走中央値は104で、全体の追走中央値97との差は7。位置を取りに行ける追走水準の馬は3頭（15頭中）。位置争いが続き、<b>中盤が緩みにくい</b>。先行集団の上がり中央値93に対し、それ以外の馬は102。後続の末脚が上回り、<b>前が苦しくなれば差しが届く</b>。→ ペース：<b>速め</b>／有利位置：<b>中団</b>。</p></div><div class="mk-sec"><h4>要求される力</h4><p><b>追走97以上で位置を保ち、上がり97以上で伸びる</b>こと。全体指数のラインは110前後。片方が欠ける例として、追走だけ高い先行型の典型は <b>サトノボヤージュ</b>（追走107・上がり93）、上がりだけ高い追い込み型の典型は <b>ハピ</b>（追走94・上がり107）。</p></div><div class="mk-sec"><h4>有力馬</h4><p>展開に合う馬（◯）を地力順に◎○○、地力上位で展開が合わない馬を▲、あと一歩の馬を△とした。（枠順未確定のため馬名のみ。枠順確定後に馬番付きで更新）<br>◎<b>メイプルリッジ</b>：S97・追走98・上がり101、地力2位（中央値107・前走87）。要求の追走・上がりをともに満たす。当該コース3-2-1-0。<br>○<b>ルシュヴァルドール</b>：S97・追走98・上がり101、地力4位（中央値98・前走94）。要求の追走・上がりをともに満たす。当該コース0-0-0-0。<br>○<b>ピカピカサンダー</b>：S101・追走97・上がり99、地力7位（中央値95・前走90）。要求の追走・上がりをともに満たす。当該コース2-0-0-2。<br>▲<b>ハピ</b>：S93・追走94・上がり107、地力1位（中央値101・前走94）。地力1位だが展開不一致（追走94＜97で位置取りが課題）。当該コース0-0-0-0。<br>△<b>カズタンジャー</b>：S90・追走96・上がり105、地力5位（中央値108・前走85）。要求にあと一歩。当該コース2-1-0-0。<table class="mk-tbl"><tr><th>地力</th><th>馬</th><th>前走全体</th><th>中央値z</th><th>S</th><th>追走</th><th>上がり</th><th>展開</th></tr><tr><td>1</td><td>ハピ</td><td>94</td><td>101</td><td>93</td><td>94</td><td>107</td><td>×</td></tr><tr><td>2</td><td>メイプルリッジ</td><td>87</td><td>107</td><td>97</td><td>98</td><td>101</td><td>◯</td></tr><tr><td>3</td><td>リアレスト</td><td>88</td><td>100</td><td>95</td><td>93</td><td>103</td><td>×</td></tr><tr><td>4</td><td>ルシュヴァルドール</td><td>94</td><td>98</td><td>97</td><td>98</td><td>101</td><td>◯</td></tr><tr><td>5</td><td>カズタンジャー</td><td>85</td><td>108</td><td>90</td><td>96</td><td>105</td><td>△</td></tr></table></p></div></div><div class="mk-cav">※サイトの走行解析ベースの相対指標による整理で、的中を保証するものではありません。</div></details>
+<div class="tabbar" id="tabbar"></div>
+<div class="grid-wrap pane" data-pane="pad" data-pane-label="パドック"><div class="grid" id="grid"></div></div>
+<div class="pane" data-pane="ana" data-pane-label="レース分析" hidden><div class="race-ana"><div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去最大20走・同距離優先）より</span></div><div class="ra-axis">決着軸：<b>上がり</b><span class="ra-axv">（末脚で割れる＝団子になりやすく差し・上がり上位が有利）</span><span class="ra-hint">ばらつき SD ＝ S 4.5 ／ 追走 5.2 ／ 上がり 6.2（最大の軸で勝敗が割れやすい）</span></div><div class="ra-lab2">走行タイプ別の要求プロフィール<span class="ra-hint">（各タイプ上位半数の中央値＝勝ち筋ごとに実在する組み合わせ）</span></div><table class="pf-tbl"><thead><tr><th>走行タイプ</th><th>勝ち筋</th><th>全体</th><th>S</th><th>追走</th><th>上がり</th><th>該当上位</th></tr></thead><tbody><tr><td class="pf-t"><span class="rtype rt-front">先行型</span><span class="pf-n">4頭</span></td><td class="pf-tag">前で押し切る</td><td class="pf-v">100</td><td class="pf-v">102</td><td class="pf-v hl">106</td><td class="pf-v hl">93</td><td class="pf-ex">リチュアル</td></tr><tr><td class="pf-t"><span class="rtype rt-sus">持続型</span><span class="pf-n">4頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">102</td><td class="pf-v">96</td><td class="pf-v hl">97</td><td class="pf-v hl">104</td><td class="pf-ex">クールミラボー</td></tr><tr><td class="pf-t"><span class="rtype rt-end">耐久型</span><span class="pf-n">3頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">102</td><td class="pf-v">96</td><td class="pf-v hl">96</td><td class="pf-v hl">102</td><td class="pf-ex">カズタンジャー</td></tr><tr><td class="pf-t"><span class="rtype rt-close">加速型</span><span class="pf-n">4頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">104</td><td class="pf-v">96</td><td class="pf-v hl">96</td><td class="pf-v hl">102</td><td class="pf-ex">メイプルリッジ</td></tr></tbody></table><div class="ra-row" style="margin-top:8px"><div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div><div class="ra-big">110</div><div class="ra-note">自己最高の上位3頭 115/114/110</div></div><div class="ra-box"><div class="ra-lab">出走メンバー</div><div class="ra-big">15<span style="font-size:12px">頭</span></div><div class="ra-note">ダ2100 ／ 中央値 99</div></div></div><div class="ra-cav">※ 上表は各走行タイプ内で実際に上位の馬から算出しているため、4指標の組み合わせが現実的。全体指数のラインはメンバーの相対水準であり、コース実績に基づく絶対基準ではありません。</div><div class="ra-lab2">脚質構成</div><div class="ra-chips"><span class="ra-chip rt">持続型<b>4</b></span><span class="ra-chip rt">先行型<b>4</b></span><span class="ra-chip rt">加速型<b>4</b></span><span class="ra-chip rt">耐久型<b>3</b></span></div><div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips"><span class="ra-chip dv">均衡戦<b>141</b></span><span class="ra-chip dv">前残り戦<b>28</b></span><span class="ra-chip dv">ハイペース消耗戦<b>26</b></span><span class="ra-chip dv">ハイペース耐久戦<b>18</b></span><span class="ra-chip dv">持続戦<b>13</b></span><span class="ra-chip dv">瞬発戦<b>11</b></span><span class="ra-chip dv">加速戦<b>2</b></span><span class="ra-chip dv">ロングスパート戦<b>2</b></span></div></div></div>
+<div class="pane" data-pane="hist" data-pane-label="過去10年" hidden><div class="race-ana hist10"><div class="ra-title">過去10年の傾向<span class="ra-sub">東京ダ2100の本レース過去10年(2025は2着同着)</span></div><div class="ra-lab2">4角位置帯別 3着内率<span class="ra-hint">（2016,2017,2018,2019,2020,2021,2022,2023,2024,2025 全出走馬）</span></div><div class="hb-wrap"><div class="hb-row"><span class="hb-lab">1-3番手</span><span class="hb-bar"><i style="width:14%"></i></span><span class="hb-val">14%</span><span class="hb-n">5/35</span></div><div class="hb-row"><span class="hb-lab">4-6番手</span><span class="hb-bar"><i style="width:35%"></i></span><span class="hb-val">35%</span><span class="hb-n">13/37</span></div><div class="hb-row"><span class="hb-lab">7-9番手</span><span class="hb-bar"><i style="width:23%"></i></span><span class="hb-val">23%</span><span class="hb-n">7/30</span></div><div class="hb-row"><span class="hb-lab">10番手～</span><span class="hb-bar"><i style="width:11%"></i></span><span class="hb-val">11%</span><span class="hb-n">5/45</span></div></div><div class="ra-lab2">上がり3F最速馬の着順<span class="ra-hint">（3着内率 60%）</span></div><div class="ra-chips"><span class="hs-chip fq"><i>16</i>2着</span><span class="hs-chip fq"><i>17</i>1着</span><span class="hs-chip fq"><i>18</i>7着</span><span class="hs-chip fq"><i>19</i>5着</span><span class="hs-chip fq"><i>20</i>1着</span><span class="hs-chip fq"><i>21</i>4着</span><span class="hs-chip fq"><i>22</i>1着</span><span class="hs-chip fq"><i>23</i>4着</span><span class="hs-chip fq"><i>24</i>2着</span><span class="hs-chip fq"><i>25</i>2着</span></div><div class="ra-lab2">タイム指数マスターの実測値（1〜3着）<span class="ra-hint">※マスター4値はnetkeibaで2024年以降（重賞は2023年〜）のみ算出</span></div><table class="hm-tbl"><thead><tr><th>年</th><th>着</th><th>馬名</th><th>全体</th><th>S</th><th>追走</th><th>上がり</th></tr></thead><tbody><tr><td class="hm-y">2024</td><td class="hm-r">1着</td><td class="hm-h">グロリアムンディ</td><td class="hm-v">110</td><td class="hm-v">103</td><td class="hm-v hl">111</td><td class="hm-v hl">94</td></tr><tr><td class="hm-y">2024</td><td class="hm-r">2着</td><td class="hm-h">メイプルリッジ</td><td class="hm-v">106</td><td class="hm-v">97</td><td class="hm-v hl">105</td><td class="hm-v hl">97</td></tr><tr><td class="hm-y">2024</td><td class="hm-r">3着</td><td class="hm-h">フタイテンロック</td><td class="hm-v">94</td><td class="hm-v">98</td><td class="hm-v hl">99</td><td class="hm-v hl">93</td></tr><tr><td class="hm-y">2025</td><td class="hm-r">1着</td><td class="hm-h">アピーリングルック</td><td class="hm-v">96</td><td class="hm-v">100</td><td class="hm-v hl">99</td><td class="hm-v hl">99</td></tr><tr><td class="hm-y">2025</td><td class="hm-r">2着</td><td class="hm-h">クールミラボー</td><td class="hm-v">99</td><td class="hm-v">99</td><td class="hm-v hl">100</td><td class="hm-v hl">102</td></tr><tr><td class="hm-y">2025</td><td class="hm-r">2着</td><td class="hm-h">ゼットリアン</td><td class="hm-v">98</td><td class="hm-v">93</td><td class="hm-v hl">95</td><td class="hm-v hl">103</td></tr></tbody></table><div class="ra-cav">※ 今年と同一競馬場・同一コース・同一距離で行われた回のみを集計。条件が異なる年は除外しているため、年数が10に満たない場合があります。</div></div></div>
+<div class="status-bar" id="status"></div>
+<script>
+const VIDEOS=[{"num": "", "name": "カズタンジャー", "prev": "シリウスＳ GIII 12 26年9月26日(土) 阪神ダ2000m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/95965_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609040811&id=2021101259", "typ": "持続型", "zen": "85", "st": "91", "ch": "86", "ag": "100", "cr": "2-1-0-0", "dr": "2-1-1-1", "arun": "耐久型", "zmax": "110", "azmed": "108", "asmed": "90", "aomed": "96", "armed": "105", "an": "13", "asame": "3"}, {"num": "", "name": "クールミラボー", "prev": "金沢ダ2100m 2着 (26/9/22) ※地方", "img": "", "movie": "https://db.netkeiba.com/horse/2020103387/", "typ": "", "zen": "", "st": "", "ch": "", "ag": "", "cr": "4-2-1-2", "dr": "4-3-1-2", "arun": "持続型", "zmax": "107", "azmed": "103", "asmed": "99", "aomed": "100", "armed": "102", "an": "18", "asame": "7"}, {"num": "", "name": "サトノボヤージュ", "prev": "大井ダ1200m 6着 (26/10/8) ※地方", "img": "", "movie": "https://db.netkeiba.com/horse/2023100936/", "typ": "", "zen": "", "st": "", "ch": "", "ag": "", "cr": "0-0-0-0", "dr": "0-0-0-0", "arun": "先行型", "zmax": "103", "azmed": "99", "asmed": "104", "aomed": "107", "armed": "93", "an": "4", "asame": "0"}, {"num": "", "name": "ダブルジョーク", "prev": "シリウスＳ GIII 13 26年9月26日(土) 阪神ダ2000m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/96287_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609040811&id=2020110026", "typ": "加速型", "zen": "76", "st": "90", "ch": "83", "ag": "92", "cr": "0-0-0-0", "dr": "0-0-0-0", "arun": "持続型", "zmax": "101", "azmed": "91", "asmed": "90", "aomed": "88", "armed": "101", "an": "18", "asame": "0"}, {"num": "", "name": "ハグ", "prev": "マリーンＳ 7 26年7月18日(土) 函館ダ1700m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/85519_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202602011111&id=2022106925", "typ": "先行型", "zen": "89", "st": "92", "ch": "100", "ag": "86", "cr": "0-0-0-0", "dr": "0-0-1-0", "arun": "先行型", "zmax": "105", "azmed": "85", "asmed": "101", "aomed": "97", "armed": "90", "an": "13", "asame": "0"}, {"num": "", "name": "ハピ", "prev": "シリウスＳ GIII 4 26年9月26日(土) 阪神ダ2000m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/95956_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609040811&id=2019100630", "typ": "加速型", "zen": "94", "st": "94", "ch": "87", "ag": "108", "cr": "0-0-0-0", "dr": "0-0-0-0", "arun": "持続型", "zmax": "114", "azmed": "101", "asmed": "93", "aomed": "94", "armed": "107", "an": "18", "asame": "0"}, {"num": "", "name": "ピカピカサンダー", "prev": "ＢＳＮ賞 L 3 26年8月29日(土) 新潟ダ1800m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/92741_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202604030308&id=2022105979", "typ": "持続型", "zen": "90", "st": "95", "ch": "97", "ag": "92", "cr": "2-0-0-2", "dr": "2-0-0-2", "arun": "耐久型", "zmax": "98", "azmed": "95", "asmed": "101", "aomed": "97", "armed": "99", "an": "12", "asame": "4"}, {"num": "", "name": "ピュアキアン", "prev": "マーチＳ GIII 14 26年3月29日(日) 中山ダ1800m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/69077_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202606030211&id=2021107001", "typ": "持続型", "zen": "86", "st": "99", "ch": "95", "ag": "93", "cr": "1-0-2-2", "dr": "1-0-2-3", "arun": "先行型", "zmax": "107", "azmed": "96", "asmed": "102", "aomed": "104", "armed": "85", "an": "18", "asame": "5"}, {"num": "", "name": "メイショウズイウン", "prev": "シリウスＳ GIII 11 26年9月26日(土) 阪神ダ2000m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/95964_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609040811&id=2022100154", "typ": "耐久型", "zen": "86", "st": "97", "ch": "90", "ag": "96", "cr": "0-0-0-1", "dr": "0-0-0-1", "arun": "耐久型", "zmax": "105", "azmed": "91", "asmed": "96", "aomed": "94", "armed": "96", "an": "19", "asame": "1"}, {"num": "", "name": "メイプルリッジ", "prev": "シリウスＳ GIII 11 25年9月27日(土) 阪神ダ2000m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/41875_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202509040811&id=2019105523", "typ": "先行型", "zen": "87", "st": "97", "ch": "98", "ag": "93", "cr": "3-2-1-0", "dr": "3-2-1-0", "arun": "加速型", "zmax": "108", "azmed": "107", "asmed": "97", "aomed": "98", "armed": "101", "an": "5", "asame": "3"}, {"num": "", "name": "リアレスト", "prev": "シリウスＳ GIII 9 26年9月26日(土) 阪神ダ2000m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/95961_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609040811&id=2021105496", "typ": "持続型", "zen": "88", "st": "95", "ch": "89", "ag": "101", "cr": "3-0-0-3", "dr": "3-0-0-3", "arun": "加速型", "zmax": "106", "azmed": "100", "asmed": "95", "aomed": "93", "armed": "103", "an": "18", "asame": "6"}, {"num": "", "name": "リチュアル", "prev": "名古屋城Ｓ 10 26年8月23日(日) 中京ダ1800m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/91556_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202607030207&id=2019106748", "typ": "先行型", "zen": "85", "st": "100", "ch": "101", "ag": "83", "cr": "0-1-0-5", "dr": "0-1-0-5", "arun": "先行型", "zmax": "104", "azmed": "101", "asmed": "101", "aomed": "105", "armed": "93", "an": "16", "asame": "5"}, {"num": "", "name": "ルシュヴァルドール", "prev": "シリウスＳ GIII 2 26年9月26日(土) 阪神ダ2000m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/95950_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202609040811&id=2021105630", "typ": "加速型", "zen": "94", "st": "99", "ch": "92", "ag": "103", "cr": "0-0-0-0", "dr": "0-0-0-0", "arun": "持続型", "zmax": "115", "azmed": "98", "asmed": "97", "aomed": "98", "armed": "101", "an": "15", "asame": "0"}, {"num": "", "name": "レッドプロフェシー", "prev": "名古屋城Ｓ 5 26年8月23日(日) 中京ダ1800m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/91555_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202607030207&id=2020101579", "typ": "持続型", "zen": "87", "st": "84", "ch": "89", "ag": "98", "cr": "1-1-1-3", "dr": "1-1-1-3", "arun": "加速型", "zmax": "103", "azmed": "99", "asmed": "96", "aomed": "93", "armed": "102", "an": "18", "asame": "5"}, {"num": "", "name": "ロードプレジール", "prev": "名古屋城Ｓ 8 26年8月23日(日) 中京ダ1800m", "img": "https://cdnv2.netkeiba.com/img/paddock/2026/91568_0.jpg", "movie": "https://race.netkeiba.com/race/paddock_movie.html?race_id=202607030207&id=2018102576", "typ": "持続型", "zen": "87", "st": "87", "ch": "88", "ag": "98", "cr": "0-0-1-1", "dr": "0-0-1-1", "arun": "加速型", "zmax": "103", "azmed": "100", "asmed": "89", "aomed": "90", "armed": "107", "an": "15", "asame": "2"}];
+function build(){
+  const grid=document.getElementById('grid');
+  const runClass=t=>!t?'oth':/終い伸び|加速/.test(t)?'close':/先行/.test(t)?'front':/持続/.test(t)?'sus':/耐久/.test(t)?'end':'oth';
+  const runFmt=t=>{if(!t)return'';const m=t.match(/^(.+?型)(（.+）|\(.+\))?$/);return m?`${m[1]}${m[2]?'<span class="sub">'+m[2]+'</span>':''}`:t;};
+  const ic=(lb,val)=>{const s=String(val==null?'':val);const has=/^\d+$/.test(s);const hi=has&&parseInt(s,10)>=105;return `<span class="ic${has?(hi?' hi':''):' na'}"><i>${lb}</i>${has?s:'—'}</span>`;};
+  const rc=(lb,r)=>{if(!r)return'';const zero=/^0-0-0-0$/.test(r);const win=/^[1-9]/.test(r);return `<span class="rec${zero?' zero':''}${win?' win':''}"><i>${lb}</i><b>${r}</b></span>`;};
+  VIDEOS.forEach(v=>{
+    const noVideo=!v.img && !v.movie;
+    const prov=(v.num==='' || v.num==null);
+    const statBar=(v.typ||v.zen||v.st||v.ch||v.ag)?`<div class="stat-bar">${v.typ?`<span class="rtype rt-${runClass(v.typ)}" title="前走の走行タイプ">${runFmt(v.typ)}</span>`:''}<span class="idxs" title="タイム指数マスター（前走）">${ic('全',v.zen)}${ic('S',v.st)}${ic('追',v.ch)}${ic('上',v.ag)}</span></div>`:'';
+    const recBar=(v.cr||v.dr)?`<div class="rec-bar" title="当該コース／当該距離 成績 (1-2-3-着外)">${rc('コース',v.cr)}${rc('距離',v.dr)}</div>`:'';
+    const anaBar=(v.zmax||v.arun)?`<div class="ana-bar" title="走行解析：過去走ベース（最大20走／同距離が2走以上あれば同距離のみ）。最高=自己最高の全体指数、中=中央値">${v.arun?`<span class="rtype rt-${runClass(v.arun)}" style="opacity:.85" title="過去走の主な走行タイプ">${runFmt(v.arun)}</span>`:''}<span class="idxs">${ic('最高',v.zmax)}${ic('中',v.azmed)}${ic('S',v.asmed)}${ic('追',v.aomed)}${ic('上',v.armed)}</span><span class="ana-n" title="集計に使った過去走数（うち同距離）">${v.an||0}走${(v.asame&&v.asame!=='0')?`(同${v.asame})`:''}</span></div>`:'';
+    const media = noVideo
+      ? `<div class="no-video-bg">前走パドック映像なし</div>`
+      : `<a class="pad-link" href="${v.movie}" target="_blank" rel="noopener"${v.img?'':' style="background:#1a1a26"'}>${v.img?`<img loading="lazy" src="${v.img}" alt="${v.name} 前走パドック">`:''}<span class="play-badge">netkeibaで再生</span></a>`;
+    grid.innerHTML+=`<div class="card${noVideo?' no-video':''}" id="card-${v.num||v.name}">
+      <div class="card-header">
+        <div class="num-badge${prov?' prov':''}">${prov?'—':v.num}</div>
+        <div style="flex:1;min-width:0"><div class="horse-name">${v.name}</div><div class="prev-info">${v.prev}</div></div>
+      </div>
+      ${statBar}
+      ${anaBar}
+      ${recBar}
+      ${media}
+    </div>`;
+  });
+  document.getElementById('status').textContent=VIDEOS.length+'頭表示中';
+}
+build();
+(function(){
+  const bar=document.getElementById('tabbar');
+  const panes=Array.from(document.querySelectorAll('.pane'));
+  const note=document.querySelector('.note');
+  if(!bar||panes.length<2){if(bar)bar.style.display='none';return;}
+  const show=i=>{
+    panes.forEach((q,j)=>{q.hidden=(j!==i);});
+    Array.from(bar.children).forEach((c,j)=>{c.className='tab'+(j===i?' on':'');});
+    if(note)note.style.display=(panes[i].dataset.pane==='pad'?'':'none');
+  };
+  panes.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+(i?'':' on');
+    b.textContent=p.dataset.paneLabel||p.dataset.pane;
+    b.addEventListener('click',()=>show(i));
+    bar.appendChild(b);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>
