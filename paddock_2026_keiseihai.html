@@ -50,6 +50,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
 .ana-bar .idxs{margin-left:auto;}
 .ana-bar .ic{background:var(--s3);}
 .ana-bar .ic.hi{color:#000;background:var(--gold);border-color:var(--gold);}
+.ic.r1,.ana-bar .ic.r1{color:#000;background:var(--gold);border-color:var(--gold);font-weight:700;}
+.ic.r1 i{color:#5a4a10;}
+.ic.r2,.ana-bar .ic.r2{color:#e6efff;background:rgba(91,156,246,.28);border-color:rgba(91,156,246,.6);font-weight:700;}
+.ic.r3,.ana-bar .ic.r3{color:#ffe6e6;background:rgba(224,85,85,.28);border-color:rgba(224,85,85,.6);font-weight:700;}
+.ic.r2 i,.ic.r3 i{color:#a8a8c8;}
+.note .rk1{color:var(--gold);}.note .rk2{color:var(--blue);}.note .rk3{color:var(--red);}
 .ana-n{font-family:monospace;font-size:9px;color:var(--muted);white-space:nowrap;}
 .rec-bar{display:flex;gap:10px;padding:3px 8px;background:var(--s2);border-bottom:1px solid var(--bd);font-size:10px;}
 .rec{display:flex;align-items:center;gap:3px;font-family:monospace;color:var(--text);}
@@ -141,7 +147,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:12
   <span style="font-size:11px;color:var(--muted)">2026年9月5日 中山11R 芝1600m ／ 前走パドック 16頭 (馬番順)</span>
   <a class="course-link" href="nakayama_1600_corner4.html" title="当該コースの展開×ラップ×4角成績">📊 コース成績（展開×ラップ）</a>
 </div>
-<div class="note">各カードの画像をクリックすると <b>netkeiba のパドック映像ページ</b>が新しいタブで開きます（プレミアム会員ログインが必要）。走行タイプ・タイム指数マスター・当該コース／距離成績は前走ベース。</div>
+<div class="note">各カードの画像をクリックすると <b>netkeiba のパドック映像ページ</b>が新しいタブで開きます（プレミアム会員ログインが必要）。走行タイプ・タイム指数マスター・当該コース／距離成績は前走ベース。指数は項目ごとのレース内順位で色分け（<b class="rk1">1位=金</b>・<b class="rk2">2位=青</b>・<b class="rk3">3位=赤</b>）。</div>
 <div class="tabbar" id="tabbar"></div>
 <div class="grid-wrap pane" data-pane="pad" data-pane-label="パドック"><div class="grid" id="grid"></div></div>
 <div class="pane" data-pane="ana" data-pane-label="レース分析" hidden><div class="race-ana"><div class="ra-title">レース分析<span class="ra-sub">走行解析（各馬の過去最大20走・同距離優先）より</span></div><div class="ra-lab2">走行タイプ別の要求プロフィール<span class="ra-hint">（各タイプ上位半数の中央値＝勝ち筋ごとに実在する組み合わせ）</span></div><table class="pf-tbl"><thead><tr><th>走行タイプ</th><th>勝ち筋</th><th>全体</th><th>S</th><th>追走</th><th>上がり</th><th>該当上位</th></tr></thead><tbody><tr><td class="pf-t"><span class="rtype rt-front">先行型</span><span class="pf-n">2頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">101</td><td class="pf-v">101</td><td class="pf-v hl">99</td><td class="pf-v hl">105</td><td class="pf-ex">ドロップオブライト</td></tr><tr><td class="pf-t"><span class="rtype rt-sus">持続型</span><span class="pf-n">9頭</span></td><td class="pf-tag">前で押し切る</td><td class="pf-v">102</td><td class="pf-v">98</td><td class="pf-v hl">104</td><td class="pf-v hl">99</td><td class="pf-ex">ミナデオロ</td></tr><tr><td class="pf-t"><span class="rtype rt-end">耐久型</span><span class="pf-n">2頭</span></td><td class="pf-tag">差して勝つ</td><td class="pf-v">89</td><td class="pf-v">97</td><td class="pf-v hl">90</td><td class="pf-v hl">102</td><td class="pf-ex">ディールメーカー</td></tr><tr><td class="pf-t"><span class="rtype rt-close">加速型</span><span class="pf-n">1頭</span></td><td class="pf-tag">中間・立ち回り</td><td class="pf-v">90</td><td class="pf-v">97</td><td class="pf-v hl">90</td><td class="pf-v hl">96</td><td class="pf-ex">レザベーション</td></tr><tr><td class="pf-t"><span class="rtype rt-close">終い伸び型</span><span class="pf-n">2頭</span></td><td class="pf-tag">差して勝つ</td><td class="pf-v">97</td><td class="pf-v">87</td><td class="pf-v hl">87</td><td class="pf-v hl">108</td><td class="pf-ex">クルゼイロドスル</td></tr></tbody></table><div class="ra-row" style="margin-top:8px"><div class="ra-box"><div class="ra-lab">全体指数の勝ち負けライン</div><div class="ra-big">110</div><div class="ra-note">自己最高の上位3頭 112/110/110</div></div><div class="ra-box"><div class="ra-lab">出走メンバー</div><div class="ra-big">16<span style="font-size:12px">頭</span></div><div class="ra-note">芝1600 ／ 中央値 91</div></div></div><div class="ra-cav">※ 上表は各走行タイプ内で実際に上位の馬から算出しているため、4指標の組み合わせが現実的。全体指数のラインはメンバーの相対水準であり、コース実績に基づく絶対基準ではありません。</div><div class="ra-lab2">脚質構成</div><div class="ra-chips"><span class="ra-chip rt">持続型<b>9</b></span><span class="ra-chip rt">終い伸び型<b>2</b></span><span class="ra-chip rt">先行型<b>2</b></span><span class="ra-chip rt">耐久型<b>2</b></span><span class="ra-chip rt">加速型<b>1</b></span></div><div class="ra-lab2">メンバーが経験した展開</div><div class="ra-chips"><span class="ra-chip dv">均衡戦<b>101</b></span><span class="ra-chip dv">前残り戦<b>27</b></span><span class="ra-chip dv">瞬発戦<b>22</b></span><span class="ra-chip dv">持続戦<b>14</b></span><span class="ra-chip dv">ハイペース耐久戦<b>9</b></span><span class="ra-chip dv">ロングスパート戦<b>8</b></span><span class="ra-chip dv">ハイペース消耗戦<b>7</b></span><span class="ra-chip dv">加速戦<b>2</b></span></div></div></div>
@@ -153,14 +159,15 @@ function build(){
   const grid=document.getElementById('grid');
   const runClass=t=>!t?'oth':/終い伸び|加速/.test(t)?'close':/先行/.test(t)?'front':/持続/.test(t)?'sus':/耐久/.test(t)?'end':'oth';
   const runFmt=t=>{if(!t)return'';const m=t.match(/^(.+?型)(（.+）|\(.+\))?$/);return m?`${m[1]}${m[2]?'<span class="sub">'+m[2]+'</span>':''}`:t;};
-  const ic=(lb,val)=>{const s=String(val==null?'':val);const has=/^\d+$/.test(s);const hi=has&&parseInt(s,10)>=105;return `<span class="ic${has?(hi?' hi':''):' na'}"><i>${lb}</i>${has?s:'—'}</span>`;};
+  const RK={};['zen','st','ch','ag','zmax','azmed','asmed','aomed','armed'].forEach(k=>{const u=[...new Set(VIDEOS.map(v=>String(v[k]==null?'':v[k])).filter(s=>/^\d+$/.test(s)).map(Number))].sort((a,b)=>b-a);RK[k]=u.slice(0,3);});
+  const ic=(lb,val,k)=>{const s=String(val==null?'':val);const has=/^\d+$/.test(s);const r=has&&k&&RK[k]?RK[k].indexOf(parseInt(s,10))+1:0;return `<span class="ic${has?(r?' r'+r:''):' na'}"><i>${lb}</i>${has?s:'—'}</span>`;};
   const rc=(lb,r)=>{if(!r)return'';const zero=/^0-0-0-0$/.test(r);const win=/^[1-9]/.test(r);return `<span class="rec${zero?' zero':''}${win?' win':''}"><i>${lb}</i><b>${r}</b></span>`;};
   VIDEOS.forEach(v=>{
     const noVideo=!v.img && !v.movie;
     const prov=(v.num==='' || v.num==null);
-    const statBar=(v.typ||v.zen||v.st||v.ch||v.ag)?`<div class="stat-bar">${v.typ?`<span class="rtype rt-${runClass(v.typ)}" title="前走の走行タイプ">${runFmt(v.typ)}</span>`:''}<span class="idxs" title="タイム指数マスター（前走）">${ic('全',v.zen)}${ic('S',v.st)}${ic('追',v.ch)}${ic('上',v.ag)}</span></div>`:'';
+    const statBar=(v.typ||v.zen||v.st||v.ch||v.ag)?`<div class="stat-bar">${v.typ?`<span class="rtype rt-${runClass(v.typ)}" title="前走の走行タイプ">${runFmt(v.typ)}</span>`:''}<span class="idxs" title="タイム指数マスター（前走）">${ic('全',v.zen,'zen')}${ic('S',v.st,'st')}${ic('追',v.ch,'ch')}${ic('上',v.ag,'ag')}</span></div>`:'';
     const recBar=(v.cr||v.dr)?`<div class="rec-bar" title="当該コース／当該距離 成績 (1-2-3-着外)">${rc('コース',v.cr)}${rc('距離',v.dr)}</div>`:'';
-    const anaBar=(v.zmax||v.arun)?`<div class="ana-bar" title="走行解析：過去走ベース（最大20走／同距離が2走以上あれば同距離のみ）。最高=自己最高の全体指数、中=中央値">${v.arun?`<span class="rtype rt-${runClass(v.arun)}" style="opacity:.85" title="過去走の主な走行タイプ">${runFmt(v.arun)}</span>`:''}<span class="idxs">${ic('最高',v.zmax)}${ic('中',v.azmed)}${ic('S',v.asmed)}${ic('追',v.aomed)}${ic('上',v.armed)}</span><span class="ana-n" title="集計に使った過去走数（うち同距離）">${v.an||0}走${(v.asame&&v.asame!=='0')?`(同${v.asame})`:''}</span></div>`:'';
+    const anaBar=(v.zmax||v.arun)?`<div class="ana-bar" title="走行解析：過去走ベース（最大20走／同距離が2走以上あれば同距離のみ）。最高=自己最高の全体指数、中=中央値">${v.arun?`<span class="rtype rt-${runClass(v.arun)}" style="opacity:.85" title="過去走の主な走行タイプ">${runFmt(v.arun)}</span>`:''}<span class="idxs">${ic('最高',v.zmax,'zmax')}${ic('中',v.azmed,'azmed')}${ic('S',v.asmed,'asmed')}${ic('追',v.aomed,'aomed')}${ic('上',v.armed,'armed')}</span><span class="ana-n" title="集計に使った過去走数（うち同距離）">${v.an||0}走${(v.asame&&v.asame!=='0')?`(同${v.asame})`:''}</span></div>`:'';
     const media = noVideo
       ? `<div class="no-video-bg">前走パドック映像なし</div>`
       : `<a class="pad-link" href="${v.movie}" target="_blank" rel="noopener"${v.img?'':' style="background:#1a1a26"'}>${v.img?`<img loading="lazy" src="${v.img}" alt="${v.name} 前走パドック">`:''}<span class="play-badge">netkeibaで再生</span></a>`;
