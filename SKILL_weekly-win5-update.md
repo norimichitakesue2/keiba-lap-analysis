@@ -23,9 +23,10 @@ JS実行ツールの戻り値にクエリ付きフルURL・生HTML・base64を�
 bashで次の日曜=`date -v +Sun -j +%Y%m%d`、前日の土曜も。
 ### 2. WIN5対象(土日)
 `race.netkeiba.com/top/win5.html?kaisai_date=<日曜>` を開き3〜4秒待つ。現在表示(idx=0=土)の5 race_idを整数抽出、`win5.html?idx=1`(日)で日曜5件。**確実には `win5.html?idx=0`(土)/`?idx=1`(日)へ直接navigateし、title「YYYY年M月D日」で土日を確認して取得するのが安全**。race_id=YYYY+JyoCD(2)+回(2)+日目(2)+R(2)。JyoCD英名:01sapporo,02hakodate,03fukushima,04niigata,05tokyo,06nakayama,07chukyo,08kyoto,09hanshin,10kokura。土曜開催無しの週は日曜のみ。
+- **★祝日月曜(3日間開催)の扱い(2026-11追記)**: `win5.html?idx=2` を必ず確認し、title が「月曜(祝日)の日付」なら月曜WIN5も対象に含める(土日と同じ手順でページ生成・index は日付グループを月→日→土の順で先頭に)。月曜分の枠順確定は日曜午後なので、金・土の回は月曜分を**暫定(五十音順)**で作り、確定版は日曜の追加実行(手動 or 臨時の予定実行)で上書きする。月曜17時の回では既に発走済みのため作らない(＝金・土で拾わないと漏れる。2026/11/23分がこれで漏れた)。
 ### 3. 各馬の基本(race.netkeibaタブ)
 - shutuba.html?race_id=<id>: `.RaceName`/`.RaceData01` から レース名・芝ダ・距離・登録頭数。馬番は行(`.HorseName`を含むtr)の2番目のtd(=枠の次)。td.Umabanクラスが無いテーブルもあるので、行内の数値td/HorseName併用で拾う(**未確定だと空**→五十音順、確定なら馬番昇順)。ヘッダ行(名前="馬名")は除外。取消/非出走馬(馬番欠)は除外。
-- paddock.html?race_id=<id> 生HTML→DOMParse。`.ReferencePaddockListItem`(name重複排除)。各馬: 名=`.ReferencePaddockHorse`、前走説明=`.ReferencePaddockName`+' '+`.ReferencePaddockDate`、静止画imgid=`img`srcの`/paddock/2026/<ID>.jpg`のID(例 `86926_0` とアンダースコアを含むので正規表現は `([\w]+)`)、pr/hid=参照リンク(`paddock_movie`優先)hrefの`race_id=`/`id=`。
+- paddock.html?race_id=<id> 生HTML→DOMParse。`.ReferencePaddockListItem`(name重複排除)。各馬: 名=`.ReferencePaddockHorse`(**⚠️2026-11以降、馬番確定後は名前の先頭に馬番が付く(例 `1カウンティフェア`)。`^\d+` を除去してから出馬表の馬名と照合すること**)、前走説明=`.ReferencePaddockName`+' '+`.ReferencePaddockDate`、静止画imgid=`img`srcの`/paddock/2026/<ID>.jpg`のID(例 `86926_0` とアンダースコアを含むので正規表現は `([\w]+)`)、pr/hid=参照リンク(`paddock_movie`優先)hrefの`race_id=`/`id=`。
 - 収集は window に貯め、行境界チャンクで受け取り、bash側で生TSV `名\t前走\timgid\tpr\thid`(#R見出し付)に保存。
 - ※race.netkeiba は **UTF-8**(`res.text()`。EUC-JP指定は文字化け)。db.netkeiba のみ EUC-JP。
 ### 4. 走行タイプ・タイム指数マスター(前走 result.html) ※検証済みセレクタ
